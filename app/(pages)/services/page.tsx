@@ -1,14 +1,14 @@
 "use client"
-import { calendarIcon, zapIcon } from '@/utils/assets'
+import { zapIcon } from '@/utils/assets'
 import MyStack from '@/components/MyStack/MyStack'
 import SectionHeading from '@/components/SectionHeading'
 import ShowCase from '@/components/ShowCase'
-import Testimonials from '@/components/Testimonials'
+// import Testimonials from '@/components/Testimonials'
 import { myServicesPlans } from '@/data'
 import Image from 'next/image'
 import React from 'react'
 import { motion } from "framer-motion"
-import ScheduleButton from '@/components/ui/ScheduleButton'
+// import ScheduleButton from '@/components/ui/ScheduleButton'
 
 export default function SearvicesPage() {
   return (

@@ -1,5 +1,5 @@
 "use client"
-import { AvatarMe, calendarIcon, handGif } from '@/utils/assets'
+import { AvatarMe, handGif } from '@/utils/assets'
 import Image from 'next/image'
 import React from 'react'
 import Button from '../ui/Button'
@@ -11,7 +11,7 @@ import CounterContainer from '../CounterContainer/CounterContainer'
 import { hero } from '@/data'
 
 export default function Hero() {
-    const { name, intro, image, primaryButton, secondaryButton } = hero;
+    const { name, intro, primaryButton, secondaryButton } = hero;
 
     return (
         <div className="flex flex-none flex-col flex-nowrap gap-[30px] h-min justify-start overflow-visible p-0 relative w-full ">
@@ -40,7 +40,7 @@ export default function Hero() {
                             <span>
                                 <Image src={handGif} className='waveHand' alt="Hand Gesture" width={25} height={25} />
                             </span>
-                            <p className="text-light-gray-2 font-bold leading-[1.2em] text-[20px]">Hello, I'm</p>
+                            <p className="text-light-gray-2 font-bold leading-[1.2em] text-[20px]">Hello, I&apos;m</p>
                         </motion.div>
                         <motion.h1
                             initial={{ opacity: 0, y: 30 }}

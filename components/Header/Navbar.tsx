@@ -31,6 +31,7 @@ export default function Navbar() {
         updateTime();
         const intervalId = setInterval(updateTime, 1000);
         return () => clearInterval(intervalId);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     const [isMenuOpen, setIsMenuOpen] = useState(false);

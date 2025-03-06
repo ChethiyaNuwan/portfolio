@@ -41,7 +41,7 @@ function ButtonBase({
         <button
             onClick={onClick}
             className={clsx(
-                "bg-almost-black transition-all duration-300 rounded-[10px] border border-dark-gray-4 flex gap-[6px] cursor-pointer items-center flex-nowrap justify-center overflow-visible p-[14px_18px] relative group",
+                "transition-all duration-300 rounded-[10px] border border-dark-gray-4 flex gap-[6px] cursor-pointer items-center flex-nowrap justify-center overflow-visible p-[14px_18px] relative group",
                 position === "left" ? "flex-row" : "flex-row-reverse",
                 !/w-(\S+)/.test(className) && "w-full",
                 className
@@ -49,11 +49,11 @@ function ButtonBase({
         >
             {icon && (
                 <div>
-                    <span className={clsx("opacity-70 text-very-light-gray" , className)}>{icon}</span>
+                    <span className={clsx("opacity-70")}>{icon}</span>
                 </div>
             )}
             <div className="flex-none h-auto relative w-auto whitespace-pre opacity-70 flex-shrink-0 flex-col justify-start flex group-hover:opacity-100">
-                <p className={clsx("text-very-light-gray uppercase font-medium font-IBM_Plex_Mono leading-[100%] text-[15px] whitespace-pre", className)}>
+                <p className={clsx("uppercase font-medium font-IBM_Plex_Mono leading-[100%] text-[15px] whitespace-pre", className)}>
                     {title}
                 </p>
             </div>

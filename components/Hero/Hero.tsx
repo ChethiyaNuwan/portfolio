@@ -2,14 +2,12 @@
 import { AvatarMe, calendarIcon, handGif } from '@/utils/assets'
 import Image from 'next/image'
 import React from 'react'
-import { Mail } from 'lucide-react'
 import Button from '../ui/Button'
 
 import { motion } from "framer-motion"
 import AnimatedImageGrid from '../ui/AnimatedImageGrid'
 import Brandcontainer from '../Brandcontainer/Brandcontainer'
 import CounterContainer from '../CounterContainer/CounterContainer'
-import ScheduleButton from '../ui/ScheduleButton'
 import { hero } from '@/data'
 
 export default function Hero() {

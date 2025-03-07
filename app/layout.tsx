@@ -39,7 +39,7 @@ export const metadata: Metadata = {
     description: 'Passionate software engineer building user-friendly, scalable applications with Next.js and modern technologies.',
     images: [
       {
-        url: 'https://chethiyanuwan.github.io/portfolio/og-image.jpg',
+        url: 'https://chethiyanuwan.github.io/portfolio/favicon.ico',
         width: 1200,
         height: 630,
         alt: 'Chethiya Hitihamu • Portfolio',

@@ -21,9 +21,9 @@ export default function Navbar() {
         const hh = today.getHours();
         const mm = today.getMinutes();
         const ss = today.getSeconds();
-        const { hh: formattedHH } = convertTo12HourFormat(hh);
+        const { hh: formattedHH, period } = convertTo12HourFormat(hh);
 
-        const formattedTime = `${formatTime(formattedHH)}:${formatTime(mm)}:${formatTime(ss)}`;
+        const formattedTime = `${formatTime(formattedHH)}:${formatTime(mm)}:${formatTime(ss)} ${period}`;
         setTime(formattedTime);
     };
 

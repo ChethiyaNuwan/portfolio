@@ -49,7 +49,7 @@ export default function Navbar() {
                 <div className="hidden md:flex items-center gap-3">
                     <p className="text-light-gray-2 font-medium">Local Time ( IST )</p>
                     <div className="bg-dark-gray-1 border-[rgb(24,24,26)] p-[14px_18px] w-[110px] rounded-xl flex items-center justify-center">
-                        <p className="text-light-gray-4 text-base leading-[1em] font-semibold tracking-[0.07em]">
+                        <p className="text-light-gray-4 text-base leading-[1em] font-semibold tracking-[0.07em] whitespace-nowrap">
                             {time}
                         </p>
                     </div>

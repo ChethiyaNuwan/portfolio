@@ -21,7 +21,7 @@ export default function Hero() {
                     <div
                         className="aspect-auto flex-none h-auto w-[260px] relative bg-image-bg rounded-lg">
                         <figure className='h-full w-full'>
-                            <Image src={AvatarMe} alt='Avatar' width={300} height={300} className='w-full h-full object-cover rounded-lg' />
+                            <Image priority src={AvatarMe} alt='Avatar' width={300} height={300} className='w-full h-full object-cover rounded-lg' />
                             <AnimatedImageGrid />
                         </figure>
                     </div>

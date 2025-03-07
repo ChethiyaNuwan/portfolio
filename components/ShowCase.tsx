@@ -30,7 +30,7 @@ export default function ShowCase({ isMore = true, showData = 2 }: {
                         <div className="bg-very-dark-gray w-full border border-dark-gray-3 rounded-xl flex items-center flex-nowrap flex-col lg:flex-row  gap-5 h-min justify-start overflow-visible p-4 lg:p-[8px_24px_8px_8px] relative ">
                             <div className="lg:flex-1 w-full rounded-xl h-[180px] relative ">
                                 <figure className='lg:absolute relative h-full w-full inset-0 rounded-xl '>
-                                    <Image src={item.image} className='w-full block h-full rounded-[inherit] object-cover object-center ' height={180} width={180} alt={item.title} />
+                                    <Image src={item.image} className='block rounded-[inherit] object-cover object-center ' fill sizes='(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw' alt={item.title} />
                                 </figure>
                             </div>
 

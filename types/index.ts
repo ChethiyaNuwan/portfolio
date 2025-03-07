@@ -8,7 +8,8 @@ export interface ButtonType {
   href?: string;
   className?: string;
   target?: "_blank" | "_self" | "_parent" | "_top";
-  download?: boolean;
+  download?: boolean | string;
+  type?: string;
 }
 
 export interface heroType {

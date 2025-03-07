@@ -11,7 +11,8 @@ export default function Button({
     className = "",
     href,
     target = "_self",
-    download = false,    
+    download = false, 
+    type = ""   
 }: ButtonProps) {
     if (href) { 
         return (

@@ -6,7 +6,7 @@ import SocialLists from "@/components/Socials/SocialLists";
 import Footer from "@/components/Footer/Footer";
 import { ThemeProvider } from "@/providers/theme-provider";
 import SideNavbar from "@/components/SideNavbar/SideNavbar";
-import Script from "next/script";
+import Analytics from "@/components/Analytics";
 
 const spaceGrotesk = Space_Grotesk({
   variable: "--font-Space_Grotesk",
@@ -23,6 +23,29 @@ const ibmPlexMono = IBM_Plex_Mono({
 export const metadata: Metadata = {
   title: "Chethiya Nuwan • Portfolio",
   description: "Chethiya Nuwan's personal portfolio showcasing projects, skills, and experience.",
+  keywords: ["Chethiya Nuwan", "Portfolio", "Software Engineer", "Web Developer", "Next.js", "JavaScript", "Projects", "Skills", "Experience"],
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+    },
+  },
+  openGraph: {
+    type: 'website',
+    url: 'https://chethiyanuwan.github.io/portfolio',
+    title: 'Chethiya Hitihamu • Portfolio',
+    description: 'Passionate software engineer building user-friendly, scalable applications with Next.js and modern technologies.',
+    images: [
+      {
+        url: 'https://chethiyanuwan.github.io/portfolio/og-image.jpg',
+        width: 1200,
+        height: 630,
+        alt: 'Chethiya Hitihamu • Portfolio',
+      },
+    ],
+  },
 };
 
 export default function RootLayout({
@@ -41,16 +64,6 @@ export default function RootLayout({
         <link rel="shortcut icon" href="favicon.ico" type="image/x-icon" />
         <link rel="apple-touch-icon" href="favicon.ico" />
         <link rel="mask-icon" href="favicon.ico" />
-        
-        <Script async src="https://www.googletagmanager.com/gtag/js?id=G-D7QR2BL0BT"></Script>
-        <Script id="google-analytics">
-          {`
-            window.dataLayer = window.dataLayer || [];
-            function gtag(){dataLayer.push(arguments);}
-            gtag('js', new Date());
-            gtag('config', 'G-D7QR2BL0BT');
-          `}
-        </Script>
       </head>
       <body
         className={`${spaceGrotesk.variable} ${ibmPlexMono.variable} antialiased`}
@@ -71,6 +84,7 @@ export default function RootLayout({
             <SocialLists />
           </div>
         </ThemeProvider>
+        <Analytics />
       </body>
     </html>
   );

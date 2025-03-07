@@ -16,7 +16,7 @@ export default function Button({
 }: ButtonProps) {
     if (href) { 
         return (
-            <Link href={href} className="w-full" download={download} target={target}>
+            <Link href={href} className="w-full" download={download} target={target} type={type}>
                 <ButtonBase
                     icon={icon}
                     title={title}

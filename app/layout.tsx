@@ -34,10 +34,14 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <head>
         <link rel="icon" href="portfolio/favicon.ico" sizes="any" />
+        <link rel="shortcut icon" href="portfolio/favicon.ico" type="image/x-icon" />
+        <link rel="apple-touch-icon" href="portfolio/favicon.ico" />
+        <link rel="mask-icon" href="portfolio/favicon.ico" />
         <link rel="icon" href="favicon.ico" sizes="any" />
-        <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
-        <link rel="apple-touch-icon" href="/favicon.ico" />
-        <link rel="mask-icon" href="/favicon.ico" />
+        <link rel="shortcut icon" href="favicon.ico" type="image/x-icon" />
+        <link rel="apple-touch-icon" href="favicon.ico" />
+        <link rel="mask-icon" href="favicon.ico" />
+        
         <Script async src="https://www.googletagmanager.com/gtag/js?id=G-D7QR2BL0BT"></Script>
         <Script id="google-analytics">
           {`
@@ -47,7 +51,6 @@ export default function RootLayout({
             gtag('config', 'G-D7QR2BL0BT');
           `}
         </Script>
-
       </head>
       <body
         className={`${spaceGrotesk.variable} ${ibmPlexMono.variable} antialiased`}

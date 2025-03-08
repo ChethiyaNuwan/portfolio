@@ -22,8 +22,8 @@ const ibmPlexMono = IBM_Plex_Mono({
 
 export const metadata: Metadata = {
   title: "Chethiya Nuwan • Portfolio",
-  description: "Chethiya Nuwan's personal portfolio showcasing projects, skills, and experience.",
-  keywords: ["Chethiya Nuwan", "Portfolio", "Software Engineer", "Web Developer", "Next.js", "JavaScript", "Projects", "Skills", "Experience"],
+  description: "My personal portfolio showcasing projects, skills, and experience.",
+  keywords: ["Chethiya Nuwan", "Portfolio", "Software Engineer", "Web Developer", "Projects", "Skills", "Experience"],
   robots: {
     index: true,
     follow: true,
@@ -35,14 +35,14 @@ export const metadata: Metadata = {
   openGraph: {
     type: 'website',
     url: 'https://chethiyanuwan.github.io/portfolio',
-    title: 'Chethiya Hitihamu • Portfolio',
+    title: 'Chethiya Nuwan • Portfolio',
     description: 'Passionate software engineer building user-friendly, scalable applications with Next.js and modern technologies.',
     images: [
       {
         url: 'https://chethiyanuwan.github.io/portfolio/favicon.ico',
         width: 1200,
         height: 630,
-        alt: 'Chethiya Hitihamu • Portfolio',
+        alt: 'Chethiya Nuwan • Portfolio',
       },
     ],
   },

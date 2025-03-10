@@ -52,9 +52,9 @@ export interface myExperienceTypes {
   year: string;
   title: string;
   company: string;
-  label: string;
+  label?: string;
   description: string;
-  link: string;
+  link?: string;
   logo: string | StaticImageData;
 }
 

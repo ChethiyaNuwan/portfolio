@@ -44,20 +44,20 @@ export default function MyExperience() {
                                                         {exp.company}
                                                     </p>
                                                 </div>
-                                                <div className="flex-none h-auto relative whitespace-pre w-auto flex flex-col justify-start flex-shrink-0">
+                                                {exp.link && <div className="flex-none h-auto relative whitespace-pre w-auto flex flex-col justify-start flex-shrink-0">
                                                     <Link href={exp.link} className='font-medium cursor-pointer  text-[15px]  text-light-gray-2'>
                                                         {exp.link}
                                                     </Link>
-                                                </div>
+                                                </div>}
                                             </div>
 
-                                            <div className="opacity-0 md:opacity-100 bg-dark-gray-2 border border-dark-gray-3 flex flex-none items-center justify-start flex-nowrap gap-[10px] h-min overflow-visible p-[4px_10px] relative w-min rounded-3xl ">
+                                            {exp.label && <div className="opacity-0 md:opacity-100 bg-dark-gray-2 border border-dark-gray-3 flex flex-none items-center justify-start flex-nowrap gap-[10px] h-min overflow-visible p-[4px_10px] relative w-min rounded-3xl ">
                                                 <div className="flex-none h-auto relative whitespace-pre w-auto flex flex-col justify-start flex-shrink-0">
                                                     <p className='font-medium text-xs sm:text-[14px]  text-light-gray-2'>
                                                         {exp.label}
                                                     </p>
                                                 </div>
-                                            </div>
+                                            </div>}
 
                                         </div>
                                     </div>

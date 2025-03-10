@@ -33,7 +33,14 @@ import {
   // XLogo,
   dfnLogo,
   businessAdminSnap,
-  ssimpexSnap
+  ssimpexSnap,
+  freelancerIcon,
+  cppIcon,
+  csIcon,
+  javaIcon,
+  pythonIcon,
+  tsIcon,
+  reactIcon
 } from "@/utils/assets";
 import { Github, Instagram, Linkedin, FileUser as CV } from 'lucide-react'
 
@@ -171,6 +178,16 @@ export const counterLists: counterListsType[] = [
 export const myExperience: myExperienceTypes[] = [
   {
     id: 1,
+    year: "2022 - Present",
+    title: "Fullstack Developer",
+    company: "Freelancer",
+    // label: '',
+    description: "I contributed as a lead developer in architecting and developing multiple projects, consistently delivering scalable, efficient, and user-friendly applications tailored to client needs. My role involved overseeing end-to-end development processes, including requirements gathering, system design and development, infrastructure management, and deployment to production environments. By following Agile methodologies and leveraging expertise in SQL and NoSQL databases, I provided robust and maintainable solutions that effectively addressed complex technical challenges and delivered significant business value.",
+    // link: "/services#showcase",
+    logo: freelancerIcon
+  },
+  {
+    id: 2,
     year: "Jan 2023 - Jun 2023",
     title: "Software Engineer Intern",
     company: "DirectFn",
@@ -186,42 +203,42 @@ export const myStack: myStackTypes[] = [
     id: 1,
     title: "C, C++",
     description: "Programming Language",
-    logo: asanaIcon,
+    logo: cppIcon,
     link: "#",
   },
   {
     id: 2,
     title: "C#",
     description: "Programming Language",
-    logo: asanaIcon,
+    logo: csIcon,
     link: "#",
   },
   {
     id: 3,
     title: "Java",
     description: "Programming Language",
-    logo: asanaIcon,
+    logo: javaIcon,
     link: "#",
   },
   {
     id: 4,
     title: "Python",
     description: "Programming Language",
-    logo: asanaIcon,
+    logo: pythonIcon,
     link: "#",
   },
   {
     id: 5,
     title: "JS, TS",
     description: "Programming Language",
-    logo: asanaIcon,
+    logo: tsIcon,
     link: "#",
   },
   {
     id: 6,
     title: "React, Next",
     description: "Frontend Development",
-    logo: asanaIcon,
+    logo: reactIcon,
     link:  "#",
   },
   {

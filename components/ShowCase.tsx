@@ -13,7 +13,7 @@ export default function ShowCase({ isMore = true, showData = 2 }: {
 }) {
     return (
         <section className='flex items-start flex-none flex-col flex-nowrap gap-[30px] h-min justify-start overflow-visible relative w-full '>
-            <div className="flex-none h-auto relative w-full">
+            <div className="flex-none h-auto relative w-full" id="showcase">
                 <SectionHeading title='Creative Design Showcase' icon={flyIcon} description='Explore a collection of my most innovative and visually stunning design works.' />
             </div>
 
@@ -89,7 +89,7 @@ export default function ShowCase({ isMore = true, showData = 2 }: {
             </div>
             {
                 isMore && <div className="flex-1 h-auto relative w-full block ">
-                    <Link href={`/services`} className='bg-almost-black rounded-[10px] border border-dark-gray-4 w-full flex cursor-pointer gap-[6px] p-[14px_18px] flex-nowrap justify-center items-center overflow-visible h-min relative group hover:bg-dark-gray-4 transition-all duration-500'>
+                    <Link href={`/services#showcase`} className='bg-almost-black rounded-[10px] border border-dark-gray-4 w-full flex cursor-pointer gap-[6px] p-[14px_18px] flex-nowrap justify-center items-center overflow-visible h-min relative group hover:bg-dark-gray-4 transition-all duration-500'>
                         <div className="flex flex-shrink-0 group-hover:opacity-100  transition-all duration-500 justify-start opacity-70 flex-none h-auto w-auto whitespace-pre relative ">
                             <p className='uppercase font-medium font-IBM_Plex_Mono text-[15px] text-very-light-gray '>
                                 View All projects

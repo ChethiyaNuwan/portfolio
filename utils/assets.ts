@@ -26,6 +26,13 @@ import slackIcon from "@/public/slack.svg";
 import asanaIcon from "@/public/asana.svg";
 import rightArrow from "@/public/right-arrow.svg";
 
+import cppIcon from "@/public/cpp.png";
+import csIcon from "@/public/cs.png";
+import javaIcon from "@/public/java.png";
+import pythonIcon from "@/public/python.png";
+import tsIcon from "@/public/ts.png";
+import reactIcon from "@/public/react.png";
+
 import zapIcon from "@/public/zap-icon.svg";
 import webDesignIcon from "@/public/web-design.svg";
 import webDevIcon from "@/public/web-dev.svg";
@@ -58,6 +65,7 @@ import multiplyIcon from "@/public/multiply.svg";
 import instagramIcon from "@/public/instagram.svg";
 import linkedInIcon from "@/public/linkedin.svg";
 import dribbleIcon from "@/public/dribble-icon.svg";
+import freelancerIcon from "@/public/freelancer.png";
 
 export {
   AvatarMe,
@@ -110,5 +118,12 @@ export {
   dribbleIcon,
   dfnLogo,
   businessAdminSnap,
-  ssimpexSnap
+  ssimpexSnap,
+  freelancerIcon,
+  cppIcon,
+  csIcon,
+  javaIcon,
+  pythonIcon,
+  tsIcon,
+  reactIcon
 };

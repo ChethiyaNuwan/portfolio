@@ -50,7 +50,7 @@ export const hero: heroType = {
   image: "profile.png",
   primaryButton: {
     title: "Download CV",
-    href: "/docs/cv_SE.pdf",
+    href: "/docs/Chethiya Hitihamu_SE.pdf",
     icon: <CV size={18}/>,
     target: "_blank",
     download: "Chethiya Hitihamu_SE.pdf",

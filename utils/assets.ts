@@ -24,15 +24,29 @@ import webflowIcon from "@/public/webflow.svg";
 import framerIcon from "@/public/framer.svg";
 import slackIcon from "@/public/slack.svg";
 import asanaIcon from "@/public/asana.svg";
-import rightArrow from "@/public/right-arrow.svg";
-
 import cppIcon from "@/public/cpp.png";
 import csIcon from "@/public/cs.png";
 import javaIcon from "@/public/java.png";
 import pythonIcon from "@/public/python.png";
 import tsIcon from "@/public/ts.png";
 import reactIcon from "@/public/react.png";
+import nextIcon from "@/public/next.svg";
+import bunIcon from "@/public/bun.svg";
+import netIcon from "@/public/net.svg";
+import springIcon from "@/public/spring.svg";
+import prismaIcon from "@/public/prisma.svg";
+import mongooseIcon from "@/public/mongoose.svg";
+import mssqlIcon from "@/public/mssql.svg";
+import postgresIcon from "@/public/postgres.svg";
+import mongoIcon from "@/public/mongo.svg";
+import dockerIcon from "@/public/docker.svg";
+import firebaseIcon from "@/public/firebase.svg";
+import jsIcon from "@/public/js.png";
+import nodeIcon from "@/public/node.png";
+import expressIcon from "@/public/express.svg";
+import honoIcon from "@/public/hono.png";
 
+import rightArrow from "@/public/right-arrow.svg";
 import zapIcon from "@/public/zap-icon.svg";
 import webDesignIcon from "@/public/web-design.svg";
 import webDevIcon from "@/public/web-dev.svg";
@@ -125,5 +139,20 @@ export {
   javaIcon,
   pythonIcon,
   tsIcon,
-  reactIcon
+  reactIcon,
+  nextIcon,
+  bunIcon,
+  netIcon,
+  springIcon,
+  prismaIcon,
+  mongooseIcon,
+  mssqlIcon,
+  postgresIcon,
+  mongoIcon,
+  dockerIcon,
+  firebaseIcon,
+  jsIcon,
+  expressIcon,
+  nodeIcon,
+  honoIcon
 };

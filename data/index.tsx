@@ -58,7 +58,7 @@ import {
   honoIcon,
   figmaIcon
 } from "@/utils/assets";
-import { Github, Instagram, Linkedin, FileUser as CV } from 'lucide-react'
+import { Github, Instagram, Linkedin, FileUser as CV, Newspaper } from 'lucide-react'
 
 import { counterListsType, FAQ, FollowerData, myExperienceTypes, myServicesPlansTypes, myServicesTypes, myShowCasesTypes, myStackTypes, heroType, socialBrandsTypes, testimonialsTypes } from "@/types";
 import { socialListsTypes } from '@/types'
@@ -116,13 +116,19 @@ export const socialLists: socialListsTypes[] = [
     link: 'https://www.github.com/ChethiyaNuwan'
   },
   {
-    id: 3,
+    id: 2,
     title: 'LinkedIn',
     icon: <Linkedin size={22} />,
     link: 'https://www.linkedin.com/in/chethiyahitihamu/'
   },
   {
-    id: 2,
+    id: 3,
+    title: 'Blogging',
+    icon: <Newspaper size={22} />,
+    link: 'https://www.medium.com/@chethiya.code'
+  },
+  {
+    id: 4,
     title: 'Instagram',
     icon: <Instagram size={22} />,
     link: 'https://www.instagram.com/chethiya.nuwan/'

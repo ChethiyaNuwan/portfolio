@@ -59,6 +59,7 @@ import project_3 from "@/public/project-3.avif";
 import project_4 from "@/public/project-4.avif";
 import businessAdminSnap from "@/public/business-admin.png";
 import ssimpexSnap from "@/public/ssimpex.png"
+import dreamsTravelSnap from "@/public/dtuk.png"
 import flyIcon from "@/public/fly.svg";
 import linkIcon from "@/public/link-icon.svg";
 
@@ -154,5 +155,6 @@ export {
   jsIcon,
   expressIcon,
   nodeIcon,
-  honoIcon
+  honoIcon,
+  dreamsTravelSnap,
 };

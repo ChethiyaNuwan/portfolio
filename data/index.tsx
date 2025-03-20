@@ -56,7 +56,8 @@ import {
   nodeIcon,
   expressIcon,
   honoIcon,
-  figmaIcon
+  figmaIcon,
+  dreamsTravelSnap
 } from "@/utils/assets";
 import { Github, Instagram, Linkedin, FileUser as CV, Newspaper } from 'lucide-react'
 
@@ -407,7 +408,7 @@ export const myShowCases: myShowCasesTypes[] = [
     title: 'Business Admin Web App',
     description: 'A comprehensive business management platform with features like inventory, sales, and reporting.',
     link: 'asenterprise.site',
-    type: 'Business',
+    type: 'B2B Admin',
     theme: 'Multi',
     pages: 10,
     image: businessAdminSnap,
@@ -421,6 +422,16 @@ export const myShowCases: myShowCasesTypes[] = [
     theme: 'Single',
     pages: 10,
     image: ssimpexSnap,
+  },
+  {
+    id: 3,
+    title: 'Tour Booking Website',
+    description: 'A website that handles tour bookings inquiries of customers and send emails.',
+    link: 'www.dreamers-travel-uk.com',
+    type: 'Booking',
+    theme: 'Single',
+    pages: 10,
+    image: dreamsTravelSnap,
   },
 ]
 

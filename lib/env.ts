@@ -1,11 +1,11 @@
 // Centralized environment variable validation
-const getEnv = (key: string): string => {
-  const value = process.env[key];
-  if (!value) {
-    throw new Error(`Missing environment variable: ${key}`);
-  }
-  return value;
-};
+// const getEnv = (key: string): string => {
+//   const value = process.env[key];
+//   if (!value) {
+//     throw new Error(`Missing environment variable: ${key}`);
+//   }
+//   return value;
+// };
 
 export const env = {
   RESEND_API_KEY: process.env.RESEND_API_KEY || "",

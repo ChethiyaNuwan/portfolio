@@ -81,6 +81,7 @@ import instagramIcon from "@/public/instagram.svg";
 import linkedInIcon from "@/public/linkedin.svg";
 import dribbleIcon from "@/public/dribble-icon.svg";
 import freelancerIcon from "@/public/freelancer.png";
+import invadrawLogo from "@/public/invadraw.svg";
 
 export {
   AvatarMe,
@@ -157,4 +158,5 @@ export {
   nodeIcon,
   honoIcon,
   dreamsTravelSnap,
+  invadrawLogo,
 };

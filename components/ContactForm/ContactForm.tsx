@@ -6,13 +6,13 @@ import Form from "./Form";
 export default function ContactForm() {
 
     return (
-        <div className="grid grid-cols-1 lg:grid-cols-[1.65fr_1fr] gap-5 w-full">
+        <div className="grid grid-cols-1 gap-5 w-full mb-6">
 
             {/* Form Section */}
             <Form />
 
             {/* Follower List Section */}
-            <FollowerLists followerData={followerData} rightArrow={rightArrow} />
+            {/* <FollowerLists followerData={followerData} rightArrow={rightArrow} /> */}
 
         </div>
     );

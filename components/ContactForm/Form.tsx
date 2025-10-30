@@ -7,7 +7,7 @@ import { formVariants } from "@/animation/varients";
 
 export default function Form() {
 
-    const basePath = process.env.NEXT_PUBLIC_BASE_PATH || '';
+    const basePath = location.pathname.includes('portfolio') ? '/portfolio' : '';
 
     const [isSubmitting, setIsSubmitting] = useState<boolean>(false)
     const [loader, setLoader] = useState<boolean>(false)

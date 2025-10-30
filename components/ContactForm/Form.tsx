@@ -96,7 +96,7 @@ export default function Form() {
         <motion.div
             initial="hidden"
             animate="visible"
-            variants={formVariants}
+            variants={formVariants as any}
             viewport={{ once: true }}
             className={`${isSubmitting ? "gap-0" : 'gap-0'} flex flex-col w-full`}
         >

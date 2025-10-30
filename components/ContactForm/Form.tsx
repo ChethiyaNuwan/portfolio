@@ -4,7 +4,10 @@ import Loader from "../ui/Loader";
 import SuccessForm from "../ui/SuccessForm";
 import { FormEvent, useCallback, useState } from "react";
 import { formVariants } from "@/animation/varients";
+
 export default function Form() {
+
+    const basePath = process.env.NEXT_PUBLIC_BASE_PATH || '';
 
     const [isSubmitting, setIsSubmitting] = useState<boolean>(false)
     const [loader, setLoader] = useState<boolean>(false)
@@ -63,7 +66,7 @@ export default function Form() {
         setErrorMessage("");
 
         try {
-            const res = await fetch("/api/contact", {
+            const res = await fetch(`${basePath}/api/contact`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({

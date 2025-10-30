@@ -4,10 +4,13 @@ import Loader from "../ui/Loader";
 import SuccessForm from "../ui/SuccessForm";
 import { FormEvent, useCallback, useState } from "react";
 import { formVariants } from "@/animation/varients";
+import { usePathname } from "next/navigation";
+
 
 export default function Form() {
 
-    const basePath = location.pathname.includes('portfolio') ? '/portfolio' : '';
+    const pathname = usePathname();
+    const basePath = pathname.includes('portfolio') ? '/portfolio' : '';
 
     const [isSubmitting, setIsSubmitting] = useState<boolean>(false)
     const [loader, setLoader] = useState<boolean>(false)

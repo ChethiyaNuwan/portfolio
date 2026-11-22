@@ -7,7 +7,7 @@ const externalUrl = (link: string) => (/^https?:\/\//.test(link) ? link : `https
   <StagePanel id="work" label="Work">
     <div class="flex min-h-full flex-col gap-8">
       <PanelHead id="work" title="Selected work">
-        <UButton to="/work" color="neutral" variant="outline" trailing-icon="i-lucide-arrow-right" label="All projects" />
+        <UButton to="/work" color="neutral" variant="outline" trailing-icon="i-lucide-arrow-right" label="All projects" class="tap" />
       </PanelHead>
 
       <DropGroup as="ul" class="flex flex-col" role="list">
@@ -22,7 +22,7 @@ const externalUrl = (link: string) => (/^https?:\/\//.test(link) ? link : `https
               </div>
               <h3 class="font-display text-3xl font-semibold leading-tight text-highlighted sm:text-4xl">{{ p.title }}</h3>
               <p class="max-w-prose text-lg leading-relaxed text-muted">{{ p.description }}</p>
-              <UButton :to="externalUrl(p.link)" target="_blank" rel="noopener noreferrer" color="neutral" variant="link" trailing-icon="i-lucide-arrow-up-right" :label="p.link" class="px-0" />
+              <UButton :to="externalUrl(p.link)" target="_blank" rel="noopener noreferrer" color="neutral" variant="link" trailing-icon="i-lucide-arrow-up-right" :label="p.link" class="tap px-0" />
             </div>
           </article>
         </li>

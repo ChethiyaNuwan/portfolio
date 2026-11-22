@@ -107,6 +107,23 @@ async function go(d: 1 | -1) {
   box.value = px(target, reduced() ? "none" : TRANSITION);
 }
 
+// Touch: swipe sideways to browse, swipe down to close.
+let swipe: { x: number; y: number } | null = null;
+const onTouchStart = (e: TouchEvent) => {
+  const t = e.touches[0];
+  swipe = t ? { x: t.clientX, y: t.clientY } : null;
+};
+function onTouchEnd(e: TouchEvent) {
+  const t = e.changedTouches[0];
+  const s = swipe;
+  swipe = null;
+  if (!s || !t) return;
+  const dx = t.clientX - s.x;
+  const dy = t.clientY - s.y;
+  if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.3) go(dx < 0 ? 1 : -1);
+  else if (dy > 90 && dy > Math.abs(dx) * 1.3) close();
+}
+
 function onKey(e: KeyboardEvent) {
   if (index.value === null) return;
   if (e.key === "Escape") close();
@@ -143,6 +160,8 @@ defineExpose({ open });
       aria-modal="true"
       :aria-label="current.caption || 'Gallery image'"
       @click.self="close"
+      @touchstart.passive="onTouchStart"
+      @touchend.passive="onTouchEnd"
     >
       <div class="absolute overflow-hidden border border-white/20 bg-black shadow-2xl" :style="box">
         <img :src="current.image" :alt="current.caption" class="size-full object-cover" />
@@ -160,10 +179,10 @@ defineExpose({ open });
         </div>
       </div>
 
-      <UButton ref="closeBtn" class="absolute right-4 top-4" icon="i-lucide-x" color="neutral" variant="solid" size="lg" aria-label="Close image" @click="close" />
+      <UButton ref="closeBtn" class="tap absolute right-4 top-4" icon="i-lucide-x" color="neutral" variant="solid" size="lg" aria-label="Close image" @click="close" />
       <template v-if="items.length > 1">
-        <UButton class="absolute left-4 top-1/2 -translate-y-1/2" icon="i-lucide-chevron-left" color="neutral" variant="solid" size="lg" aria-label="Previous image" @click="go(-1)" />
-        <UButton class="absolute right-4 top-1/2 -translate-y-1/2" icon="i-lucide-chevron-right" color="neutral" variant="solid" size="lg" aria-label="Next image" @click="go(1)" />
+        <UButton class="tap absolute left-4 top-1/2 -translate-y-1/2" icon="i-lucide-chevron-left" color="neutral" variant="solid" size="lg" aria-label="Previous image" @click="go(-1)" />
+        <UButton class="tap absolute right-4 top-1/2 -translate-y-1/2" icon="i-lucide-chevron-right" color="neutral" variant="solid" size="lg" aria-label="Next image" @click="go(1)" />
       </template>
     </div>
   </Teleport>

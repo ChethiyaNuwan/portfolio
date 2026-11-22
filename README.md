@@ -12,6 +12,10 @@ Pages: Home (horizontal sections), Work (project grid with details), Gallery (ma
 
 **Made for people and AI agents to read.** Semantic landmarks and headings, ARIA labels, JSON-LD structured data (`Person`, `WebSite`, projects, gallery, FAQ), canonical URLs and social cards on every page, plus `/llms.txt`, `/llms-full.txt` (the whole portfolio as Markdown), `/sitemap.xml` and `/robots.txt`, all generated from the admin content. Set `NUXT_PUBLIC_SITE_URL` to your public URL (for example `https://example.com`) so canonical links and the sitemap use it; otherwise the request host is used.
 
+**Phones.** Touch devices get the same sideways sections. Controls are at least 44px, the footer respects the device safe area (`viewport-fit=cover`) and keeps the active section link in view, short phones drop the least important hero details so the buttons stay above the fold, Experience shows a git rail down the left edge, and the gallery viewer supports swipe left or right and swipe down to close.
+
+**Image weight.** Uploads are optimised automatically: the EXIF rotation is applied, the image is scaled to at most 2000px (never enlarged), metadata such as GPS is removed, and it is stored as WebP (GIF, AVIF and PDF are kept as uploaded; anything that cannot be decoded or would not get smaller is kept as is). `bun scripts/optimize-images.mjs` does the same kind of shrinking for oversized files in `public/`, in place and safe to re-run.
+
 ## Develop
 
 ```bash

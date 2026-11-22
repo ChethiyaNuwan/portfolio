@@ -10,7 +10,7 @@ const tilt = (i: number) => `${((i * 53) % 7) - 3}deg`;
     <div class="flex min-h-full flex-col gap-8">
       <PanelHead id="gallery" title="Gallery">
         <p class="max-w-xs text-lg text-muted">Click an image to expand it.</p>
-        <UButton to="/gallery" color="neutral" variant="outline" trailing-icon="i-lucide-arrow-right" label="Open gallery" />
+        <UButton to="/gallery" color="neutral" variant="outline" trailing-icon="i-lucide-arrow-right" label="Open gallery" class="tap" />
       </PanelHead>
       <DropGroup as="ul" class="columns-2 gap-4 lg:columns-3" role="list">
         <li v-for="(g, i) in items" :key="g.id" class="drop mb-4 break-inside-avoid" :style="{ '--i': i % 12, '--r': tilt(i) }">

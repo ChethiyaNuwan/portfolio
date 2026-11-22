@@ -15,10 +15,11 @@ const viewer = ref<{ open: (i: number, el?: HTMLElement | null) => void }>();
 <template>
   <div>
     <div v-if="filterable && tags.length" class="mb-6 flex flex-wrap gap-2" role="group" aria-label="Filter by tag">
-      <UButton label="All" size="sm" :color="activeTag === null ? 'primary' : 'neutral'" :variant="activeTag === null ? 'solid' : 'outline'" @click="activeTag = null" />
+      <UButton class="tap" label="All" size="sm" :color="activeTag === null ? 'primary' : 'neutral'" :variant="activeTag === null ? 'solid' : 'outline'" @click="activeTag = null" />
       <UButton
         v-for="t in tags"
         :key="t"
+        class="tap"
         :label="t"
         size="sm"
         :color="activeTag === t ? 'primary' : 'neutral'"

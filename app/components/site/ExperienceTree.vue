@@ -65,13 +65,13 @@ function connector(it: (typeof layout.value.items)[number]) {
       </g>
     </svg>
 
-    <ol class="grid gap-5 lg:block">
+    <ol class="relative grid gap-5 max-lg:pl-8 max-lg:before:absolute max-lg:before:bottom-0 max-lg:before:left-2.5 max-lg:before:top-0 max-lg:before:w-0.5 max-lg:before:bg-[var(--ui-border-accented)] lg:block">
       <li
         v-for="it in layout.items"
         :key="it.id"
-        class="flex flex-col gap-3 overflow-hidden border border-default border-t-2 bg-muted/40 p-5 lg:absolute lg:top-[var(--y)] lg:h-[300px] lg:w-[calc(50%-138px)]"
+        class="relative flex flex-col gap-3 overflow-hidden border border-default border-t-2 bg-muted/40 p-5 max-lg:overflow-visible max-lg:before:absolute max-lg:before:-left-[1.72rem] max-lg:before:top-5 max-lg:before:size-3.5 max-lg:before:rounded-full max-lg:before:bg-[var(--lane)] max-lg:before:ring-4 max-lg:before:ring-[var(--ui-bg)] lg:absolute lg:top-[var(--y)] lg:h-[300px] lg:w-[calc(50%-138px)]"
         :class="it.side === 'right' ? 'lg:left-[calc(50%+138px)]' : 'lg:left-0'"
-        :style="{ '--y': `${it.cardTop}px`, borderTopColor: color(it.lane) }"
+        :style="{ '--y': `${it.cardTop}px`, '--lane': color(it.lane), borderTopColor: color(it.lane) }"
       >
         <div class="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm">
           <time class="font-medium text-toned">{{ byId[it.id]!.year }}</time>

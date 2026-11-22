@@ -14,6 +14,9 @@ export default defineNuxtConfig({
   // Bundle the icons we use so nothing is fetched from the Iconify API at runtime (CSP)
   icon: { clientBundle: { scan: true } },
 
+  // Public site URL used for canonical links, sitemap and llms.txt. Override at runtime with NUXT_PUBLIC_SITE_URL.
+  runtimeConfig: { public: { siteUrl: "" } },
+
   fonts: {
     families: [
       { name: "Space Grotesk", provider: "google", weights: [400, 500, 600, 700] },

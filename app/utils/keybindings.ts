@@ -68,6 +68,8 @@ export interface BindingDoc {
   action: string;
   /** alternative chords, each a list of key names */
   keys: string[][];
+  /** true = listed in the shortcuts popover but not in the rotating footer ticker */
+  skipTicker?: boolean;
 }
 
 // What the shortcuts do, shown in the footer ticker and the shortcuts dialog. Built from KEYMAP so it cannot drift.
@@ -75,7 +77,7 @@ export const BINDING_DOCS: BindingDoc[] = [
   { group: "Move between sections", action: "Next section", keys: KEYMAP.next.map(chordKeys) },
   { group: "Move between sections", action: "Previous section", keys: KEYMAP.prev.map(chordKeys) },
   { group: "Move between sections", action: "Jump to section 1 to 7", keys: [["alt", "1–7"]] },
-  { group: "Move between sections", action: "Sideways with the mouse wheel", keys: [["shift", "Scroll"]] },
+  { group: "Move between sections", action: "Sideways with the mouse wheel", keys: [["shift", "Scroll"]], skipTicker: true },
   { group: "Scroll inside a section", action: "Scroll down", keys: [...KEYMAP.scrollDown.map(chordKeys), ["arrowdown"], ["pagedown"]] },
   { group: "Scroll inside a section", action: "Scroll up", keys: [...KEYMAP.scrollUp.map(chordKeys), ["arrowup"], ["pageup"]] },
   { group: "Search and help", action: "Open the command palette", keys: KEYMAP.palette.map(chordKeys) },
@@ -86,4 +88,4 @@ export const BINDING_DOCS: BindingDoc[] = [
 ];
 
 /** One chord per entry, for the rotating footer ticker. */
-export const TICKER = BINDING_DOCS.filter((d) => d.group !== "Image viewer").map((d) => ({ action: d.action, keys: d.keys[0]! }));
+export const TICKER = BINDING_DOCS.filter((d) => d.group !== "Image viewer" && !d.skipTicker).map((d) => ({ action: d.action, keys: d.keys[0]! }));

@@ -86,6 +86,10 @@ describe("BINDING_DOCS stays in sync with KEYMAP", () => {
       for (const chord of d.keys) expect(chord.every(Boolean) && chord.length > 0).toBe(true);
     }
   });
+  test("the mouse-wheel tip is in the popover list but not in the footer ticker", () => {
+    expect(BINDING_DOCS.some((d) => d.action === "Sideways with the mouse wheel")).toBe(true);
+    expect(TICKER.some((t) => t.action === "Sideways with the mouse wheel")).toBe(false);
+  });
   test("the ticker rotates through the main bindings, one chord each", () => {
     expect(TICKER.length).toBeGreaterThanOrEqual(5);
     expect(TICKER.every((t) => t.keys.length > 0 && t.action)).toBe(true);

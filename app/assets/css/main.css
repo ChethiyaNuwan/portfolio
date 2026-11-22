@@ -768,3 +768,39 @@ h3 {
     display: none;
   }
 }
+
+/* ---------- Footer navigation: the active tab glows ---------- */
+.footer-link {
+  position: relative;
+  transition: color 0.3s ease, text-shadow 0.45s ease;
+}
+.footer-link[aria-current] {
+  text-shadow:
+    0 0 10px color-mix(in srgb, var(--ui-primary) 85%, transparent),
+    0 0 24px color-mix(in srgb, var(--ui-primary) 55%, transparent);
+}
+.footer-link::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: -7px;
+  width: 1.1rem;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--ui-primary);
+  box-shadow: 0 0 8px var(--ui-primary), 0 0 18px var(--ui-primary);
+  transform: translateX(-50%) scaleX(0);
+  transition: transform 0.45s cubic-bezier(0.2, 0.8, 0.1, 1);
+}
+.footer-link[aria-current]::after {
+  transform: translateX(-50%) scaleX(1);
+}
+:root:not(.dark) .footer-link[aria-current] {
+  text-shadow: 0 0 10px color-mix(in srgb, var(--ui-primary) 45%, transparent);
+}
+@media (prefers-reduced-motion: reduce) {
+  .footer-link,
+  .footer-link::after {
+    transition: none;
+  }
+}

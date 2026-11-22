@@ -42,7 +42,7 @@ onMounted(() => {
   if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
   timer = setInterval(() => {
     if (!paused.value && !open.value) index.value++;
-  }, 2600);
+  }, 4200);
 });
 onBeforeUnmount(() => {
   window.removeEventListener("keydown", onKey);

@@ -46,12 +46,12 @@ function goSection(e: MouseEvent, id: string) {
       </div>
 
       <!-- centre: sections of the page (home) or pages of the site (elsewhere) -->
-      <nav v-if="sectionMode" class="min-w-0 overflow-x-auto" aria-label="Sections on this page">
+      <nav v-if="sectionMode" class="min-w-0 overflow-x-auto px-3 py-2" aria-label="Sections on this page">
         <ul class="flex items-center justify-start gap-x-5 whitespace-nowrap lg:justify-center">
           <li v-for="p in panels" :key="p.id">
             <a
               :href="`#${p.id}`"
-              class="text-sm transition-colors"
+              class="footer-link text-sm"
               :class="activeId === p.id ? 'text-highlighted' : 'text-muted hover:text-highlighted'"
               :aria-current="activeId === p.id ? 'true' : undefined"
               @click="goSection($event, p.id)"
@@ -61,12 +61,12 @@ function goSection(e: MouseEvent, id: string) {
           </li>
         </ul>
       </nav>
-      <nav v-else class="min-w-0 overflow-x-auto" aria-label="Primary">
+      <nav v-else class="min-w-0 overflow-x-auto px-3 py-2" aria-label="Primary">
         <ul class="flex items-center justify-start gap-x-5 whitespace-nowrap lg:justify-center">
           <li v-for="item in navItems" :key="item.to">
             <NuxtLink
               :to="item.to"
-              class="text-sm transition-colors"
+              class="footer-link text-sm"
               :class="route.path === item.to ? 'text-highlighted' : 'text-muted hover:text-highlighted'"
               :aria-current="route.path === item.to ? 'page' : undefined"
             >

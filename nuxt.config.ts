@@ -1,27 +1,18 @@
-import tailwindcss from "@tailwindcss/vite";
-
 export default defineNuxtConfig({
   compatibilityDate: "2025-07-15",
   devtools: { enabled: false },
 
-  modules: ["@nuxtjs/color-mode", "@nuxt/fonts", "motion-v/nuxt"],
+  modules: ["@nuxt/ui", "motion-v/nuxt"],
 
   css: ["~/assets/css/main.css"],
-
-  vite: {
-    plugins: [tailwindcss()],
-  },
 
   // Auto-register components by file name (no folder prefix), e.g. Hero/Hero.vue -> <Hero />
   components: [{ path: "~/components", pathPrefix: false }],
 
-  // Keeps the previous behaviour: dark by default, <html data-theme="dark|light">
-  colorMode: {
-    preference: "dark",
-    fallback: "dark",
-    classSuffix: "",
-    dataValue: "theme",
-  },
+  colorMode: { preference: "system", fallback: "light" },
+
+  // Bundle the icons we use so nothing is fetched from the Iconify API at runtime (CSP)
+  icon: { clientBundle: { scan: true } },
 
   fonts: {
     families: [

@@ -12,7 +12,10 @@
     "test": "bun test server"
   },
   "dependencies": {
+    "@iconify-json/lucide": "^1.2.158",
+    "@iconify-json/simple-icons": "^1.2.103",
     "@nuxt/fonts": "^1.2.0",
+    "@nuxt/ui": "^4.13.0",
     "@nuxtjs/color-mode": "^4.1.0",
     "countup.js": "^2.10.1",
     "lucide-vue-next": "^1.0.0",

@@ -7,7 +7,7 @@ const profile = computed(() => content.value.profile);
 
 <template>
   <StagePanel id="contact" label="Contact">
-    <div class="flex h-full flex-col justify-center gap-8">
+    <div class="flex min-h-full flex-col justify-center gap-8">
       <KineticText id="contact-heading" as="h2" class="display" text="Let's talk." />
       <address class="not-italic">
         <a :href="`mailto:${profile.email}`" class="font-display text-[clamp(1.5rem,4.2vw,3.75rem)] font-medium text-highlighted underline decoration-primary decoration-2 underline-offset-8 transition-opacity hover:opacity-70">

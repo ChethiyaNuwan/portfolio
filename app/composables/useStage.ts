@@ -5,6 +5,8 @@ export function useStageState() {
     activeId: useState<string>("stage-active", () => ""),
     progress: useState<number>("stage-progress", () => 0),
     horizontal: useState<boolean>("stage-horizontal", () => false),
+    /** true once the visitor has moved between sections, so the hint can stop nudging */
+    hinted: useState<boolean>("stage-hinted", () => false),
   };
 }
 

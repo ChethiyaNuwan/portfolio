@@ -5,7 +5,7 @@ const mask = (src: string) => ({ maskImage: `url(${src})`, WebkitMaskImage: `url
 
 <template>
   <StagePanel id="services" label="Services">
-    <div class="flex h-full flex-col justify-center gap-10">
+    <div class="flex min-h-full flex-col justify-center gap-10">
       <KineticText id="services-heading" as="h2" class="display-md" text="Services" />
       <DropGroup as="ul" class="grid gap-6 lg:grid-cols-3">
         <li v-for="(s, i) in content.services" :key="s.id" class="drop flex flex-col gap-4 border-t-2 border-[var(--ui-text-highlighted)] pt-6" :style="{ '--i': i }">

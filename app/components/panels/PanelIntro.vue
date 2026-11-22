@@ -10,7 +10,7 @@ const marqueeWords = computed(() => [profile.value.title, ...content.value.servi
       <img :src="profile.avatar" :alt="`Portrait of ${profile.name}`" width="960" height="1200" fetchpriority="high" />
     </figure>
 
-    <div class="relative z-10 flex h-full flex-col justify-between gap-5">
+    <div class="relative z-10 flex min-h-full flex-col justify-between gap-5">
       <div class="flex flex-1 items-center">
         <div class="flex max-w-3xl flex-col items-start gap-5">
           <UBadge color="success" variant="outline" size="lg" class="gap-2 bg-default/60 backdrop-blur-sm">

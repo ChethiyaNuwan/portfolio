@@ -3,13 +3,13 @@ const content = await useContent();
 </script>
 
 <template>
-  <StagePanel id="experience" label="Experience" wide="max-content">
-    <div class="flex h-full flex-col gap-8 stage:flex-row stage:items-stretch stage:gap-14">
-      <div class="flex flex-col justify-between gap-4 stage:w-[24vw] stage:shrink-0">
+  <StagePanel id="experience" label="Experience">
+    <div class="flex min-h-full flex-col justify-center gap-8">
+      <header class="flex flex-wrap items-end justify-between gap-4">
         <KineticText id="experience-heading" as="h2" class="display-md" text="Experience" />
         <p class="max-w-xs text-lg text-muted">Where I have worked and what I did there.</p>
-      </div>
-      <ol class="grid gap-5 lg:grid-cols-3 stage:grid-cols-none stage:grid-flow-col stage:auto-cols-[min(27rem,30vw)] stage:items-start">
+      </header>
+      <ol class="grid items-start gap-5 lg:grid-cols-3">
         <li v-for="e in content.experience" :key="e.id" class="flex flex-col gap-4 border border-default bg-muted/40 p-6">
           <time class="text-sm font-medium text-muted">{{ e.year }}</time>
           <div class="flex items-center gap-3">
@@ -22,7 +22,7 @@ const content = await useContent();
           <div v-if="e.labels.length" class="flex flex-wrap gap-2">
             <UBadge v-for="l in e.labels" :key="l" :label="l" color="neutral" variant="outline" />
           </div>
-          <p class="text-sm leading-relaxed text-muted stage:line-clamp-[12]">{{ e.description }}</p>
+          <p class="text-sm leading-relaxed text-muted">{{ e.description }}</p>
         </li>
       </ol>
     </div>

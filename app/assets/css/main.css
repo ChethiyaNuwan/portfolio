@@ -180,3 +180,48 @@ body {
 ::-webkit-scrollbar-thumb:hover {
   background-color: var(--dark-gray-7);
 }
+
+/* Admin form controls */
+.admin-input {
+  width: 100%;
+  border-radius: 0.5rem;
+  background-color: var(--dark-gray-2);
+  color: var(--very-light-gray);
+  padding: 0.75rem 1rem;
+  outline: none;
+  border: 1px solid var(--dark-gray-3);
+}
+.admin-input:focus {
+  border-color: var(--light-gray-1);
+}
+.admin-btn,
+.admin-btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  border-radius: 0.5rem;
+  padding: 0.5rem 0.9rem;
+  font-weight: 500;
+  border: 1px solid var(--dark-gray-4);
+  background-color: var(--almost-black);
+  color: var(--very-light-gray);
+  transition: background-color 0.2s;
+}
+.admin-btn:hover,
+.admin-btn-primary:hover {
+  background-color: var(--dark-gray-4);
+}
+.admin-btn-primary {
+  background-color: var(--white);
+  color: var(--black);
+}
+.admin-btn-primary:hover {
+  opacity: 0.85;
+  background-color: var(--white);
+}
+.admin-btn:disabled,
+.admin-btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

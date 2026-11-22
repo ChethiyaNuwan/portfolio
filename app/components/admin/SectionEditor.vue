@@ -59,7 +59,7 @@ const heading = (item: Record<string, unknown>, i: number) => String(item[config
       <button class="admin-btn-primary" :disabled="saving || loading" @click="save">{{ saving ? "Saving…" : "Save changes" }}</button>
     </div>
 
-    <p v-if="loading" class="text-light-gray-2">Loading…</p>
+    <p v-if="loading" class="text-muted">Loading…</p>
     <p v-if="error" class="rounded-lg border border-red-500/40 bg-red-500/10 p-3 text-sm text-red-400 whitespace-pre-line">{{ error }}</p>
     <p v-if="saved" class="rounded-lg border border-green-500/40 bg-green-500/10 p-3 text-sm text-green-400">Saved. The public site is updated.</p>
 
@@ -69,9 +69,9 @@ const heading = (item: Record<string, unknown>, i: number) => String(item[config
       </div>
 
       <template v-else>
-        <div v-for="(item, i) in (data as Record<string, any>[])" :key="item.id" class="rounded-xl border border-dark-gray-3 bg-very-dark-gray p-5 grid gap-4">
+        <div v-for="(item, i) in (data as Record<string, any>[])" :key="item.id" class="rounded-xl border border-default bg-muted p-5 grid gap-4">
           <div class="flex items-center justify-between gap-3">
-            <h3 class="font-semibold text-light-gray-4">{{ heading(item, i) }}</h3>
+            <h3 class="font-semibold text-toned">{{ heading(item, i) }}</h3>
             <div class="flex gap-2">
               <button class="admin-btn" :disabled="i === 0" @click="move(i, -1)">↑</button>
               <button class="admin-btn" :disabled="i === data.length - 1" @click="move(i, 1)">↓</button>

@@ -6,51 +6,6 @@
   --font-display: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
 }
 
-/* Legacy colour names still used by the admin screens, mapped onto Nuxt UI tokens so they follow light/dark. */
-@theme inline {
-  --color-darkest-gray: var(--darkest-gray);
-  --color-very-dark-gray: var(--very-dark-gray);
-  --color-dark-gray-1: var(--dark-gray-1);
-  --color-dark-gray-2: var(--dark-gray-2);
-  --color-almost-black: var(--almost-black);
-  --color-dark-gray-3: var(--dark-gray-3);
-  --color-dark-gray-4: var(--dark-gray-4);
-  --color-border-color: var(--border-color);
-  --color-dark-gray-6: var(--dark-gray-6);
-  --color-dark-gray-7: var(--dark-gray-7);
-  --color-medium-gray: var(--medium-gray);
-  --color-light-gray-1: var(--light-gray-1);
-  --color-light-gray-2: var(--light-gray-2);
-  --color-light-gray-3: var(--light-gray-3);
-  --color-light-gray-4: var(--light-gray-4);
-  --color-very-light-gray: var(--very-light-gray);
-  --color-near-white: var(--near-white);
-  --color-image-bg: var(--image-bg);
-}
-
-:root {
-  --darkest-gray: var(--ui-bg);
-  --very-dark-gray: var(--ui-bg-muted);
-  --dark-gray-1: var(--ui-bg-elevated);
-  --dark-gray-2: var(--ui-bg-elevated);
-  --almost-black: var(--ui-bg-elevated);
-  --dark-gray-3: var(--ui-bg-accented);
-  --dark-gray-4: var(--ui-border-accented);
-  --border-color: var(--ui-border);
-  --dark-gray-6: var(--ui-border-accented);
-  --dark-gray-7: var(--ui-border-accented);
-  --medium-gray: var(--ui-text-dimmed);
-  --light-gray-1: var(--ui-text-dimmed);
-  --light-gray-2: var(--ui-text-muted);
-  --light-gray-3: var(--ui-text-toned);
-  --light-gray-4: var(--ui-text-toned);
-  --very-light-gray: var(--ui-text);
-  --near-white: var(--ui-text-highlighted);
-  --image-bg: var(--ui-bg-muted);
-  --white: var(--ui-text-highlighted);
-  --black: var(--ui-bg);
-}
-
 html {
   scroll-behavior: smooth;
 }
@@ -77,18 +32,19 @@ h3 {
   }
 }
 
-/* Admin form controls */
+/* Admin form controls (Nuxt UI tokens, so they follow light/dark) */
 .admin-input {
   width: 100%;
   border-radius: 0.5rem;
-  background-color: var(--dark-gray-2);
-  color: var(--very-light-gray);
-  padding: 0.75rem 1rem;
+  background-color: var(--ui-bg-elevated);
+  color: var(--ui-text-highlighted);
+  padding: 0.6rem 0.9rem;
   outline: none;
-  border: 1px solid var(--dark-gray-3);
+  border: 1px solid var(--ui-border-accented);
 }
 .admin-input:focus {
-  border-color: var(--light-gray-1);
+  border-color: var(--ui-primary);
+  box-shadow: 0 0 0 1px var(--ui-primary);
 }
 .admin-btn,
 .admin-btn-primary {
@@ -99,22 +55,21 @@ h3 {
   border-radius: 0.5rem;
   padding: 0.5rem 0.9rem;
   font-weight: 500;
-  border: 1px solid var(--dark-gray-4);
-  background-color: var(--almost-black);
-  color: var(--very-light-gray);
+  border: 1px solid var(--ui-border-accented);
+  background-color: var(--ui-bg-elevated);
+  color: var(--ui-text);
   transition: background-color 0.2s;
 }
-.admin-btn:hover,
-.admin-btn-primary:hover {
-  background-color: var(--dark-gray-4);
+.admin-btn:hover {
+  background-color: var(--ui-bg-accented);
 }
 .admin-btn-primary {
-  background-color: var(--white);
-  color: var(--black);
+  background-color: var(--ui-primary);
+  border-color: var(--ui-primary);
+  color: var(--ui-bg);
 }
 .admin-btn-primary:hover {
-  opacity: 0.85;
-  background-color: var(--white);
+  opacity: 0.9;
 }
 .admin-btn:disabled,
 .admin-btn-primary:disabled {

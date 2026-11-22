@@ -10,6 +10,10 @@ const tags = computed({
     model.value = v.split(",").map((s) => s.trim()).filter(Boolean);
   },
 });
+const images = computed<string[]>({
+  get: () => (Array.isArray(model.value) ? (model.value as string[]) : []),
+  set: (v) => (model.value = v),
+});
 const asString = computed({
   get: () => (model.value as string) ?? "",
   set: (v: string) => (model.value = v),
@@ -21,8 +25,16 @@ const asNumber = computed({
 </script>
 
 <template>
-  <label class="flex flex-col gap-1">
-    <span class="text-sm text-light-gray-2">{{ props.def.label }}</span>
+  <div v-if="props.def.type === 'imagelist'" class="flex flex-col gap-2">
+    <span class="text-sm text-muted">{{ props.def.label }}</span>
+    <div v-for="(_, i) in images" :key="i" class="flex items-start gap-2">
+      <div class="flex-1"><ImageField v-model="images[i]" /></div>
+      <button type="button" class="admin-btn text-red-500" @click="images = images.filter((__, j) => j !== i)">Remove</button>
+    </div>
+    <button type="button" class="admin-btn w-max" @click="images = [...images, '']">+ Add image</button>
+  </div>
+  <label v-else class="flex flex-col gap-1">
+    <span class="text-sm text-muted">{{ props.def.label }}</span>
     <ImageField v-if="props.def.type === 'image'" v-model="asString" />
     <textarea v-else-if="props.def.type === 'textarea'" v-model="asString" rows="5" class="admin-input" />
     <input v-else-if="props.def.type === 'number'" v-model="asNumber" type="number" min="0" class="admin-input" />

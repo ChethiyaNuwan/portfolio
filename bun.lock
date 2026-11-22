@@ -12,8 +12,6 @@
         "@nuxtjs/color-mode": "^4.1.0",
         "countup.js": "^2.10.1",
         "embla-carousel-autoplay": "^8.6.0",
-        "lucide-vue-next": "^1.0.0",
-        "motion-v": "^2.13.0",
         "nuxt": "^4.6.4",
         "pdf-lib": "^1.17.1",
         "vue": "^3.5.46",
@@ -21,7 +19,6 @@
         "zod": "^4.6.7",
       },
       "devDependencies": {
-        "@tailwindcss/vite": "^4.3.5",
         "@types/bun": "^1.4.5",
         "@types/node": "^26.6.6",
         "tailwindcss": "^4.3.5",
@@ -983,8 +980,6 @@
     "local-pkg": ["local-pkg@2.0.0", "", { "dependencies": { "mlly": "^1.8.2", "pkg-types": "^2.3.1", "quansync": "^1.0.0" } }, "sha512-xvTNwM27EpU+fkLSpo33Pq/nm8m5zNf0aU/hF4W4ZM9RHQjVZa5KTmmXIzEzVsdI09NOUqj0djHhTv96sUowSQ=="],
 
     "lru-cache": ["lru-cache@11.5.3", "", {}, "sha512-U4N8FgzmWxc8k1VH8Kr6lQg18U7Fjvby6wXHVRX/ZZ7IwWbRMgrRbP0Wrb5q5NVinryp4SQampHKdvtecItxUg=="],
-
-    "lucide-vue-next": ["lucide-vue-next@1.0.0", "", { "peerDependencies": { "vue": ">=3.0.1" } }, "sha512-V6SPvx1IHTj/UY+FrIYWV5faISsPSb8BnWSFDxAtezWKvWc9ZZ40PDrdu1/Qb5vg4lHWr1hs1BAMGVGm6V1Xdg=="],
 
     "magic-regexp": ["magic-regexp@0.11.2", "", { "dependencies": { "magic-string": "^1.1.0", "regexp-tree": "^0.1.27", "type-level-regexp": "~0.1.17", "unplugin": "^3.3.0" } }, "sha512-s4i7mq2jJnkB5J1HDX67GmdRoWrgo8tE0cL91bKO+HaquxyR5TiqkjVfLhgS2PXretsN/Gv9kSnRBgQxrLO/Qw=="],
 

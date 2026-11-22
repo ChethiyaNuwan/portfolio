@@ -6,7 +6,7 @@ useHead({
 </script>
 
 <template>
-  <div class="min-h-screen bg-darkest-gray text-white">
+  <div class="min-h-screen bg-default text-highlighted">
     <slot />
   </div>
 </template>

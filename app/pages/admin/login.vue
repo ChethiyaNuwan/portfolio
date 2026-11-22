@@ -25,14 +25,14 @@ async function submit() {
 
 <template>
   <div class="min-h-screen grid place-items-center p-6">
-    <form class="w-full max-w-sm grid gap-4 rounded-xl border border-dark-gray-3 bg-very-dark-gray p-6" @submit.prevent="submit">
+    <form class="w-full max-w-sm grid gap-4 rounded-xl border border-default bg-muted p-6" @submit.prevent="submit">
       <h1 class="text-2xl font-bold">Admin sign in</h1>
       <label class="flex flex-col gap-1">
-        <span class="text-sm text-light-gray-2">Username</span>
+        <span class="text-sm text-muted">Username</span>
         <input v-model="username" class="admin-input" type="text" autocomplete="username" required />
       </label>
       <label class="flex flex-col gap-1">
-        <span class="text-sm text-light-gray-2">Password</span>
+        <span class="text-sm text-muted">Password</span>
         <input v-model="password" class="admin-input" type="password" autocomplete="current-password" required />
       </label>
       <p v-if="error" class="text-sm text-red-500">{{ error }}</p>

@@ -24,7 +24,7 @@ async function onPick(e: Event) {
 <template>
   <div class="flex flex-col gap-2">
     <div class="flex items-center gap-3">
-      <img v-if="model" :src="model" alt="" class="h-14 w-14 rounded-lg object-cover border border-border-color bg-image-bg" />
+      <img v-if="model" :src="model" alt="" class="h-14 w-14 rounded-lg object-cover border border-default bg-muted" />
       <input v-model="model" type="text" class="admin-input flex-1" placeholder="/uploads/… or /file.png" />
     </div>
     <label class="admin-btn w-max cursor-pointer">

@@ -1,4 +1,4 @@
-export type FieldType = "text" | "textarea" | "number" | "image" | "select" | "tags";
+export type FieldType = "text" | "textarea" | "number" | "image" | "imagelist" | "select" | "tags";
 export interface FieldDef {
   key: string;
   label: string;
@@ -17,7 +17,7 @@ const area = (key: string, label: string): FieldDef => ({ key, label, type: "tex
 const img = (key: string, label: string): FieldDef => ({ key, label, type: "image" });
 
 export const sectionConfigs: Record<string, SectionConfig> = {
-  profile: { label: "Profile", kind: "object", fields: [t("name", "Name"), t("title", "Job title"), area("intro", "Intro"), t("email", "Email (used for mailto: links)"), img("avatar", "Avatar")] },
+  profile: { label: "Profile", kind: "object", fields: [t("name", "Name"), t("title", "Job title"), area("intro", "Intro"), t("email", "Email (used for mailto: links)"), t("phone", "Phone (shown on CV)"), t("location", "Location (shown on CV)"), img("avatar", "Avatar")] },
   counters: { label: "Counters", kind: "list", itemLabel: "title", fields: [t("title", "Title"), { key: "value", label: "Value", type: "number" }] },
   experience: {
     label: "Experience", kind: "list", itemLabel: "company",
@@ -31,7 +31,12 @@ export const sectionConfigs: Record<string, SectionConfig> = {
   },
   projects: {
     label: "Projects", kind: "list", itemLabel: "title",
-    fields: [t("title", "Title"), area("description", "Description"), t("link", "Domain (without https://)"), t("type", "Type"), t("theme", "Theme"), { key: "pages", label: "Pages", type: "number" }, img("image", "Screenshot")],
+    fields: [t("title", "Title"), area("description", "Description"), t("link", "Domain (without https://)"), t("type", "Type"), t("theme", "Theme"), { key: "pages", label: "Pages", type: "number" }, { key: "tags", label: "Tags", type: "tags" }, img("image", "Cover screenshot"), { key: "gallery", label: "More screenshots", type: "imagelist" }],
+  },
+  gallery: { label: "Gallery", kind: "list", itemLabel: "caption", fields: [img("image", "Image"), t("caption", "Caption"), { key: "tags", label: "Tags", type: "tags" }] },
+  education: {
+    label: "Education", kind: "list", itemLabel: "school",
+    fields: [t("school", "School"), t("degree", "Degree / qualification"), t("period", "Period"), area("details", "Details (one point per line)")],
   },
   faq: { label: "FAQ", kind: "list", itemLabel: "question", fields: [t("question", "Question"), area("answer", "Answer")] },
   socials: {
@@ -45,7 +50,7 @@ export const sectionOrder = Object.keys(sectionConfigs);
 export function blankItem(section: string): Record<string, unknown> {
   const item: Record<string, unknown> = { id: crypto.randomUUID() };
   for (const f of sectionConfigs[section]!.fields) {
-    item[f.key] = f.type === "number" ? 0 : f.type === "tags" ? [] : f.type === "select" ? f.options![0] : "";
+    item[f.key] = f.type === "number" ? 0 : f.type === "tags" || f.type === "imagelist" ? [] : f.type === "select" ? f.options![0] : "";
   }
   return item;
 }

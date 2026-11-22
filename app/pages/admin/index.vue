@@ -22,7 +22,7 @@ const tabs = [...sectionOrder.map((k) => ({ key: k, label: sectionConfigs[k]!.la
         <button
           v-for="t in tabs"
           :key="t.key"
-          :class="['rounded-lg px-3 py-2 text-left whitespace-nowrap transition-colors', active === t.key ? 'bg-almost-black text-white border border-dark-gray-3' : 'text-light-gray-2 hover:bg-very-dark-gray']"
+          :class="['rounded-lg px-3 py-2 text-left whitespace-nowrap transition-colors', active === t.key ? 'bg-elevated text-highlighted border border-default' : 'text-muted hover:bg-muted']"
           @click="active = t.key"
         >
           {{ t.label }}

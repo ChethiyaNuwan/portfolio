@@ -49,3 +49,24 @@ describe("content store", () => {
     expect(store.version()).toBe(v + 2);
   });
 });
+
+describe("opening a database written by the previous version", () => {
+  test("adds defaults to stored sections and seeds sections that did not exist", async () => {
+    store = openStore(dir);
+    store.close();
+    store = undefined;
+
+    const { Database } = await import("bun:sqlite");
+    const raw = new Database(join(dir, "portfolio.db"));
+    const oldProjects = seedContent.projects.map(({ tags: _t, gallery: _g, ...rest }) => rest);
+    raw.run("UPDATE sections SET value = ? WHERE key = 'projects'", [JSON.stringify(oldProjects)]);
+    raw.run("DELETE FROM sections WHERE key IN ('gallery', 'education')");
+    raw.close();
+
+    store = openStore(dir);
+    expect(store.getSection("projects")[0]!.tags).toEqual([]);
+    expect(store.getSection("projects")[0]!.gallery).toEqual([]);
+    expect(store.getSection("gallery")).toEqual(seedContent.gallery);
+    expect(store.getSection("education")).toEqual(seedContent.education);
+  });
+});

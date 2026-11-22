@@ -25,6 +25,14 @@ export function openStore(dataDir: string): Store {
   const insertSeed = db.prepare("INSERT OR IGNORE INTO sections (key, value, updated_at) VALUES (?, ?, ?)");
   for (const key of sectionKeys) insertSeed.run(key, JSON.stringify(seedContent[key]), Date.now());
 
+  // Bring rows written by an older version up to date (adds defaults for new fields).
+  const update = db.prepare("UPDATE sections SET value = ? WHERE key = ?");
+  for (const key of sectionKeys) {
+    const row = db.prepare("SELECT value FROM sections WHERE key = ?").get(key) as { value: string };
+    const parsed = sectionSchemas[key].safeParse(JSON.parse(row.value));
+    if (parsed.success && JSON.stringify(parsed.data) !== row.value) update.run(JSON.stringify(parsed.data), key);
+  }
+
   const select = db.prepare("SELECT value FROM sections WHERE key = ?");
   const upsert = db.prepare(
     "INSERT INTO sections (key, value, updated_at) VALUES (?, ?, ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value, updated_at = excluded.updated_at",

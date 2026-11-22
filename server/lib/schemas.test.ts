@@ -29,3 +29,29 @@ describe("content schemas", () => {
     expect(sectionSchemas.faq.safeParse(bad).success).toBe(false);
   });
 });
+
+describe("redesign content model", () => {
+  test("gallery and education sections exist and the seed satisfies them", () => {
+    expect(sectionSchemas.gallery.safeParse(seedContent.gallery).success).toBe(true);
+    expect(seedContent.gallery.length).toBeGreaterThanOrEqual(4);
+    expect(sectionSchemas.education.safeParse(seedContent.education).success).toBe(true);
+  });
+
+  test("old-format profile and projects parse with defaults for the new fields", () => {
+    const { phone: _p, location: _l, ...oldProfile } = seedContent.profile;
+    const parsedProfile = sectionSchemas.profile.parse(oldProfile);
+    expect(parsedProfile.phone).toBe("");
+    expect(parsedProfile.location).toBe("");
+
+    const oldProjects = seedContent.projects.map(({ tags: _t, gallery: _g, ...rest }) => rest);
+    const parsed = sectionSchemas.projects.parse(oldProjects);
+    expect(parsed[0]!.tags).toEqual([]);
+    expect(parsed[0]!.gallery).toEqual([]);
+  });
+
+  test("gallery items default caption and tags, and reject items without an image", () => {
+    const ok = sectionSchemas.gallery.parse([{ id: "1", image: "/a.png" }]);
+    expect(ok[0]).toEqual({ id: "1", image: "/a.png", caption: "", tags: [] });
+    expect(sectionSchemas.gallery.safeParse([{ id: "1" }]).success).toBe(false);
+  });
+});

@@ -7,7 +7,9 @@ export const seedContent: Content = {
     "title": "Fullstack Engineer",
     "intro": "Passionate about creating efficient, user-focused solutions. I specialize in scalable applications, performance optimization, and seamless user experiences, leveraging technology to solve dynamic challenges.",
     "email": process.env.SEED_PROFILE_EMAIL?.trim() || "hello@example.com",
-    "avatar": "/profile.jpg"
+    "avatar": "/profile.jpg",
+    "phone": "",
+    "location": ""
   },
   "counters": [
     {
@@ -277,7 +279,9 @@ export const seedContent: Content = {
       "type": "Business",
       "theme": "Multi",
       "pages": 10,
-      "image": "/business-admin.png"
+      "image": "/business-admin.png",
+        "tags": ["Business", "Dashboard"],
+        "gallery": []
     },
     {
       "id": "2",
@@ -287,7 +291,9 @@ export const seedContent: Content = {
       "type": "Booking",
       "theme": "Single",
       "pages": 10,
-      "image": "/dtuk.png"
+      "image": "/dtuk.png",
+        "tags": ["Booking", "Travel"],
+        "gallery": []
     },
     {
       "id": "3",
@@ -297,9 +303,73 @@ export const seedContent: Content = {
       "type": "E-Commerce",
       "theme": "Single",
       "pages": 10,
-      "image": "/ssimpex.png"
+      "image": "/ssimpex.png",
+        "tags": ["E-Commerce", "Retail"],
+        "gallery": []
     }
   ],
+  "gallery": [
+    {
+      "id": "1",
+      "image": "/business-admin.png",
+      "caption": "Cloud POS admin dashboard",
+      "tags": [
+        "Web",
+        "Dashboard"
+      ]
+    },
+    {
+      "id": "2",
+      "image": "/dtuk.png",
+      "caption": "Tour booking website",
+      "tags": [
+        "Web",
+        "Booking"
+      ]
+    },
+    {
+      "id": "3",
+      "image": "/ssimpex.png",
+      "caption": "Supermarket e-commerce storefront",
+      "tags": [
+        "Web",
+        "E-Commerce"
+      ]
+    },
+    {
+      "id": "4",
+      "image": "/project-1.avif",
+      "caption": "Design study 1",
+      "tags": [
+        "Design"
+      ]
+    },
+    {
+      "id": "5",
+      "image": "/project-2.avif",
+      "caption": "Design study 2",
+      "tags": [
+        "Design"
+      ]
+    },
+    {
+      "id": "6",
+      "image": "/project-3.avif",
+      "caption": "Design study 3",
+      "tags": [
+        "Design"
+      ]
+    },
+    {
+      "id": "7",
+      "image": "/project-4.avif",
+      "caption": "Design study 4",
+      "tags": [
+        "Design"
+      ]
+    }
+  ],
+  "education": [],
   "faq": [
     {
       "id": "1",

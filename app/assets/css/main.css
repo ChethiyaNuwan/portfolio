@@ -663,22 +663,20 @@ h3 {
 /* ---------- Footer key-binding ticker ---------- */
 .key-ticker {
   align-items: center;
-  gap: 0.6rem;
-  width: 17rem;
+  min-width: 2rem;
+  width: auto;
   height: 2rem;
-  padding: 0 0.75rem;
   overflow: hidden;
-  border: 1px solid var(--ui-border-accented);
   color: var(--ui-text);
-  transition: border-color 0.3s;
+  transition: color 0.3s;
 }
 .key-ticker:hover,
 .key-ticker:focus-visible {
-  border-color: var(--ui-text-highlighted);
+  color: var(--ui-text-highlighted);
 }
 .key-ticker-window {
   position: relative;
-  flex: 1;
+  width: 15rem;
   min-width: 0;
   height: 1.4rem;
   overflow: hidden;

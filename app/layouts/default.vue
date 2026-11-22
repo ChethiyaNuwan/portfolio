@@ -37,5 +37,4 @@ useHead({
 
   <SiteFooter />
   <SectionPalette />
-  <KeybindingsDialog />
 </template>

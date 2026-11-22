@@ -9,6 +9,8 @@ const GAP = 220; // between a question and its answer
 const PAUSE = 520; // after an answer
 
 const root = ref<HTMLElement>();
+const viewport = ref<HTMLElement>();
+const itemEls = ref<HTMLElement[]>([]);
 const inView = useInView(root, { threshold: 0.25 });
 const skipped = ref(false);
 
@@ -30,10 +32,39 @@ const lines = computed(() => {
   return props.items.map((it) => {
     const q = spell(it.question, t, Q_SPEED, GAP);
     const a = spell(it.answer, q.end + GAP, A_SPEED, PAUSE);
+    const at = q.words[0]?.[0]?.t ?? t;
     t = a.end + PAUSE;
-    return { id: it.id, q: q.words, a: a.words };
+    return { id: it.id, at, q: q.words, a: a.words };
   });
 });
+
+// Only three items are in view at a time: when a new question starts, the oldest one scrolls up and fades out.
+// The visitor can still scroll by hand; automatic scrolling backs off for a few seconds after they do.
+const VISIBLE = 3;
+const MANUAL_HOLD = 3500;
+let lastManual = 0;
+let timers: ReturnType<typeof setTimeout>[] = [];
+
+const markManual = () => (lastManual = Date.now());
+
+function follow(i: number) {
+  const el = itemEls.value[i - (VISIBLE - 1)];
+  if (!viewport.value || !el || Date.now() - lastManual < MANUAL_HOLD) return;
+  viewport.value.scrollTo({ top: el.offsetTop - 4, behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
+}
+
+watch(
+  () => inView.value && !skipped.value,
+  (go) => {
+    timers.forEach(clearTimeout);
+    timers = [];
+    if (!go) return;
+    lines.value.forEach((l, i) => {
+      if (i >= VISIBLE) timers.push(setTimeout(() => follow(i), l.at));
+    });
+  },
+);
+onBeforeUnmount(() => timers.forEach(clearTimeout));
 </script>
 
 <template>
@@ -42,19 +73,31 @@ const lines = computed(() => {
       <h3 id="faq-heading" class="font-display text-xl font-semibold text-highlighted">Common questions</h3>
       <UButton v-if="!skipped" size="xs" color="neutral" variant="ghost" label="Skip animation" @click="skipped = true" />
     </div>
-    <dl class="flex flex-col gap-5" aria-labelledby="faq-heading">
-      <div v-for="l in lines" :key="l.id" class="flex flex-col gap-1">
-        <dt class="faq-q font-display text-base font-medium text-highlighted sm:text-lg">
-          <template v-for="(w, wi) in l.q" :key="wi">
-            <span class="inline-block"><span v-for="(c, ci) in w" :key="ci" class="tw" :style="{ '--t': `${c.t}ms`, '--d': `${c.d}ms` }">{{ c.ch }}</span></span>{{ " " }}
-          </template>
-        </dt>
-        <dd class="faq-a text-sm leading-relaxed text-muted">
-          <template v-for="(w, wi) in l.a" :key="wi">
-            <span class="inline-block"><span v-for="(c, ci) in w" :key="ci" class="tw" :style="{ '--t': `${c.t}ms`, '--d': `${c.d}ms` }">{{ c.ch }}</span></span>{{ " " }}
-          </template>
-        </dd>
-      </div>
-    </dl>
+    <div
+      ref="viewport"
+      class="faq-viewport"
+      tabindex="0"
+      role="region"
+      aria-labelledby="faq-heading"
+      @wheel.passive="markManual"
+      @touchmove.passive="markManual"
+      @keydown="markManual"
+      @pointerdown="markManual"
+    >
+      <dl class="flex flex-col gap-5">
+        <div v-for="(l, i) in lines" :key="l.id" :ref="(el) => { if (el) itemEls[i] = el as HTMLElement; }" class="flex flex-col gap-1">
+          <dt class="faq-q font-display text-base font-medium text-highlighted sm:text-lg">
+            <template v-for="(w, wi) in l.q" :key="wi">
+              <span class="inline-block"><span v-for="(c, ci) in w" :key="ci" class="tw" :style="{ '--t': `${c.t}ms`, '--d': `${c.d}ms` }">{{ c.ch }}</span></span>{{ " " }}
+            </template>
+          </dt>
+          <dd class="faq-a text-sm leading-relaxed text-muted">
+            <template v-for="(w, wi) in l.a" :key="wi">
+              <span class="inline-block"><span v-for="(c, ci) in w" :key="ci" class="tw" :style="{ '--t': `${c.t}ms`, '--d': `${c.d}ms` }">{{ c.ch }}</span></span>{{ " " }}
+            </template>
+          </dd>
+        </div>
+      </dl>
+    </div>
   </div>
 </template>

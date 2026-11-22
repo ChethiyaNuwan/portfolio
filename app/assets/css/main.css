@@ -337,80 +337,95 @@ h3 {
   }
 }
 
-/* Edge chevrons: slim glass pills. The tip (where it goes + its keys) appears on hover or focus. */
-.stage-edge-wrap {
-  position: absolute;
-  top: 50%;
-  display: flex;
-  align-items: center;
-  transform: translateY(-50%);
-}
+/* Edge controls: a soft fade at the screen edge with a chevron (no boxes). The tip shows on hover or focus. */
 .stage-edge {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 5.5rem;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 0.7rem;
-  width: 3rem;
-  min-height: 5.5rem;
-  padding: 0.9rem 0;
-  border-radius: 999px;
+  gap: 0.6rem;
+  padding: 0;
   color: var(--ui-text-highlighted);
-  background: color-mix(in srgb, var(--ui-bg) 55%, transparent);
-  backdrop-filter: blur(10px);
-  border: 1px solid color-mix(in srgb, var(--ui-text-highlighted) 18%, transparent);
-  transition: border-color 0.3s, background-color 0.3s, box-shadow 0.5s;
+  pointer-events: auto;
 }
-.stage-edge:hover,
-.stage-edge:focus-visible {
-  border-color: var(--ui-primary);
-  box-shadow: 0 0 0 6px color-mix(in srgb, var(--ui-primary) 14%, transparent);
+.stage-edge::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.7;
+  transition: opacity 0.5s ease;
+}
+.stage-edge-left {
+  left: 0;
+}
+.stage-edge-right {
+  right: 0;
+}
+.stage-edge-left::before {
+  background: linear-gradient(to right, color-mix(in srgb, var(--ui-bg) 92%, transparent), transparent);
+}
+.stage-edge-right::before {
+  background: linear-gradient(to left, color-mix(in srgb, var(--ui-bg) 92%, transparent), transparent);
+}
+.stage-edge:hover::before,
+.stage-edge:focus-visible::before {
+  opacity: 1;
 }
 .stage-chevron {
-  transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.1, 1);
+  position: relative;
+  opacity: 0.65;
+  transition: transform 0.45s cubic-bezier(0.2, 0.8, 0.1, 1), opacity 0.3s;
 }
-.stage-edge:hover .stage-chevron[class*="chevron-right"] {
-  transform: translateX(3px);
+.stage-edge:hover .stage-chevron,
+.stage-edge:focus-visible .stage-chevron {
+  opacity: 1;
 }
-.stage-edge:hover .stage-chevron[class*="chevron-left"] {
-  transform: translateX(-3px);
+.stage-edge-right:hover .stage-chevron,
+.stage-edge-right:focus-visible .stage-chevron {
+  transform: translateX(4px);
+}
+.stage-edge-left:hover .stage-chevron,
+.stage-edge-left:focus-visible .stage-chevron {
+  transform: translateX(-4px);
 }
 .stage-tip {
-  position: absolute;
-  top: 50%;
-  display: inline-flex;
+  position: relative;
+  display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 0.4rem;
-  padding: 0.4rem 0.7rem;
-  font-size: 0.85rem;
-  white-space: nowrap;
+  gap: 0.35rem;
+  font-size: 0.8rem;
+  line-height: 1.2;
+  text-align: center;
   color: var(--ui-text-highlighted);
-  background: var(--ui-bg-elevated);
-  border: 1px solid var(--ui-border-accented);
   opacity: 0;
-  pointer-events: none;
-  transform: translateY(-50%);
-  transition: opacity 0.3s ease, transform 0.45s cubic-bezier(0.2, 0.8, 0.1, 1);
+  transform: translateY(-4px);
+  transition: opacity 0.35s ease, transform 0.45s cubic-bezier(0.2, 0.8, 0.1, 1);
 }
-.stage-tip-left {
-  right: calc(100% + 0.7rem);
-  transform: translate(8px, -50%);
+.stage-keys {
+  display: inline-flex;
+  gap: 0.25rem;
 }
-.stage-tip-right {
-  left: calc(100% + 0.7rem);
-  transform: translate(-8px, -50%);
-}
-.stage-edge-wrap:hover .stage-tip,
-.stage-edge-wrap:focus-within .stage-tip {
+.stage-edge:hover .stage-tip,
+.stage-edge:focus-visible .stage-tip {
   opacity: 1;
-  transform: translate(0, -50%);
+  transform: none;
+}
+.stage-edge:hover .stage-edge-hints,
+.stage-edge:focus-visible .stage-edge-hints {
+  opacity: 0;
 }
 .stage-nudge .stage-chevron {
   animation: stage-nudge 1.6s ease-in-out infinite;
 }
 @keyframes stage-nudge {
   0%, 100% { transform: translateX(0); }
-  50% { transform: translateX(6px); }
+  50% { transform: translateX(7px); }
 }
 .stage-hint-row {
   display: inline-flex;
@@ -438,9 +453,9 @@ h3 {
   flex-direction: column;
   align-items: center;
   gap: 0.5rem;
-  padding-top: 0.55rem;
-  border-top: 1px solid var(--ui-border-accented);
+  position: relative;
   color: var(--ui-text-muted);
+  transition: opacity 0.3s ease;
 }
 @keyframes stage-nudge {
   0%, 100% { transform: translate(0, -50%); }
@@ -647,4 +662,38 @@ h3 {
     opacity: 1;
     animation: none !important;
   }
+}
+
+/* FAQ window: about three items tall, edges fade out, scrolls by hand (no visible scrollbar) */
+.faq-viewport {
+  position: relative;
+  height: 26rem;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: none;
+  padding-block: 0.25rem 2rem;
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 1.6rem, #000 calc(100% - 2.4rem), transparent 100%);
+  mask-image: linear-gradient(to bottom, transparent 0, #000 1.6rem, #000 calc(100% - 2.4rem), transparent 100%);
+}
+.faq-viewport::-webkit-scrollbar {
+  display: none;
+}
+@media (max-height: 760px) {
+  .faq-viewport {
+    height: 20rem;
+  }
+}
+
+/* Hairline above the hero stats: it fades out before it reaches the portrait instead of cutting across it */
+.hero-stats {
+  position: relative;
+}
+.hero-stats::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(to right, var(--ui-border-accented) 0%, var(--ui-border-accented) 30%, transparent 62%);
 }

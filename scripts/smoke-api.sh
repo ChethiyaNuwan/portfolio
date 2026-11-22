@@ -27,4 +27,26 @@ OUT=$(put nonsense '[]'); echo "$OUT" | tail -1 | grep -q 404 && ok "unknown sec
 [ "$(code -b $JAR -X PUT -H "$J" -d '[]' $BASE/api/admin/content/faq)" = 403 ] && ok "PUT without csrf → 403" || bad "PUT without csrf → 403"
 OUT=$(put settings '{"cvMode":"uploaded","cvUploadUrl":"/uploads/00000000-0000-0000-0000-000000000000.pdf"}'); echo "$OUT" | tail -1 | grep -q 400 && ok "settings pointing at missing pdf → 400" || bad "settings missing pdf → 400 ($OUT)"
 
-rm -f $JAR; exit $FAIL
+# --- CV ---
+TMP=$(mktemp -d)
+curl -s $BASE/cv -o $TMP/gen1.pdf
+head -c5 $TMP/gen1.pdf | grep -q '%PDF-' && ok "/cv serves a pdf (generated)" || bad "/cv generated pdf"
+
+OUT=$(put settings '{"cvMode":"uploaded","cvUploadUrl":null}'); echo "$OUT" | tail -1 | grep -q 200 || bad "set uploaded mode without file ($OUT)"
+curl -s $BASE/cv -o $TMP/fallback.pdf
+cmp -s $TMP/gen1.pdf $TMP/fallback.pdf && ok "uploaded mode without file falls back to generated" || bad "fallback to generated"
+
+printf '%%PDF-1.4\n%% custom uploaded cv\n%%%%EOF\n' > $TMP/mine.pdf
+URL=$(curl -s -b $JAR -H "$H" -F file=@$TMP/mine.pdf "$BASE/api/admin/upload?kind=pdf" | grep -o '/uploads/[^"]*')
+[ -n "$URL" ] && ok "pdf upload accepted" || bad "pdf upload"
+OUT=$(put settings "{\"cvMode\":\"uploaded\",\"cvUploadUrl\":\"$URL\"}"); echo "$OUT" | tail -1 | grep -q 200 && ok "settings → uploaded cv" || bad "settings uploaded ($OUT)"
+curl -s $BASE/cv -o $TMP/served.pdf
+cmp -s $TMP/mine.pdf $TMP/served.pdf && ok "/cv serves the uploaded file" || bad "/cv serves uploaded file"
+
+put settings '{"cvMode":"generated","cvUploadUrl":null}' >/dev/null
+curl -s $BASE/cv -o $TMP/gen2.pdf
+OUT=$(put profile '{"name":"Chethiya Nuwan","title":"Edited Title Marker","intro":"intro text","email":"a@b.co","avatar":"/profile.jpg"}'); echo "$OUT" | tail -1 | grep -q 200 || bad "profile edit ($OUT)"
+curl -s $BASE/cv -o $TMP/gen3.pdf
+cmp -s $TMP/gen2.pdf $TMP/gen3.pdf && bad "content edit must change generated cv" || ok "content edit changes generated cv"
+
+rm -rf $JAR $TMP; exit $FAIL

@@ -350,11 +350,32 @@ h3 {
   align-items: center;
   gap: 0.6rem;
 }
+.stage-hint-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.7rem;
+}
+.stage-key {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.4rem;
+  height: 1.4rem;
+  padding: 0 0.35rem;
+  font-family: var(--font-sans);
+  font-size: 0.65rem;
+  line-height: 1;
+  color: var(--ui-text-highlighted);
+  background: var(--ui-bg-elevated);
+  border: 1px solid var(--ui-border-accented);
+  border-bottom-width: 2px;
+}
 .stage-edge-hints {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.45rem;
+  gap: 0.5rem;
   padding-top: 0.55rem;
   border-top: 1px solid var(--ui-border-accented);
   color: var(--ui-text-muted);

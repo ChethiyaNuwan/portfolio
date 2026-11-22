@@ -17,7 +17,7 @@ export default defineNuxtConfig({
   fonts: {
     families: [
       { name: "Space Grotesk", provider: "google", weights: [400, 500, 600, 700] },
-      { name: "IBM Plex Mono", provider: "google", weights: [400, 500, 600, 700] },
+      { name: "IBM Plex Sans", provider: "google", weights: [400, 500, 600] },
     ],
   },
 

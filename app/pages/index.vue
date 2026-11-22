@@ -1,11 +1,62 @@
+<script setup lang="ts">
+const content = await useContent();
+
+useSeoMeta({
+  title: `${content.value.profile.name} • Portfolio`,
+  description: content.value.profile.intro.slice(0, 160),
+});
+</script>
+
 <template>
-  <div class="flex lg:flex-1 flex-col gap-0 h-min px-5 overflow-hidden p-0 relative lg:px-0 w-full flex-wrap lg:flex-nowrap items-center justify-start">
-    <div class="gap-[100px] flex-col max-w-full w-full lg:max-w-[820px] lg:w-[80%] lg:flex-nowrap flex items-center flex-none h-min justify-center relative overflow-hidden lg:overflow-visible p-[80px_0px]">
-      <Hero />
-      <MyExperience />
-      <MyStack />
-      <MyServices />
-      <ShowCase :show-data="2" is-more />
-    </div>
+  <div>
+    <HeroSection />
+    <StatsRow />
+
+    <section class="py-16 sm:py-20">
+      <UContainer>
+        <SectionHeader title="Selected work" description="Recent projects I designed and built.">
+          <template #action>
+            <UButton to="/work" color="neutral" variant="outline" trailing-icon="i-lucide-arrow-right" label="All projects" />
+          </template>
+        </SectionHeader>
+      </UContainer>
+      <UContainer>
+        <ProjectCarousel />
+      </UContainer>
+    </section>
+
+    <section class="py-16 sm:py-20">
+      <UContainer>
+        <SectionHeader title="Experience" description="Where I have worked and what I did there." />
+        <ExperienceList />
+      </UContainer>
+    </section>
+
+    <section class="py-16 sm:py-20">
+      <UContainer>
+        <SectionHeader title="Skills" description="Languages, frameworks and tools I use day to day." />
+        <SkillsGrid />
+      </UContainer>
+    </section>
+
+    <section class="py-16 sm:py-20">
+      <UContainer>
+        <SectionHeader title="Services" description="How I can help on your next project." />
+        <ServicesGrid />
+      </UContainer>
+    </section>
+
+    <section v-if="content.gallery.length" class="py-16 sm:py-20">
+      <UContainer>
+        <SectionHeader title="Gallery" description="A look at the interfaces and designs behind the work.">
+          <template #action>
+            <UButton to="/gallery" color="neutral" variant="outline" trailing-icon="i-lucide-arrow-right" label="Open gallery" />
+          </template>
+        </SectionHeader>
+        <GalleryMasonry :limit="6" />
+      </UContainer>
+    </section>
+
+    <ContactBand />
   </div>
 </template>

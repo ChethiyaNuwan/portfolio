@@ -1,40 +1,49 @@
 <script setup lang="ts">
-import { Mail } from "lucide-vue-next";
-import { emailIcon, questionMarkIcon } from "~/utils/assets";
+import { socialIconMap } from "~/utils/icons";
 
 const content = await useContent();
+const profile = computed(() => content.value.profile);
+const faq = computed(() => content.value.faq.map((f) => ({ label: f.question, content: f.answer })));
 
 useSeoMeta({
-  title: "Chethiya Nuwan • Contact",
-  description: "Get in touch with me. Connect for collaboration, questions, or just to say hello!",
+  title: "Contact • Chethiya Nuwan",
+  description: "Get in touch about a project, a role, or just to say hello.",
 });
 </script>
 
 <template>
-  <div class="flex flex-col flex-1 gap-0 h-min overflow-hidden p-0 relative w-full items-center justify-start">
-    <div class="flex flex-col gap-[60px] w-full max-w-full px-5 lg:px-0 lg:max-w-[750px] lg:w-[80%] items-center p-[80px_0px]">
-      <SectionHeading
-        :icon="emailIcon"
-        title="I Love to hear from you."
-        description="Connect with Me Today. Let's Create Something Amazing Together!"
-      >
-        <div class="w-full">
-          <AppButton
-            class-name="w-min"
-            title="Email Me"
-            :icon="Mail"
-            :href="`mailto:${content.profile.email}`"
-          />
+  <section class="py-14 sm:py-20">
+    <UContainer class="max-w-4xl">
+      <SectionHeader title="Contact" description="Tell me about your project or role and I will get back to you." />
+
+      <div class="grid gap-6 rounded-3xl border border-default bg-elevated/50 p-8 sm:grid-cols-[1fr_auto] sm:items-center sm:p-10">
+        <div class="space-y-2">
+          <p class="text-sm text-muted">Email</p>
+          <a :href="`mailto:${profile.email}`" class="break-all text-2xl font-semibold text-highlighted underline-offset-4 hover:underline">{{ profile.email }}</a>
+          <p v-if="profile.phone || profile.location" class="text-muted">
+            {{ [profile.location, profile.phone].filter(Boolean).join(" · ") }}
+          </p>
+          <div class="flex gap-1 pt-2">
+            <UButton
+              v-for="s in content.socials"
+              :key="s.id"
+              :to="s.link"
+              target="_blank"
+              rel="noopener noreferrer"
+              :icon="socialIconMap[s.icon]"
+              :aria-label="s.title"
+              color="neutral"
+              variant="ghost"
+            />
+          </div>
         </div>
-      </SectionHeading>
+        <UButton size="xl" :href="`mailto:${profile.email}`" icon="i-lucide-mail" label="Email me" />
+      </div>
 
-      <SectionHeading
-        :icon="questionMarkIcon"
-        title="Common Queries"
-        description="Get Answers to Common Queries. Your Questions, Addressed Simply."
-      />
-
-      <FAQ :data="content.faq" />
-    </div>
-  </div>
+      <div v-if="faq.length" class="mt-16">
+        <SectionHeader title="Common questions" />
+        <UAccordion :items="faq" type="multiple" />
+      </div>
+    </UContainer>
+  </section>
 </template>

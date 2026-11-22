@@ -59,19 +59,9 @@ onBeforeUnmount(() => window.removeEventListener("keydown", onKey));
 
     <DropGroup v-else as="ul" class="columns-1 gap-4 sm:columns-2 lg:columns-3" role="list" :aria-label="`${items.length} gallery images`">
       <li v-for="(g, i) in items" :key="g.id" class="drop mb-4 break-inside-avoid" :style="{ '--i': i % 9, '--r': `${((i * 53) % 7) - 3}deg` }">
-        <button
-          type="button"
-          class="group relative block w-full overflow-hidden border border-default bg-muted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
-          :aria-label="g.caption ? `Open image: ${g.caption}` : 'Open image'"
-          @click="openIndex = i"
-        >
-          <img :src="g.image" :alt="g.caption" loading="lazy" class="block h-auto w-full transition-transform duration-500 group-hover:scale-[1.03] motion-reduce:transition-none" />
-          <span
-            v-if="g.caption"
-            class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent p-4 pt-10 text-left text-sm font-medium text-white opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100"
-          >
-            {{ g.caption }}
-          </span>
+        <button type="button" class="pin block w-full cursor-zoom-in" :aria-label="g.caption ? `Open image: ${g.caption}` : 'Open image'" @click="openIndex = i">
+          <img :src="g.image" :alt="g.caption" loading="lazy" class="pin-media block h-auto w-full" />
+          <span v-if="g.caption" class="pin-label text-left">{{ g.caption }}</span>
         </button>
       </li>
     </DropGroup>

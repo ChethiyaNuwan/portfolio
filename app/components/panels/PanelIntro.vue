@@ -5,11 +5,15 @@ const marqueeWords = computed(() => [profile.value.title, ...content.value.servi
 </script>
 
 <template>
-  <StagePanel id="intro" label="Intro">
-    <div class="flex h-full flex-col justify-between gap-8">
-      <div class="grid flex-1 items-center gap-10 lg:grid-cols-[1fr_auto]">
-        <div class="flex flex-col items-start gap-6">
-          <UBadge color="success" variant="outline" size="lg" class="gap-2">
+  <StagePanel id="intro" label="Intro" class="overflow-hidden">
+    <figure class="hero-portrait">
+      <img :src="profile.avatar" :alt="`Portrait of ${profile.name}`" width="960" height="1200" fetchpriority="high" />
+    </figure>
+
+    <div class="relative z-10 flex h-full flex-col justify-between gap-5">
+      <div class="flex flex-1 items-center">
+        <div class="flex max-w-3xl flex-col items-start gap-5">
+          <UBadge color="success" variant="outline" size="lg" class="gap-2 bg-default/60 backdrop-blur-sm">
             <span class="relative flex size-2">
               <span class="absolute inline-flex size-full animate-ping rounded-full bg-success opacity-60 motion-reduce:animate-none" />
               <span class="relative inline-flex size-2 rounded-full bg-success" />
@@ -30,14 +34,10 @@ const marqueeWords = computed(() => [profile.value.title, ...content.value.servi
               :download="`${profile.name.replace(/\s+/g, '_')}_Resume.pdf`"
               icon="i-lucide-file-text"
               label="Download CV"
+              class="bg-default/60 backdrop-blur-sm"
             />
           </div>
         </div>
-
-        <figure class="relative mx-auto hidden w-[min(24vw,20rem)] lg:block">
-          <div class="absolute inset-0 translate-x-3 translate-y-3 border border-primary" aria-hidden="true" />
-          <img :src="profile.avatar" :alt="`Portrait of ${profile.name}`" width="480" height="640" class="relative aspect-[3/4] w-full object-cover grayscale contrast-110 transition-[filter] duration-700 hover:grayscale-0" />
-        </figure>
       </div>
 
       <dl class="flex flex-wrap gap-x-10 gap-y-3 border-t border-default pt-5">

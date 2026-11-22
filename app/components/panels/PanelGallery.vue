@@ -24,14 +24,14 @@ const tilt = (i: number) => `${((i * 53) % 7) - 3}deg`;
       </div>
       <DropGroup as="ul" class="grid grid-cols-2 gap-4 lg:grid-cols-4 stage:flex stage:h-full stage:gap-4">
         <li v-for="(col, ci) in columns" :key="ci" class="contents stage:grid stage:w-[min(21rem,22vw)] stage:shrink-0 stage:gap-4" :style="{ gridTemplateRows: rows(ci) }">
-          <figure v-for="(g, gi) in col" :key="g.id" class="drop group relative aspect-[4/3] overflow-hidden stage:aspect-auto border border-default bg-muted" :style="{ '--i': ci * 2 + gi, '--r': tilt(ci * 2 + gi) }">
-            <NuxtLink to="/gallery" :aria-label="g.caption ? `Open gallery: ${g.caption}` : 'Open gallery'" class="block size-full">
-              <img :src="g.image" :alt="g.caption" loading="lazy" class="size-full object-cover transition-transform duration-700 group-hover:scale-[1.05]" />
-            </NuxtLink>
-            <figcaption v-if="g.caption" class="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent p-3 pt-10 text-sm font-medium text-white opacity-0 transition-opacity group-hover:opacity-100">
-              {{ g.caption }}
-            </figcaption>
-          </figure>
+          <div v-for="(g, gi) in col" :key="g.id" class="drop min-h-0" :style="{ '--i': ci * 2 + gi, '--r': tilt(ci * 2 + gi) }">
+            <figure class="m-0 size-full">
+              <NuxtLink to="/gallery" class="pin block aspect-[4/3] size-full stage:aspect-auto" :aria-label="g.caption ? `Open gallery: ${g.caption}` : 'Open gallery'">
+                <img :src="g.image" :alt="g.caption" loading="lazy" class="pin-media size-full object-cover" />
+                <figcaption v-if="g.caption" class="pin-label">{{ g.caption }}</figcaption>
+              </NuxtLink>
+            </figure>
+          </div>
         </li>
       </DropGroup>
     </div>

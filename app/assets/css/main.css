@@ -42,12 +42,21 @@
 html {
   scroll-behavior: smooth;
   background: var(--ui-bg);
+  --footer-h: 3.5rem;
 }
 
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
   }
+}
+
+/* The page scrolls normally but shows no scrollbar (the footer shows progress instead) */
+html {
+  scrollbar-width: none;
+}
+html::-webkit-scrollbar {
+  display: none;
 }
 
 /* Route transition */
@@ -141,14 +150,14 @@ h3 {
 
 /* ---------- Kinetic type ---------- */
 .display {
-  font-size: clamp(3.25rem, 11vw, 10rem);
+  font-size: clamp(3.25rem, min(11vw, 17vh), 10rem);
   line-height: 0.9;
   letter-spacing: -0.045em;
   font-weight: calc(300 + 400 * var(--panel-p, 1));
   color: var(--ui-text-highlighted);
 }
 .display-md {
-  font-size: clamp(2.5rem, 7vw, 6.5rem);
+  font-size: clamp(2.5rem, min(7vw, 11vh), 6.5rem);
   line-height: 0.95;
   letter-spacing: -0.04em;
   font-weight: calc(300 + 400 * var(--panel-p, 1));
@@ -199,7 +208,7 @@ h3 {
 }
 .big-marquee-word {
   font-family: var(--font-display);
-  font-size: clamp(3rem, 8vw, 7rem);
+  font-size: clamp(2.5rem, min(6vw, 9vh), 5.5rem);
   line-height: 1;
   letter-spacing: -0.03em;
   font-weight: 600;
@@ -255,14 +264,11 @@ h3 {
 .stage-panel {
   padding: clamp(1.25rem, 4vw, 3rem);
 }
-.stage-nav {
-  display: none;
-}
 @media (min-width: 1024px) and (min-height: 600px) and (prefers-reduced-motion: no-preference) {
   .stage-sticky {
     position: sticky;
-    top: var(--ui-header-height, 4rem);
-    height: calc(100svh - var(--ui-header-height, 4rem));
+    top: 0;
+    height: calc(100svh - var(--footer-h));
     overflow: hidden;
   }
   .stage-track {
@@ -276,12 +282,6 @@ h3 {
     width: var(--panel-w, 100vw);
     height: 100%;
     overflow: hidden;
-  }
-  .stage-panel {
-    padding-bottom: 5rem;
-  }
-  .stage-nav {
-    display: flex;
   }
 }
 
@@ -303,4 +303,102 @@ h3 {
     transform: none;
     transition: none;
   }
+}
+
+/* ---------- Hero portrait that dissolves into the page ---------- */
+.hero-portrait {
+  position: absolute;
+  inset-block: 0;
+  right: 0;
+  width: 100%;
+  margin: 0;
+  pointer-events: none;
+  opacity: 0.32;
+}
+.hero-portrait img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 8%;
+  filter: grayscale(1) contrast(1.12);
+  -webkit-mask-image: linear-gradient(to right, transparent 0%, #000 40%), linear-gradient(to top, transparent 0%, #000 30%), linear-gradient(to bottom, transparent 0%, #000 10%);
+  mask-image: linear-gradient(to right, transparent 0%, #000 40%), linear-gradient(to top, transparent 0%, #000 30%), linear-gradient(to bottom, transparent 0%, #000 10%);
+  -webkit-mask-composite: source-in;
+  mask-composite: intersect;
+}
+:root:not(.dark) .hero-portrait img {
+  mix-blend-mode: multiply;
+}
+@media (min-width: 1024px) {
+  .hero-portrait {
+    width: min(58%, 62rem);
+    opacity: 0.92;
+  }
+  :root:not(.dark) .hero-portrait {
+    opacity: 0.85;
+  }
+}
+
+/* ---------- Pins (Pinterest-style tiles): image only, label slides up on hover/focus ---------- */
+.pin {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--ui-border);
+  background: var(--ui-bg-muted);
+  transition:
+    transform 0.55s cubic-bezier(0.2, 0.8, 0.1, 1),
+    box-shadow 0.55s cubic-bezier(0.2, 0.8, 0.1, 1),
+    border-color 0.3s;
+}
+.pin:hover,
+.pin:focus-visible {
+  transform: translateY(-8px) scale(1.025);
+  border-color: var(--ui-text-highlighted);
+  box-shadow: 0 22px 44px -22px rgb(0 0 0 / 0.7);
+  z-index: 2;
+}
+.pin-media {
+  transition: transform 0.8s cubic-bezier(0.2, 0.8, 0.1, 1);
+}
+.pin:hover .pin-media,
+.pin:focus-visible .pin-media {
+  transform: scale(1.08);
+}
+.pin-label {
+  position: absolute;
+  inset-inline: 0.6rem;
+  bottom: 0.6rem;
+  padding: 0.4rem 0.7rem;
+  font-size: 0.85rem;
+  font-weight: 500;
+  line-height: 1.25;
+  background: var(--ui-text-highlighted);
+  color: var(--ui-bg);
+  transform: translateY(160%);
+  opacity: 0;
+  transition:
+    transform 0.5s cubic-bezier(0.2, 0.8, 0.1, 1),
+    opacity 0.3s ease;
+}
+.pin:hover .pin-label,
+.pin:focus-visible .pin-label {
+  transform: none;
+  opacity: 1;
+}
+@media (prefers-reduced-motion: reduce) {
+  .pin,
+  .pin-media,
+  .pin-label {
+    transition: none;
+  }
+  .pin:hover,
+  .pin:focus-visible,
+  .pin:hover .pin-media {
+    transform: none;
+  }
+}
+
+/* Logos: a hairline edge in the theme's text colour keeps white or black logos readable on either theme */
+.pin-logo {
+  filter: drop-shadow(0 0 0.6px color-mix(in srgb, var(--ui-text-highlighted) 70%, transparent));
 }

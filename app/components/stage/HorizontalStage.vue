@@ -7,10 +7,7 @@ const QUERY = "(min-width: 1024px) and (min-height: 600px) and (prefers-reduced-
 const outer = ref<HTMLElement>();
 const sticky = ref<HTMLElement>();
 const track = ref<HTMLElement>();
-const panels = ref<{ id: string; label: string }[]>([]);
-const activeId = ref("");
-const horizontal = ref(false);
-const progress = ref(0);
+const { panels, activeId, horizontal, progress } = useStageState();
 
 let panelEls: HTMLElement[] = [];
 let mq: MediaQueryList | null = null;
@@ -67,9 +64,33 @@ function tick() {
   if (current !== target) raf = requestAnimationFrame(tick);
 }
 
+// Sections "lock in": when scrolling settles, glide to the nearest resting point. Wide panels get a
+// resting point at each end so their whole width can be read.
+let snapTimer: ReturnType<typeof setTimeout> | undefined;
+
+function snapPoints(): number[] {
+  const pts = new Set<number>();
+  for (const el of panelEls) {
+    pts.add(Math.round(clamp(el.offsetLeft, 0, range)));
+    if (el.offsetWidth > vw * 1.05) pts.add(Math.round(clamp(el.offsetLeft + el.offsetWidth - vw, 0, range)));
+  }
+  return [...pts].sort((a, b) => a - b);
+}
+
+function snap() {
+  if (!horizontal.value) return;
+  const pts = snapPoints();
+  if (!pts.length) return;
+  const here = clamp(window.scrollY - outerTop, 0, range);
+  const best = pts.reduce((a, b) => (Math.abs(b - here) < Math.abs(a - here) ? b : a));
+  if (Math.abs(best - here) > 2) window.scrollTo({ top: outerTop + best, behavior: "smooth" });
+}
+
 function onScroll() {
   readTarget();
   if (!raf) raf = requestAnimationFrame(tick);
+  clearTimeout(snapTimer);
+  snapTimer = setTimeout(snap, 140);
 }
 
 function jumpTo(id: string, behavior: ScrollBehavior = "smooth") {
@@ -108,13 +129,6 @@ function onStickyScroll() {
   if (sticky.value && sticky.value.scrollLeft !== 0) sticky.value.scrollLeft = 0;
 }
 
-function onNavClick(e: MouseEvent, id: string) {
-  if (!horizontal.value) return; // normal anchor behaviour
-  e.preventDefault();
-  jumpTo(id);
-  history.replaceState(null, "", `#${id}`);
-}
-
 function enable() {
   if (horizontal.value) return;
   horizontal.value = true;
@@ -139,6 +153,7 @@ function disable() {
   track.value?.removeEventListener("focusin", onFocusIn);
   sticky.value?.removeEventListener("scroll", onStickyScroll);
   ro?.disconnect();
+  clearTimeout(snapTimer);
   cancelAnimationFrame(raf);
   raf = 0;
   if (outer.value) outer.value.style.height = "";
@@ -155,6 +170,10 @@ onMounted(() => {
   panelEls = [...(track.value?.querySelectorAll<HTMLElement>("[data-stage-panel]") ?? [])];
   panels.value = panelEls.map((el) => ({ id: el.id, label: el.dataset.label ?? el.id }));
   activeId.value = panels.value[0]?.id ?? "";
+  registerStageJump((id) => {
+    jumpTo(id);
+    if (horizontal.value) history.replaceState(null, "", `#${id}`);
+  });
   mq = window.matchMedia(QUERY);
   mq.addEventListener("change", sync);
   sync();
@@ -164,6 +183,10 @@ onMounted(() => {
 onBeforeUnmount(() => {
   mq?.removeEventListener("change", sync);
   disable();
+  registerStageJump(null);
+  panels.value = [];
+  activeId.value = "";
+  progress.value = 0;
 });
 </script>
 
@@ -174,24 +197,6 @@ onBeforeUnmount(() => {
         <slot />
       </div>
 
-      <nav class="stage-nav pointer-events-none absolute inset-x-0 bottom-0 z-10 flex-col gap-3 px-8 pb-5" aria-label="Sections on this page">
-        <div class="pointer-events-auto h-px w-full bg-[var(--ui-border-accented)]" aria-hidden="true">
-          <div class="h-px origin-left bg-[var(--ui-text-highlighted)]" :style="{ transform: `scaleX(${progress})` }" />
-        </div>
-        <ul class="pointer-events-auto flex flex-wrap gap-x-6 gap-y-1">
-          <li v-for="p in panels" :key="p.id">
-            <a
-              :href="`#${p.id}`"
-              class="text-sm transition-colors"
-              :class="activeId === p.id ? 'text-highlighted' : 'text-muted hover:text-highlighted'"
-              :aria-current="activeId === p.id ? 'true' : undefined"
-              @click="onNavClick($event, p.id)"
-            >
-              {{ p.label }}
-            </a>
-          </li>
-        </ul>
-      </nav>
     </div>
   </div>
 </template>

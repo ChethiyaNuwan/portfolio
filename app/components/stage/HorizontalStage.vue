@@ -3,6 +3,8 @@
 // and scrolls vertically by itself when it has more content. Visitors move sideways with a horizontal swipe,
 // Shift + scroll, the arrow keys, the footer links, or the edge buttons (and are hinted at all of these).
 // Elsewhere (phones, short windows, reduced motion) the same markup is a normal vertical page (CSS decides).
+import { KEYMAP, isMac, matchesAny, sectionDigit } from "~/utils/keybindings";
+
 const QUERY = "(min-width: 1024px) and (min-height: 600px) and (prefers-reduced-motion: no-preference)";
 
 const scroller = ref<HTMLElement>();
@@ -59,28 +61,40 @@ function activeScroll(): HTMLElement | null {
 }
 
 function isTyping(t: EventTarget | null) {
-  const el = t as HTMLElement | null;
+  const el = t instanceof HTMLElement ? t : null; // window / document (synthetic events) are never "typing"
   return !!el && (el.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(el.tagName) || !!el.closest('[role="region"][aria-roledescription="carousel"], [role="dialog"]'));
 }
 
 function onKey(e: KeyboardEvent) {
-  if (e.altKey || e.ctrlKey || e.metaKey || isTyping(e.target) || document.querySelector('[role="dialog"]')) return;
-  if (e.key === "ArrowRight") (e.preventDefault(), step(1));
-  else if (e.key === "ArrowLeft") (e.preventDefault(), step(-1));
-  else if (document.activeElement === document.body) {
-    // nothing focused: let the arrow / page keys scroll the section that is in view
-    const el = activeScroll();
+  if (isTyping(e.target) || document.querySelector('[role="dialog"]')) return;
+  const mac = isMac();
+
+  if (matchesAny(e, KEYMAP.next, mac)) return (e.preventDefault(), step(1));
+  if (matchesAny(e, KEYMAP.prev, mac)) return (e.preventDefault(), step(-1));
+
+  const digit = sectionDigit(e);
+  const target = digit === null ? undefined : panels.value[digit];
+  if (target) return (e.preventDefault(), jumpTo(target.id));
+
+  const el = activeScroll();
+  if (!el) return;
+  // vim-style j / k scroll the section in view; with nothing focused, the arrow and page keys do too
+  if (matchesAny(e, KEYMAP.scrollDown, mac)) return (e.preventDefault(), el.scrollBy({ top: 90, behavior: "smooth" }));
+  if (matchesAny(e, KEYMAP.scrollUp, mac)) return (e.preventDefault(), el.scrollBy({ top: -90, behavior: "smooth" }));
+  if (document.activeElement === document.body && !e.altKey && !e.ctrlKey && !e.metaKey) {
     const amount: Record<string, number> = { ArrowDown: 80, ArrowUp: -80, PageDown: 0.85, PageUp: -0.85, " ": e.shiftKey ? -0.85 : 0.85 };
     const k = amount[e.key];
-    if (el && k !== undefined) {
+    if (k !== undefined) {
       e.preventDefault();
       el.scrollBy({ top: Math.abs(k) < 1 ? k * el.clientHeight : k, behavior: "smooth" });
     }
   }
 }
 
-// Horizontal wheel / trackpad / Shift+wheel: one gesture = one section. (Native snapping would snap small wheel
-// movements back to where they started.) Momentum from the same gesture is ignored until the wheel goes quiet.
+// Horizontal wheel / trackpad / Shift+wheel: one gesture = one section, and a short movement is enough.
+// (Native snapping would snap small movements back to where they started.) Momentum from the same gesture is
+// ignored until the wheel goes quiet.
+const WHEEL_THRESHOLD = 10;
 let wheelAcc = 0;
 let wheelLocked = false;
 let wheelTimer: ReturnType<typeof setTimeout> | undefined;
@@ -88,20 +102,42 @@ let wheelTimer: ReturnType<typeof setTimeout> | undefined;
 function onWheel(e: WheelEvent) {
   if (e.ctrlKey) return; // pinch zoom
   const dx = e.shiftKey ? e.deltaX || e.deltaY : e.deltaX;
-  if (!e.shiftKey && Math.abs(dx) <= Math.abs(e.deltaY)) return; // vertical intent: scroll inside the section
+  // vertical intent: let the section scroll normally
+  if (!e.shiftKey && Math.abs(dx) < Math.abs(e.deltaY) * 0.75) return;
+  if (!dx) return;
   e.preventDefault();
   clearTimeout(wheelTimer);
   wheelTimer = setTimeout(() => {
     wheelLocked = false;
     wheelAcc = 0;
-  }, 150);
+  }, 120);
   if (wheelLocked) return;
   wheelAcc += dx;
-  if (Math.abs(wheelAcc) > 30) {
+  if (Math.abs(wheelAcc) > WHEEL_THRESHOLD) {
     step(wheelAcc > 0 ? 1 : -1);
     wheelLocked = true;
     wheelAcc = 0;
   }
+}
+
+// Touch: a short, quick horizontal swipe moves one section (the browser only pans vertically, see touch-action).
+const SWIPE_DISTANCE = 36;
+let touchStart: { x: number; y: number; t: number } | null = null;
+
+function onTouchStart(e: TouchEvent) {
+  const t = e.touches[0];
+  touchStart = t ? { x: t.clientX, y: t.clientY, t: performance.now() } : null;
+}
+
+function onTouchEnd(e: TouchEvent) {
+  const start = touchStart;
+  touchStart = null;
+  const t = e.changedTouches[0];
+  if (!start || !t) return;
+  const dx = t.clientX - start.x;
+  const dy = t.clientY - start.y;
+  const fast = Math.abs(dx) / Math.max(1, performance.now() - start.t) > 0.25; // px per ms
+  if (Math.abs(dx) > Math.abs(dy) * 1.2 && (Math.abs(dx) > SWIPE_DISTANCE || (fast && Math.abs(dx) > 16))) step(dx < 0 ? 1 : -1);
 }
 
 function enable() {
@@ -109,6 +145,8 @@ function enable() {
   horizontal.value = true;
   scroller.value?.addEventListener("scroll", onScroll, { passive: true });
   scroller.value?.addEventListener("wheel", onWheel, { passive: false });
+  scroller.value?.addEventListener("touchstart", onTouchStart, { passive: true });
+  scroller.value?.addEventListener("touchend", onTouchEnd, { passive: true });
   window.addEventListener("keydown", onKey);
   window.addEventListener("resize", onScroll);
   const hash = location.hash.slice(1);
@@ -124,6 +162,8 @@ function disable() {
   horizontal.value = false;
   scroller.value?.removeEventListener("scroll", onScroll);
   scroller.value?.removeEventListener("wheel", onWheel);
+  scroller.value?.removeEventListener("touchstart", onTouchStart);
+  scroller.value?.removeEventListener("touchend", onTouchEnd);
   clearTimeout(wheelTimer);
   window.removeEventListener("keydown", onKey);
   window.removeEventListener("resize", onScroll);

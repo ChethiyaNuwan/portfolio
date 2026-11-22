@@ -9,7 +9,7 @@
     "generate": "nuxt generate",
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
-    "test": "bun test server"
+    "test": "bun test server app/utils"
   },
   "dependencies": {
     "@iconify-json/lucide": "^1.2.158",

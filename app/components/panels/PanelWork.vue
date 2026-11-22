@@ -6,15 +6,14 @@ const externalUrl = (link: string) => (/^https?:\/\//.test(link) ? link : `https
 <template>
   <StagePanel id="work" label="Work">
     <div class="flex min-h-full flex-col gap-8">
-      <header class="flex flex-wrap items-end justify-between gap-4">
-        <KineticText id="work-heading" as="h2" class="display-md" text="Selected work" />
+      <PanelHead id="work" title="Selected work">
         <UButton to="/work" color="neutral" variant="outline" trailing-icon="i-lucide-arrow-right" label="All projects" />
-      </header>
+      </PanelHead>
 
       <DropGroup as="ul" class="flex flex-col" role="list">
         <li v-for="(p, i) in content.projects" :key="p.id" class="drop border-t border-default py-8 first:border-t-0 first:pt-0" :style="{ '--i': i }">
-          <article class="grid items-center gap-6 lg:grid-cols-[1.25fr_1fr] lg:gap-10">
-            <a :href="externalUrl(p.link)" target="_blank" rel="noopener noreferrer" class="pin block aspect-[16/9]" :aria-label="`Open ${p.title} (${p.link})`" tabindex="-1">
+          <article class="grid items-center gap-6 lg:gap-10" :class="i % 2 ? 'lg:grid-cols-[1fr_1.25fr]' : 'lg:grid-cols-[1.25fr_1fr]'">
+            <a :href="externalUrl(p.link)" target="_blank" rel="noopener noreferrer" class="pin block aspect-[16/9]" :class="{ 'lg:order-2': i % 2 }" :aria-label="`Open ${p.title} (${p.link})`" tabindex="-1">
               <img :src="p.image" :alt="`Screenshot of ${p.title}`" loading="lazy" class="pin-media size-full object-cover object-top" />
             </a>
             <div class="flex flex-col items-start gap-3">

@@ -36,4 +36,5 @@ useHead({
   </UMain>
 
   <SiteFooter />
+  <SectionPalette ref="palette" />
 </template>

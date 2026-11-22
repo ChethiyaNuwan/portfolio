@@ -1,6 +1,8 @@
 # Portfolio
 
-A Nuxt 4 portfolio with a built-in, password-protected admin. All content (profile, experience, stack, services, projects, FAQ, social links, images and the CV) is edited at `/admin` and stored locally in SQLite plus an uploads folder.
+A Nuxt 4 portfolio built with [Nuxt UI](https://ui.nuxt.com) (Tailwind 4), with light and dark themes, a project carousel, a Pinterest-style gallery with lightbox, and a built-in password-protected admin. All content is edited at `/admin` and stored locally in SQLite plus an uploads folder.
+
+Pages: Home, Work (project grid with details), Gallery (masonry, tag filter), Services, Contact (`mailto:` link and FAQ).
 
 ## Develop
 
@@ -40,5 +42,7 @@ docker compose -f deploy/docker-compose.yml up -d --build
 ## Admin
 
 - Sign in at `/admin`. Edit any section and press **Save**; the public site updates immediately.
-- **CV**: choose between an uploaded PDF or one generated live from your portfolio details. The home-page *Download CV* button serves `/cv` either way.
+- Sections: Profile (including phone and location, used on the CV), Counters, Experience, Stack, Services, Service plans, Projects (tags, cover and extra screenshots), Gallery, Education, FAQ, Social links, CV.
+- **Images**: upload from any image field (PNG, JPEG, WebP, AVIF, GIF, up to 5 MB).
+- **CV**: choose between an uploaded PDF and one generated live from your details. The generated CV is ATS-friendly: a single column of plain text with the standard headings Summary, Experience, Skills, Education and Projects, and one bullet per line of each description (a long paragraph is split into sentences). Fill in Education, phone and location for a complete CV. The home-page *Download CV* button serves `/cv` either way.
 - Contact is a plain `mailto:` link to the profile email.

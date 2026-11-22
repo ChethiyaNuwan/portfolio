@@ -36,5 +36,6 @@ useHead({
   </UMain>
 
   <SiteFooter />
-  <SectionPalette ref="palette" />
+  <SectionPalette />
+  <KeybindingsDialog />
 </template>

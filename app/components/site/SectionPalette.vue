@@ -3,7 +3,7 @@
 import { KEYMAP, isMac, matchesAny } from "~/utils/keybindings";
 import { socialIconMap } from "~/utils/icons";
 
-const open = ref(false);
+const open = useState("palette-open", () => false);
 const search = ref("");
 const content = await useContent();
 const route = useRoute();

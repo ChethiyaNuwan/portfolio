@@ -407,18 +407,10 @@ h3 {
   transform: translateY(-4px);
   transition: opacity 0.35s ease, transform 0.45s cubic-bezier(0.2, 0.8, 0.1, 1);
 }
-.stage-keys {
-  display: inline-flex;
-  gap: 0.25rem;
-}
 .stage-edge:hover .stage-tip,
 .stage-edge:focus-visible .stage-tip {
   opacity: 1;
   transform: none;
-}
-.stage-edge:hover .stage-edge-hints,
-.stage-edge:focus-visible .stage-edge-hints {
-  opacity: 0;
 }
 .stage-nudge .stage-chevron {
   animation: stage-nudge 1.6s ease-in-out infinite;
@@ -426,36 +418,6 @@ h3 {
 @keyframes stage-nudge {
   0%, 100% { transform: translateX(0); }
   50% { transform: translateX(7px); }
-}
-.stage-hint-row {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.3rem;
-  font-size: 0.7rem;
-}
-.stage-key {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 1.4rem;
-  height: 1.4rem;
-  padding: 0 0.35rem;
-  font-family: var(--font-sans);
-  font-size: 0.65rem;
-  line-height: 1;
-  color: var(--ui-text-highlighted);
-  background: var(--ui-bg-elevated);
-  border: 1px solid var(--ui-border-accented);
-  border-bottom-width: 2px;
-}
-.stage-edge-hints {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.5rem;
-  position: relative;
-  color: var(--ui-text-muted);
-  transition: opacity 0.3s ease;
 }
 @keyframes stage-nudge {
   0%, 100% { transform: translate(0, -50%); }
@@ -696,4 +658,52 @@ h3 {
   right: 0;
   height: 1px;
   background: linear-gradient(to right, var(--ui-border-accented) 0%, var(--ui-border-accented) 30%, transparent 62%);
+}
+
+/* ---------- Footer key-binding ticker ---------- */
+.key-ticker {
+  align-items: center;
+  gap: 0.6rem;
+  width: 17rem;
+  height: 2rem;
+  padding: 0 0.75rem;
+  overflow: hidden;
+  border: 1px solid var(--ui-border-accented);
+  color: var(--ui-text);
+  transition: border-color 0.3s;
+}
+.key-ticker:hover,
+.key-ticker:focus-visible {
+  border-color: var(--ui-text-highlighted);
+}
+.key-ticker-window {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  height: 1.4rem;
+  overflow: hidden;
+}
+.key-ticker-row {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  height: 1.4rem;
+}
+.tick-enter-active,
+.tick-leave-active {
+  transition: transform 0.45s cubic-bezier(0.2, 0.8, 0.1, 1), opacity 0.35s ease;
+}
+.tick-enter-from {
+  transform: translateY(110%);
+  opacity: 0;
+}
+.tick-leave-to {
+  transform: translateY(-110%);
+  opacity: 0;
+}
+@media (prefers-reduced-motion: reduce) {
+  .tick-enter-active,
+  .tick-leave-active {
+    transition: none;
+  }
 }

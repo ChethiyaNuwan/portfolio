@@ -33,6 +33,9 @@ describe("KEYMAP", () => {
     expect(matchesAny(ev({ key: "k", metaKey: true }), KEYMAP.palette, true)).toBe(true);
     expect(matchesAny(ev({ key: "/" }), KEYMAP.palette, false)).toBe(true);
     expect(matchesAny(ev({ key: "k" }), KEYMAP.palette, false)).toBe(false);
+    expect(matchesAny(ev({ key: "?", shiftKey: true }), KEYMAP.help, false)).toBe(true);
+    expect(matchesAny(ev({ key: "/", code: "Slash", shiftKey: true }), KEYMAP.help, false)).toBe(true);
+    expect(matchesAny(ev({ key: "/", code: "Slash" }), KEYMAP.help, false)).toBe(false);
     expect(matchesAny(ev({ key: "k" }), KEYMAP.scrollUp, false)).toBe(true);
     expect(matchesAny(ev({ key: "j" }), KEYMAP.scrollDown, false)).toBe(true);
   });
@@ -48,5 +51,44 @@ describe("sectionDigit", () => {
     expect(sectionDigit(ev({ code: "Digit1", altKey: true, ctrlKey: true }))).toBeNull();
     expect(sectionDigit(ev({ code: "Digit1", altKey: true, shiftKey: true }))).toBeNull();
     expect(sectionDigit(ev({ code: "Digit0", altKey: true }))).toBeNull();
+  });
+});
+
+import { BINDING_DOCS, TICKER, chordKeys } from "./keybindings";
+
+describe("chordKeys (how a chord is displayed)", () => {
+  test("names keys the way the key caps expect", () => {
+    expect(chordKeys({ key: "ArrowRight" })).toEqual(["arrowright"]);
+    expect(chordKeys({ key: "l" })).toEqual(["L"]);
+    expect(chordKeys({ code: "BracketRight" })).toEqual(["]"]);
+    expect(chordKeys({ code: "BracketLeft" })).toEqual(["["]);
+    expect(chordKeys({ key: "k", mod: true })).toEqual(["meta", "K"]);
+    expect(chordKeys({ key: "?", shift: true })).toEqual(["?"]);
+  });
+});
+
+describe("BINDING_DOCS stays in sync with KEYMAP", () => {
+  const find = (action: string) => BINDING_DOCS.find((d) => d.action === action)!;
+  test("next / previous list exactly the chords that are bound", () => {
+    expect(find("Next section").keys).toEqual(KEYMAP.next.map(chordKeys));
+    expect(find("Previous section").keys).toEqual(KEYMAP.prev.map(chordKeys));
+  });
+  test("palette, help, scroll are documented from the keymap", () => {
+    expect(find("Open the command palette").keys).toEqual(KEYMAP.palette.map(chordKeys));
+    expect(find("Show all key bindings").keys).toEqual([["?"]]); // both ways of typing "?" display once
+    expect(find("Scroll down").keys[0]).toEqual(chordKeys(KEYMAP.scrollDown[0]!));
+  });
+  test("every binding has an action, a group and at least one non-empty chord", () => {
+    for (const d of BINDING_DOCS) {
+      expect(d.action.length).toBeGreaterThan(0);
+      expect(d.group.length).toBeGreaterThan(0);
+      expect(d.keys.length).toBeGreaterThan(0);
+      for (const chord of d.keys) expect(chord.every(Boolean) && chord.length > 0).toBe(true);
+    }
+  });
+  test("the ticker rotates through the main bindings, one chord each", () => {
+    expect(TICKER.length).toBeGreaterThanOrEqual(5);
+    expect(TICKER.every((t) => t.keys.length > 0 && t.action)).toBe(true);
+    expect(TICKER.map((t) => t.action)).toContain("Next section");
   });
 });

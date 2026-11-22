@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { navItems, socialIconMap } from "~/utils/icons";
-import { isMac } from "~/utils/keybindings";
 
 // Always-visible bar: the progress line and section navigation on the home page, page links elsewhere,
 // plus the theme toggle and contact button.
@@ -9,11 +8,6 @@ const route = useRoute();
 const { panels, activeId, progress, horizontal } = useStageState();
 
 const sectionMode = computed(() => route.path === "/" && panels.value.length > 0);
-
-// the palette lives in the layout; opening it is just the keyboard shortcut
-function openPalette() {
-  window.dispatchEvent(new KeyboardEvent("keydown", { key: "k", ctrlKey: !isMac(), metaKey: isMac(), bubbles: true }));
-}
 
 function goSection(e: MouseEvent, id: string) {
   if (!horizontal.value) return; // vertical layout: plain in-page anchor
@@ -84,9 +78,7 @@ function goSection(e: MouseEvent, id: string) {
 
       <!-- right: contact and theme -->
       <div class="flex items-center justify-end gap-1">
-        <UButton size="sm" color="neutral" variant="outline" icon="i-lucide-search" label="Search" class="hidden xl:inline-flex" aria-label="Open the command palette" aria-keyshortcuts="Control+K Meta+K" @click="openPalette">
-          <template #trailing><UKbd value="meta" size="sm" /><UKbd value="K" size="sm" /></template>
-        </UButton>
+        <KeybindingTicker />
         <UButton :href="`mailto:${content.profile.email}`" icon="i-lucide-mail" label="Get in touch" size="sm" class="hidden sm:inline-flex" />
         <UButton :href="`mailto:${content.profile.email}`" icon="i-lucide-mail" aria-label="Get in touch" size="sm" class="sm:hidden" />
         <UColorModeButton size="sm" />

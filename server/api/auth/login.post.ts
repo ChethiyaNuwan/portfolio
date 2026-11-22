@@ -1,10 +1,15 @@
 import { newCsrfToken, verifyCredentials } from "../../lib/auth";
+import { clientKey } from "../../lib/clientKey";
 
 export default defineEventHandler(async (event) => {
-  const trustProxy = process.env.TRUST_PROXY === "true";
-  const key = getRequestIP(event, { xForwardedFor: trustProxy }) ?? "unknown";
+  const key = clientKey({
+    forwardedFor: getHeader(event, "x-forwarded-for"),
+    socketIp: getRequestIP(event),
+    trustProxy: process.env.TRUST_PROXY === "true",
+  });
 
-  const gate = loginLimiter.check(key);
+  // Count the attempt up front (before the slow password check) so parallel guesses cannot all pass the limiter.
+  const gate = loginLimiter.attempt(key);
   if (!gate.allowed) {
     setHeader(event, "Retry-After", Math.ceil(gate.retryAfterMs / 1000));
     throw createError({ statusCode: 429, statusMessage: "Too many attempts. Try again later." });
@@ -15,7 +20,6 @@ export default defineEventHandler(async (event) => {
   const password = typeof body?.password === "string" ? body.password.slice(0, 500) : "";
 
   if (!(await verifyCredentials(useAdminConfig(), username, password))) {
-    loginLimiter.fail(key);
     setResponseStatus(event, 401);
     return { message: "Invalid credentials" };
   }

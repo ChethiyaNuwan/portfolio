@@ -4,8 +4,6 @@ services:
       context: ..
       dockerfile: deploy/Dockerfile
     env_file: .env
-    ports:
-      - "3000:3000"
     volumes:
       - portfolio-data:/data # database + uploaded images/CV survive rebuilds
     restart: unless-stopped

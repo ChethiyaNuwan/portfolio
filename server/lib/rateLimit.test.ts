@@ -35,3 +35,19 @@ describe("createLimiter", () => {
     expect(l.check("a").allowed).toBe(true);
   });
 });
+
+describe("attempt (atomic check + count)", () => {
+  test("a burst of concurrent attempts is capped at max before any verification finishes", () => {
+    const l = createLimiter({ max: 5, windowMs: 60_000, lockMs: 60_000 });
+    const results = Array.from({ length: 500 }, () => l.attempt("ip").allowed);
+    expect(results.filter(Boolean)).toHaveLength(5);
+  });
+
+  test("reset after success clears the counted attempts", () => {
+    const l = createLimiter({ max: 2, windowMs: 60_000, lockMs: 60_000 });
+    l.attempt("ip");
+    l.reset("ip");
+    expect(l.attempt("ip").allowed).toBe(true);
+    expect(l.attempt("ip").allowed).toBe(true);
+  });
+});

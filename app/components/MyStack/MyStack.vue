@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { rightArrow, stackIcon } from "~/utils/assets";
-import { myStack } from "~/data";
+const content = await useContent();
 </script>
 
 <template>
@@ -20,7 +20,7 @@ import { myStack } from "~/data";
         class="grid gap-[10px] flex-none auto-rows-min h-min justify-center overflow-visible relative p-0 w-full md:grid-cols-[repeat(2,minmax(50px,1fr))] grid-cols-1 lg:grid-rows-[repeat(2,min-content)]"
       >
         <Motion
-          v-for="(stack, index) in myStack"
+          v-for="(stack, index) in content.stack"
           :key="stack.id"
           as="li"
           :initial="{ opacity: 0, y: 20 }"

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { rightArrow, zapIcon } from "~/utils/assets";
-import { myServices } from "~/data";
+const content = await useContent();
 </script>
 
 <template>
@@ -20,7 +20,7 @@ import { myServices } from "~/data";
         class="grid gap-[10px] flex-none auto-rows-min h-min justify-center overflow-visible relative p-0 w-full grid-cols-1 lg:grid-cols-[repeat(2,minmax(50px,1fr))] lg:grid-rows-[repeat(2,min-content)]"
       >
         <Motion
-          v-for="(service, index) in myServices"
+          v-for="(service, index) in content.services"
           :key="service.id"
           as="li"
           :initial="{ opacity: 0, y: 20 }"

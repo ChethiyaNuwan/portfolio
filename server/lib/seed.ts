@@ -1,12 +1,12 @@
 import type { Content } from "./schemas";
 
-// Initial content, seeded into the database on first run (generated from the original static data).
+// Initial content (the profile email comes from SEED_PROFILE_EMAIL; edit it later in the admin), seeded into the database on first run (generated from the original static data).
 export const seedContent: Content = {
   "profile": {
     "name": "Chethiya Nuwan",
     "title": "Fullstack Engineer",
     "intro": "Passionate about creating efficient, user-focused solutions. I specialize in scalable applications, performance optimization, and seamless user experiences, leveraging technology to solve dynamic challenges.",
-    "email": "chethiya.code@gmail.com",
+    "email": process.env.SEED_PROFILE_EMAIL?.trim() || "hello@example.com",
     "avatar": "/profile.jpg"
   },
   "counters": [

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { flyIcon, linkIcon, rightArrow } from "~/utils/assets";
-import { myShowCases } from "~/data";
+const content = await useContent();
 
 withDefaults(defineProps<{ isMore?: boolean; showData?: number }>(), {
   isMore: true,
@@ -20,7 +20,7 @@ withDefaults(defineProps<{ isMore?: boolean; showData?: number }>(), {
 
     <div class="flex items-start flex-none flex-wrap gap-[10px] h-min justify-start overflow-visible p-0 relative w-full">
       <Motion
-        v-for="(item, index) in myShowCases.slice(0, showData)"
+        v-for="(item, index) in content.projects.slice(0, showData)"
         :key="item.id"
         :initial="{ opacity: 0, y: 20 }"
         :while-in-view="{ opacity: 1, y: 0 }"

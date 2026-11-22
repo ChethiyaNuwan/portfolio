@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { zapIcon } from "~/utils/assets";
-import { myServicesPlans } from "~/data";
+const content = await useContent();
 
 useSeoMeta({
   title: "Chethiya Nuwan • Services",
@@ -20,7 +20,7 @@ useSeoMeta({
 
       <div class="flex-0 w-full gap-[10px] h-min grid justify-center overflow-visible p-0 relative grid-cols-1 lg:grid-cols-[repeat(2,minmax(50px,1fr))] lg:grid-rows-[repeat(2,min-content)]">
         <Motion
-          v-for="(plan, index) in myServicesPlans"
+          v-for="(plan, index) in content.plans"
           :key="plan.id"
           :initial="{ opacity: 0, y: 20 }"
           :while-in-view="{ opacity: 1, y: 0 }"

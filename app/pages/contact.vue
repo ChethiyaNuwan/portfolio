@@ -1,6 +1,8 @@
 <script setup lang="ts">
+import { Mail } from "lucide-vue-next";
 import { emailIcon, questionMarkIcon } from "~/utils/assets";
-import { faqData } from "~/data";
+
+const content = await useContent();
 
 useSeoMeta({
   title: "Chethiya Nuwan • Contact",
@@ -15,9 +17,16 @@ useSeoMeta({
         :icon="emailIcon"
         title="I Love to hear from you."
         description="Connect with Me Today. Let's Create Something Amazing Together!"
-      />
-
-      <ContactForm />
+      >
+        <div class="w-full">
+          <AppButton
+            class-name="w-min"
+            title="Email Me"
+            :icon="Mail"
+            :href="`mailto:${content.profile.email}`"
+          />
+        </div>
+      </SectionHeading>
 
       <SectionHeading
         :icon="questionMarkIcon"
@@ -25,7 +34,7 @@ useSeoMeta({
         description="Get Answers to Common Queries. Your Questions, Addressed Simply."
       />
 
-      <FAQ :data="faqData" />
+      <FAQ :data="content.faq" />
     </div>
   </div>
 </template>

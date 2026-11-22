@@ -30,12 +30,6 @@ export default defineNuxtConfig({
     ],
   },
 
-  // Server-only; set via NUXT_RESEND_API_KEY / NUXT_CONTACT_TO_EMAIL
-  runtimeConfig: {
-    resendApiKey: "",
-    contactToEmail: "",
-  },
-
   app: {
     head: {
       htmlAttrs: { lang: "en" },

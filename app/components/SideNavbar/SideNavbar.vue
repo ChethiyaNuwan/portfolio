@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { ArrowUp } from "lucide-vue-next";
-import { AvatarMe } from "~/utils/assets";
-import { pagesLists } from "~/data";
+import { navPages } from "~/utils/icons";
 
 defineProps<{ isMenuOpen?: boolean }>();
 
 const route = useRoute();
+const content = await useContent();
 </script>
 
 <template>
@@ -25,7 +25,7 @@ const route = useRoute();
       >
         <div class="w-[50px] aspect-square h-auto rounded-full flex-none relative bg-darkest-gray">
           <div class="absolute rounded-full inset-0">
-            <img :src="AvatarMe" width="300" height="300" alt="Avatar" class="block w-full h-full rounded-full opacity-80 object-fill object-center" />
+            <img :src="content.profile.avatar" width="300" height="300" alt="Avatar" class="block w-full h-full rounded-full opacity-80 object-fill object-center" />
           </div>
         </div>
       </NuxtLink>
@@ -37,7 +37,7 @@ const route = useRoute();
         class="flex flex-col flex-none flex-nowrap gap-[20px] h-min justify-start p-0 relative w-min z-10 items-start"
       >
         <Motion
-          v-for="(page, index) in pagesLists"
+          v-for="(page, index) in navPages"
           :key="page.id"
           as="li"
           :initial="{ opacity: 0, x: -20 }"
@@ -55,7 +55,7 @@ const route = useRoute();
             ]"
           >
             <span :class="route.path === page.href ? 'text-light-gray-3' : 'text-light-gray-2'">
-              <component :is="page.icon" :size="page.iconSize" />
+              <component :is="page.icon" :size="24" />
             </span>
 
             <Tooltip :content="page.title" position="right" />

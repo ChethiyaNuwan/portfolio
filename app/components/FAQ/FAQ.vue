@@ -1,8 +1,7 @@
 <script setup lang="ts">
 import { multiplyIcon } from "~/utils/assets";
-import type { FAQ as FAQType } from "../../types";
 
-defineProps<{ data: FAQType[] }>();
+defineProps<{ data: { id: string; question: string; answer: string }[] }>();
 
 const openIndices = ref<number[]>([]);
 

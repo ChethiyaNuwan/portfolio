@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { briefcaseIconley } from "~/utils/assets";
-import { myExperience } from "~/data";
+const content = await useContent();
 </script>
 
 <template>
@@ -20,7 +20,7 @@ import { myExperience } from "~/data";
         class="flex flex-none flex-col gap-[10px] h-min justify-start overflow-visible p-0 relative w-full flex-nowrap items-start"
       >
         <Motion
-          v-for="(exp, index) in myExperience"
+          v-for="(exp, index) in content.experience"
           :key="exp.id"
           as="li"
           :initial="{ opacity: 0, y: 20 }"
@@ -52,9 +52,9 @@ import { myExperience } from "~/data";
               </div>
             </div>
             <div class="flex gap-2 flex-wrap h-min overflow-visible p-0 w-fit items-center justify-start">
-              <template v-if="exp.label && exp.label.length">
+              <template v-if="exp.labels.length">
                 <div
-                  v-for="(labelItem, labelIndex) in exp.label"
+                  v-for="(labelItem, labelIndex) in exp.labels"
                   :key="labelIndex"
                   class="opacity-0 md:opacity-100 bg-dark-gray-2 border border-dark-gray-3 flex items-center justify-start flex-nowrap gap-[10px] h-min overflow-visible p-[4px_10px] relative w-min rounded-3xl"
                 >

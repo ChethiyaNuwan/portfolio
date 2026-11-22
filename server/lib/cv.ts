@@ -1,9 +1,11 @@
 import { PDFDocument, rgb, StandardFonts, type PDFFont, type PDFPage } from "pdf-lib";
 import type { Content } from "./schemas";
 
-const PAGE = { w: 595.28, h: 841.89, margin: 50 };
-const INK = rgb(0.1, 0.1, 0.12);
-const MUTED = rgb(0.4, 0.4, 0.45);
+// ATS-friendly layout: one column, real text only, standard section headings, no tables/images/icons.
+const PAGE = { w: 595.28, h: 841.89, margin: 54 };
+const INK = rgb(0, 0, 0);
+const RULE = rgb(0.45, 0.45, 0.45);
+const BULLET_INDENT = 11;
 
 const REPLACEMENTS: Record<string, string> = {
   "‘": "'", "’": "'", "“": '"', "”": '"', "–": "-", "—": "-", "…": "...", "\t": " ", "•": "-",
@@ -27,6 +29,18 @@ export function safeFileName(name: string): string {
   return cleaned || "CV";
 }
 
+/** One bullet per non-empty line; a single long paragraph is split into its sentences. */
+export function toBullets(text: string): string[] {
+  const lines = text
+    .split(/\r?\n/)
+    .map((l) => l.replace(/^\s*[-•*–]\s*/, "").trim())
+    .filter(Boolean);
+  if (lines.length === 1 && lines[0]!.length > 160) {
+    return lines[0]!.split(/(?<=[.!?])\s+/).map((s) => s.trim()).filter(Boolean);
+  }
+  return lines;
+}
+
 class Writer {
   page!: PDFPage;
   y = 0;
@@ -39,8 +53,7 @@ class Writer {
     this.y = PAGE.h - PAGE.margin;
   }
 
-  private wrap(text: string, font: PDFFont, size: number): string[] {
-    const max = PAGE.w - PAGE.margin * 2;
+  private wrap(text: string, font: PDFFont, size: number, max: number): string[] {
     const lines: string[] = [];
     for (const paragraph of pdfSafe(text).split("\n")) {
       let line = "";
@@ -49,10 +62,15 @@ class Writer {
         const pieces: string[] = [];
         let rest = word;
         while (rest && font.widthOfTextAtSize(rest, size) > max) {
-          let n = rest.length;
-          while (n > 1 && font.widthOfTextAtSize(rest.slice(0, n), size) > max) n--;
-          pieces.push(rest.slice(0, n));
-          rest = rest.slice(n);
+          let lo = 1;
+          let hi = rest.length;
+          while (lo < hi) {
+            const mid = Math.ceil((lo + hi) / 2);
+            if (font.widthOfTextAtSize(rest.slice(0, mid), size) <= max) lo = mid;
+            else hi = mid - 1;
+          }
+          pieces.push(rest.slice(0, lo));
+          rest = rest.slice(lo);
         }
         pieces.push(rest);
         for (const piece of pieces) {
@@ -69,27 +87,39 @@ class Writer {
     return lines;
   }
 
-  text(text: string, opts: { size?: number; bold?: boolean; color?: ReturnType<typeof rgb>; gap?: number } = {}) {
-    const size = opts.size ?? 10;
+  private draw(lines: string[], opts: { size: number; bold?: boolean; x: number; prefix?: string }) {
     const font = opts.bold ? this.bold : this.regular;
-    const lead = size * 1.35;
-    for (const line of this.wrap(text, font, size)) {
+    const lead = opts.size * 1.4;
+    lines.forEach((line, i) => {
       if (this.y - lead < PAGE.margin) this.newPage();
       this.y -= lead;
-      if (line) this.page.drawText(line, { x: PAGE.margin, y: this.y, size, font, color: opts.color ?? INK });
-    }
+      if (i === 0 && opts.prefix) this.page.drawText(opts.prefix, { x: PAGE.margin, y: this.y, size: opts.size, font: this.regular, color: INK });
+      if (line) this.page.drawText(line, { x: opts.x, y: this.y, size: opts.size, font, color: INK });
+    });
+  }
+
+  text(text: string, opts: { size?: number; bold?: boolean; gap?: number } = {}) {
+    const size = opts.size ?? 10;
+    const font = opts.bold ? this.bold : this.regular;
+    this.draw(this.wrap(text, font, size, PAGE.w - PAGE.margin * 2), { size, bold: opts.bold, x: PAGE.margin });
     this.y -= opts.gap ?? 0;
   }
 
+  bullet(text: string, size = 10) {
+    const max = PAGE.w - PAGE.margin * 2 - BULLET_INDENT;
+    this.draw(this.wrap(text, this.regular, size, max), { size, x: PAGE.margin + BULLET_INDENT, prefix: "-" });
+  }
+
   heading(title: string) {
-    if (this.y - 60 < PAGE.margin) this.newPage();
-    this.y -= 8;
-    this.text(title.toUpperCase(), { size: 11, bold: true, gap: 2 });
+    if (this.y - 70 < PAGE.margin) this.newPage();
+    this.y -= 10;
+    this.text(title.toUpperCase(), { size: 11, bold: true });
+    // rule sits below the heading's baseline (not through the text)
     this.page.drawLine({
-      start: { x: PAGE.margin, y: this.y + 2 },
-      end: { x: PAGE.w - PAGE.margin, y: this.y + 2 },
+      start: { x: PAGE.margin, y: this.y - 4 },
+      end: { x: PAGE.w - PAGE.margin, y: this.y - 4 },
       thickness: 0.6,
-      color: MUTED,
+      color: RULE,
     });
     this.y -= 4;
   }
@@ -97,46 +127,61 @@ class Writer {
 
 export async function buildCvPdf(c: Content): Promise<Uint8Array> {
   const doc = await PDFDocument.create();
+  const name = pdfSafe(c.profile.name);
+  doc.setTitle(`${name} - Resume`);
+  doc.setAuthor(name);
+  doc.setSubject("Resume");
+  doc.setKeywords(c.stack.map((s) => pdfSafe(s.title)));
+  doc.setCreator("Portfolio");
+  doc.setProducer("Portfolio");
+  doc.setLanguage("en-US");
+
   const w = new Writer(doc, await doc.embedFont(StandardFonts.Helvetica), await doc.embedFont(StandardFonts.HelveticaBold));
 
-  w.text(c.profile.name, { size: 22, bold: true });
-  if (c.profile.title) w.text(c.profile.title, { size: 12, color: MUTED });
-  const contact = [c.profile.email, ...c.socials.map((s) => s.link)].join("  |  ");
-  w.text(contact, { size: 9, color: MUTED, gap: 4 });
+  w.text(c.profile.name, { size: 18, bold: true });
+  const contact = [c.profile.title, c.profile.location, c.profile.phone, c.profile.email].filter(Boolean).join(" | ");
+  if (contact) w.text(contact);
+  const links = c.socials.map((s) => s.link).filter(Boolean).join(" | ");
+  if (links) w.text(links);
 
-  if (c.profile.intro) {
+  if (c.profile.intro.trim()) {
     w.heading("Summary");
-    w.text(c.profile.intro, { gap: 4 });
+    w.text(c.profile.intro, { gap: 2 });
   }
 
   if (c.experience.length) {
     w.heading("Experience");
     for (const e of c.experience) {
-      w.text(`${e.title} - ${e.company}`, { size: 11, bold: true });
-      w.text([e.year, ...e.labels].filter(Boolean).join("  |  "), { size: 9, color: MUTED });
-      w.text(e.description, { gap: 6 });
+      w.text(e.title, { bold: true, size: 10.5 });
+      w.text([e.company, e.year].filter(Boolean).join(" | "));
+      for (const b of toBullets(e.description)) w.bullet(b);
+      w.y -= 6;
     }
   }
 
   if (c.stack.length) {
-    w.heading("Technical Stack");
-    w.text(c.stack.map((s) => s.title).join(", "), { gap: 4 });
+    w.heading("Skills");
+    w.text(c.stack.map((s) => s.title).join(", "), { gap: 2 });
+  }
+
+  if (c.education.length) {
+    w.heading("Education");
+    for (const e of c.education) {
+      w.text(e.school, { bold: true, size: 10.5 });
+      w.text([e.degree, e.period].filter(Boolean).join(" | "));
+      for (const b of toBullets(e.details)) w.bullet(b);
+      w.y -= 6;
+    }
   }
 
   if (c.projects.length) {
     w.heading("Projects");
     for (const p of c.projects) {
-      w.text(p.title, { size: 11, bold: true });
-      w.text([p.link, p.type, `${p.pages} pages`].filter(Boolean).join("  |  "), { size: 9, color: MUTED });
-      w.text(p.description, { gap: 6 });
-    }
-  }
-
-  if (c.services.length) {
-    w.heading("Services");
-    for (const s of c.services) {
-      w.text(s.title, { bold: true });
-      w.text(s.description, { gap: 4 });
+      w.text(p.title, { bold: true, size: 10.5 });
+      const meta = [p.link, p.type].filter(Boolean).join(" | ");
+      if (meta) w.text(meta);
+      for (const b of toBullets(p.description)) w.bullet(b);
+      w.y -= 6;
     }
   }
 

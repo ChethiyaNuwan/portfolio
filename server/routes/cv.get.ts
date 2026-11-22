@@ -23,7 +23,7 @@ export default defineEventHandler(async (event) => {
 
   setHeaders(event, {
     "Content-Type": "application/pdf",
-    "Content-Disposition": `inline; filename="${safeFileName(profile.name)}_CV.pdf"`,
+    "Content-Disposition": `inline; filename="${safeFileName(profile.name)}_Resume.pdf"`,
     "Cache-Control": "no-cache",
   });
   return bytes;

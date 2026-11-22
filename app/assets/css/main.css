@@ -676,16 +676,19 @@ h3 {
 }
 .key-ticker-window {
   position: relative;
-  width: 15rem;
   min-width: 0;
+  max-width: 20rem;
   height: 1.4rem;
   overflow: hidden;
+  transition: width 0.45s cubic-bezier(0.2, 0.8, 0.1, 1);
 }
 .key-ticker-row {
   display: flex;
   align-items: center;
   gap: 0.6rem;
+  width: max-content;
   height: 1.4rem;
+  white-space: nowrap;
 }
 .tick-enter-active,
 .tick-leave-active {
@@ -701,7 +704,46 @@ h3 {
 }
 @media (prefers-reduced-motion: reduce) {
   .tick-enter-active,
-  .tick-leave-active {
+  .tick-leave-active,
+  .key-ticker-window {
     transition: none;
+  }
+}
+
+/* ---------- Footer social buttons: lift, grow, turn the accent colour and show a dot on hover or focus ---------- */
+.footer-social {
+  position: relative;
+  transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.1, 1), color 0.25s ease, background-color 0.25s ease;
+}
+.footer-social:hover,
+.footer-social:focus-visible {
+  transform: translateY(-3px) scale(1.15);
+  color: var(--ui-primary);
+  background-color: color-mix(in srgb, var(--ui-primary) 12%, transparent);
+}
+.footer-social::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: 1px;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--ui-primary);
+  transform: translateX(-50%) scale(0);
+  transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.1, 1);
+}
+.footer-social:hover::after,
+.footer-social:focus-visible::after {
+  transform: translateX(-50%) scale(1);
+}
+@media (prefers-reduced-motion: reduce) {
+  .footer-social,
+  .footer-social::after {
+    transition: none;
+  }
+  .footer-social:hover,
+  .footer-social:focus-visible {
+    transform: none;
   }
 }

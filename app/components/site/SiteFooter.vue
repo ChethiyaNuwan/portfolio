@@ -29,19 +29,19 @@ function goSection(e: MouseEvent, id: string) {
           {{ content.profile.name }}
         </NuxtLink>
         <div class="flex items-center">
-          <UButton
-            v-for="s in content.socials"
-            :key="s.id"
-            :to="s.link"
-            target="_blank"
-            rel="noopener noreferrer"
-            :icon="socialIconMap[s.icon]"
-            :aria-label="s.title"
-            color="neutral"
-            variant="ghost"
-            size="sm"
-            class="hidden sm:inline-flex"
-          />
+          <UTooltip v-for="s in content.socials" :key="s.id" :text="s.title" :content="{ side: 'top', sideOffset: 8 }">
+            <UButton
+              :to="s.link"
+              target="_blank"
+              rel="noopener noreferrer"
+              :icon="socialIconMap[s.icon]"
+              :aria-label="s.title"
+              color="neutral"
+              variant="ghost"
+              size="sm"
+              class="footer-social hidden sm:inline-flex"
+            />
+          </UTooltip>
         </div>
       </div>
 
@@ -78,7 +78,7 @@ function goSection(e: MouseEvent, id: string) {
 
       <!-- right: contact and theme -->
       <div class="flex items-center justify-end gap-1">
-        <KeybindingTicker />
+        <div class="mr-3"><KeybindingTicker /></div>
         <UButton :href="`mailto:${content.profile.email}`" icon="i-lucide-mail" label="Get in touch" size="sm" class="hidden sm:inline-flex" />
         <UButton :href="`mailto:${content.profile.email}`" icon="i-lucide-mail" aria-label="Get in touch" size="sm" class="sm:hidden" />
         <UColorModeButton size="sm" />

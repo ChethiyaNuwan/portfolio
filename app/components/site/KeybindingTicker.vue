@@ -10,6 +10,15 @@ const index = ref(0);
 const paused = ref(false);
 let timer: ReturnType<typeof setInterval> | undefined;
 
+// The window is exactly as wide as the binding being shown, and animates to the next one's width.
+const windowEl = ref<HTMLElement>();
+const width = ref<number | null>(null);
+const fit = (el: Element) => (width.value = (el as HTMLElement).scrollWidth);
+const measure = () => {
+  const row = windowEl.value?.querySelector<HTMLElement>(".key-ticker-row");
+  if (row) width.value = row.scrollWidth;
+};
+
 const current = computed(() => TICKER[index.value % TICKER.length]!);
 
 function openPalette() {
@@ -27,6 +36,8 @@ function onKey(e: KeyboardEvent) {
 }
 
 onMounted(() => {
+  measure();
+  document.fonts?.ready.then(measure);
   window.addEventListener("keydown", onKey);
   if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
   timer = setInterval(() => {
@@ -52,8 +63,8 @@ onBeforeUnmount(() => {
       @blur="paused = false"
     >
       <!-- wide windows: the cycling binding -->
-      <span class="key-ticker-window hidden xl:block" aria-hidden="true">
-        <Transition name="tick" mode="out-in">
+      <span ref="windowEl" class="key-ticker-window hidden xl:block" :style="width ? { width: `${width}px` } : undefined" aria-hidden="true">
+        <Transition name="tick" mode="out-in" @before-enter="fit">
           <span :key="index % TICKER.length" class="key-ticker-row">
             <span class="flex items-center gap-1"><UKbd v-for="k in current.keys" :key="k" :value="k" size="sm" /></span>
             <span class="truncate text-sm text-toned">{{ current.action }}</span>

@@ -45,7 +45,8 @@ cmp -s $TMP/mine.pdf $TMP/served.pdf && ok "/cv serves the uploaded file" || bad
 
 put settings '{"cvMode":"generated","cvUploadUrl":null}' >/dev/null
 curl -s $BASE/cv -o $TMP/gen2.pdf
-OUT=$(put profile '{"name":"Chethiya Nuwan","title":"Edited Title Marker","intro":"intro text","email":"a@b.co","avatar":"/profile.jpg"}'); echo "$OUT" | tail -1 | grep -q 200 || bad "profile edit ($OUT)"
+PROFILE="{\"name\":\"Chethiya Nuwan\",\"title\":\"Edited $(date +%s%N)\",\"intro\":\"intro text\",\"email\":\"a@b.co\",\"avatar\":\"/profile.jpg\"}"
+OUT=$(put profile "$PROFILE"); echo "$OUT" | tail -1 | grep -q 200 || bad "profile edit ($OUT)"
 curl -s $BASE/cv -o $TMP/gen3.pdf
 cmp -s $TMP/gen2.pdf $TMP/gen3.pdf && bad "content edit must change generated cv" || ok "content edit changes generated cv"
 

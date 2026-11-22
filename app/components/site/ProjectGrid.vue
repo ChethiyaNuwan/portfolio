@@ -21,7 +21,7 @@ watch(current, (p) => (shown.value = p?.image ?? ""));
       <li v-for="p in projects" :key="p.id">
         <button
           type="button"
-          class="group flex h-full w-full flex-col overflow-hidden rounded-2xl border border-default bg-elevated/40 text-left transition-colors hover:border-accented focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+          class="group flex h-full w-full flex-col overflow-hidden border border-default bg-muted/40 text-left transition-colors hover:border-accented focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
           @click="openId = p.id"
         >
           <span class="block aspect-[16/10] overflow-hidden bg-muted">
@@ -41,7 +41,7 @@ watch(current, (p) => (shown.value = p?.image ?? ""));
     <UModal v-model:open="isOpen" :title="current?.title ?? 'Project'" :description="current ? `${current.type} · ${current.pages} pages` : ''" :ui="{ content: 'max-w-3xl' }">
       <template #body>
         <div v-if="current" class="flex flex-col gap-5">
-          <img :src="shown" :alt="`Screenshot of ${current.title}`" class="w-full rounded-lg border border-default object-cover object-top" />
+          <img :src="shown" :alt="`Screenshot of ${current.title}`" class="w-full border border-default object-cover object-top" />
           <div v-if="current.gallery.length" class="flex flex-wrap gap-2">
             <button
               v-for="img in [current.image, ...current.gallery]"

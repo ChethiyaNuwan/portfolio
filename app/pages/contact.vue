@@ -19,7 +19,7 @@ usePageMeta({
     <UContainer class="max-w-4xl">
       <SectionHeader title="Contact" description="Tell me about your project or role and I will get back to you." />
 
-      <div class="grid gap-6 rounded-3xl border border-default bg-elevated/50 p-8 sm:grid-cols-[1fr_auto] sm:items-center sm:p-10">
+      <div class="grid gap-6 border border-default bg-muted/40 p-8 sm:grid-cols-[1fr_auto] sm:items-center sm:p-10">
         <div class="space-y-2">
           <p class="text-sm text-muted">Email</p>
           <a :href="`mailto:${profile.email}`" class="break-all text-2xl font-semibold text-highlighted underline-offset-4 hover:underline">{{ profile.email }}</a>

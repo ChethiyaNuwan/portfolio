@@ -53,15 +53,15 @@ onBeforeUnmount(() => window.removeEventListener("keydown", onKey));
       />
     </div>
 
-    <p v-if="!items.length" class="rounded-xl border border-dashed border-default p-10 text-center text-muted">
+    <p v-if="!items.length" class="border border-dashed border-default p-10 text-center text-muted">
       No images yet. Add some from the admin under Gallery.
     </p>
 
-    <ul v-else class="columns-1 gap-4 sm:columns-2 lg:columns-3">
-      <li v-for="(g, i) in items" :key="g.id" class="mb-4 break-inside-avoid">
+    <DropGroup v-else as="ul" class="columns-1 gap-4 sm:columns-2 lg:columns-3" role="list" :aria-label="`${items.length} gallery images`">
+      <li v-for="(g, i) in items" :key="g.id" class="drop mb-4 break-inside-avoid" :style="{ '--i': i % 9, '--r': `${((i * 53) % 7) - 3}deg` }">
         <button
           type="button"
-          class="group relative block w-full overflow-hidden rounded-xl border border-default bg-muted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+          class="group relative block w-full overflow-hidden border border-default bg-muted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
           :aria-label="g.caption ? `Open image: ${g.caption}` : 'Open image'"
           @click="openIndex = i"
         >
@@ -74,7 +74,7 @@ onBeforeUnmount(() => window.removeEventListener("keydown", onKey));
           </span>
         </button>
       </li>
-    </ul>
+    </DropGroup>
 
     <UModal v-model:open="isOpen" :title="current?.caption || 'Image'" description="Use the arrow keys or buttons to browse." :ui="{ content: 'max-w-4xl' }">
       <template #body>

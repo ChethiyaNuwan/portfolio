@@ -1,8 +1,12 @@
 # Portfolio
 
-A Nuxt 4 portfolio built with [Nuxt UI](https://ui.nuxt.com) (Tailwind 4), with light and dark themes, a project carousel, a Pinterest-style gallery with lightbox, and a built-in password-protected admin. All content is edited at `/admin` and stored locally in SQLite plus an uploads folder.
+A Nuxt 4 portfolio with a kinetic, editorial look: pure black (dark) or pure white (light), huge type that changes weight as you scroll, and a home page where vertical scrolling pans sideways across the sections. It has a project carousel, Pinterest-style staggered gallery and tech-stack animations, and a built-in password-protected admin. All content is edited at `/admin` and stored locally in SQLite plus an uploads folder. Built with [Nuxt UI](https://ui.nuxt.com) and Tailwind 4.
 
-Pages: Home, Work (project grid with details), Gallery (masonry, tag filter), Services, Contact (`mailto:` link and FAQ).
+Pages: Home (horizontal sections), Work (project grid with details), Gallery (masonry, tag filter, lightbox), Services, Contact (`mailto:` link and FAQ).
+
+**Horizontal scrolling is an enhancement.** It only runs on large screens when the visitor has not asked for reduced motion. On phones, small windows and with reduced motion, the same sections are an ordinary vertical page. Every section is always in the page in reading order, with arrow-key navigation, a skip link, and focus handling that brings off-screen sections into view.
+
+**Made for people and AI agents to read.** Semantic landmarks and headings, ARIA labels, JSON-LD structured data (`Person`, `WebSite`, projects, gallery, FAQ), canonical URLs and social cards on every page, plus `/llms.txt`, `/llms-full.txt` (the whole portfolio as Markdown), `/sitemap.xml` and `/robots.txt`, all generated from the admin content. Set `NUXT_PUBLIC_SITE_URL` to your public URL (for example `https://example.com`) so canonical links and the sitemap use it; otherwise the request host is used.
 
 ## Develop
 
@@ -34,6 +38,7 @@ docker compose -f deploy/docker-compose.yml up -d --build
 | `ADMIN_USERNAME` | yes | Admin username. The app will not start without it. |
 | `ADMIN_PASSWORD` | yes | Admin password, at least 12 characters. |
 | `SESSION_SECRET` | recommended | 32+ chars, signs the session cookie. If unset, a random one is used per start. |
+| `NUXT_PUBLIC_SITE_URL` | recommended | Public URL of the site, used for canonical links, the sitemap, `llms.txt` and JSON-LD. |
 | `SEED_PROFILE_EMAIL` | first run | Email shown on the site / used for `mailto:` links on first run. Editable later in the admin. |
 | `TRUST_PROXY` | yes in production | `true` when behind your reverse proxy (see above). |
 | `COOKIE_SECURE` | no | `false` only for plain-HTTP testing. |

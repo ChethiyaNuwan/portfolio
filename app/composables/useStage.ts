@@ -7,6 +7,8 @@ export function useStageState() {
     horizontal: useState<boolean>("stage-horizontal", () => false),
     /** true once the visitor has moved between sections, so the hint can stop nudging */
     hinted: useState<boolean>("stage-hinted", () => false),
+    /** increments on every tick (one section passed), so the footer can pulse in time with it */
+    tickCount: useState<number>("stage-ticks", () => 0),
   };
 }
 

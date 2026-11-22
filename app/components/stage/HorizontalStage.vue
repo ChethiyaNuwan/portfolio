@@ -1,14 +1,20 @@
 <script setup lang="ts">
-// Desktop: the sections sit side by side in a native horizontal scroll-snap container. Each section locks into place
-// and scrolls vertically by itself when it has more content. Visitors move sideways with a horizontal swipe,
-// Shift + scroll, the arrow keys, the footer links, or the edge buttons (and are hinted at all of these).
-// Elsewhere (phones, short windows, reduced motion) the same markup is a normal vertical page (CSS decides).
+// The sections sit side by side in a native horizontal scroll-snap container (desktop, and any touch device). Each
+// section locks into place and scrolls vertically by itself when it has more content.
+// Sideways movement is "crown-like": a continuous gesture (trackpad, Shift + wheel, finger drag) is cut into ticks,
+// one section per tick, so one long gesture can pass several sections, and each tick gives haptic feedback where the
+// device allows (see utils/haptics.ts). Arrow keys, the footer links and the edge buttons step one section.
+// Elsewhere (short desktop windows, reduced motion) the same markup is a normal vertical page (CSS decides).
 import { KEYMAP, isMac, matchesAny, sectionDigit } from "~/utils/keybindings";
+import { tickHaptic } from "~/utils/haptics";
+import { createTickAccumulator } from "~/utils/ticks";
 
-const QUERY = "(min-width: 1024px) and (min-height: 600px) and (prefers-reduced-motion: no-preference)";
+// Keep in sync with the @media rules in main.css
+const QUERY =
+  "(min-width: 1024px) and (min-height: 600px) and (prefers-reduced-motion: no-preference), (pointer: coarse) and (min-height: 420px) and (prefers-reduced-motion: no-preference)";
 
 const scroller = ref<HTMLElement>();
-const { panels, activeId, progress, horizontal, hinted } = useStageState();
+const { panels, activeId, progress, horizontal, hinted, tickCount } = useStageState();
 
 let panelEls: HTMLElement[] = [];
 let mq: MediaQueryList | null = null;
@@ -51,10 +57,35 @@ function jumpTo(id: string) {
   hinted.value = true;
 }
 
-function step(dir: 1 | -1) {
-  const target = panels.value[index.value + dir];
-  if (target) jumpTo(target.id);
+// Moving by ticks: several ticks in quick succession keep moving forward from where the last one aimed, not from
+// where the (still animating) scroll position currently is.
+let pending: number | null = null;
+let pendingTimer: ReturnType<typeof setTimeout> | undefined;
+let lastBump = 0;
+
+function move(dir: 1 | -1, haptic: boolean): boolean {
+  const count = panels.value.length;
+  if (!count) return false;
+  const base = pending ?? Math.max(0, index.value);
+  const nextIndex = clamp(base + dir, 0, count - 1);
+  if (nextIndex === base) {
+    // first / last section: a double pulse, at most once in a while so a long gesture does not buzz continuously
+    if (haptic && performance.now() - lastBump > 500) {
+      lastBump = performance.now();
+      tickHaptic("bump");
+    }
+    return false;
+  }
+  pending = nextIndex;
+  clearTimeout(pendingTimer);
+  pendingTimer = setTimeout(() => (pending = null), 900);
+  jumpTo(panels.value[nextIndex]!.id);
+  tickCount.value++;
+  if (haptic) tickHaptic("tick");
+  return true;
 }
+
+const step = (dir: 1 | -1) => move(dir, false);
 
 function activeScroll(): HTMLElement | null {
   return panelEls.find((p) => p.id === activeId.value)?.querySelector<HTMLElement>(".stage-panel-scroll") ?? null;
@@ -91,13 +122,9 @@ function onKey(e: KeyboardEvent) {
   }
 }
 
-// Horizontal wheel / trackpad / Shift+wheel: one gesture = one section, and a short movement is enough.
-// (Native snapping would snap small movements back to where they started.) Momentum from the same gesture is
-// ignored until the wheel goes quiet.
-const WHEEL_THRESHOLD = 10;
-let wheelAcc = 0;
-let wheelLocked = false;
-let wheelTimer: ReturnType<typeof setTimeout> | undefined;
+// Wheel / trackpad / Shift + wheel: every 90px of horizontal travel is one tick. Trackpad momentum keeps ticking as it
+// slows down, like a flicked crown; a mouse wheel notch (about 100px) is one tick.
+const wheelTicks = createTickAccumulator({ threshold: 90, quietMs: 150, maxPerPush: 4 });
 
 function onWheel(e: WheelEvent) {
   if (e.ctrlKey) return; // pinch zoom
@@ -106,38 +133,52 @@ function onWheel(e: WheelEvent) {
   if (!e.shiftKey && Math.abs(dx) < Math.abs(e.deltaY) * 0.75) return;
   if (!dx) return;
   e.preventDefault();
-  clearTimeout(wheelTimer);
-  wheelTimer = setTimeout(() => {
-    wheelLocked = false;
-    wheelAcc = 0;
-  }, 120);
-  if (wheelLocked) return;
-  wheelAcc += dx;
-  if (Math.abs(wheelAcc) > WHEEL_THRESHOLD) {
-    step(wheelAcc > 0 ? 1 : -1);
-    wheelLocked = true;
-    wheelAcc = 0;
-  }
+  const n = wheelTicks.push(dx, performance.now());
+  for (let i = 0; i < Math.abs(n); i++) move(n > 0 ? 1 : -1, true);
 }
 
-// Touch: a short, quick horizontal swipe moves one section (the browser only pans vertically, see touch-action).
-const SWIPE_DISTANCE = 36;
-let touchStart: { x: number; y: number; t: number } | null = null;
+// Touch: dragging sideways ticks every 80px of finger travel (the browser only pans vertically, see touch-action);
+// a quick flick adds a few more ticks, like spinning a crown.
+const touchTicks = createTickAccumulator({ threshold: 80, quietMs: 600, maxPerPush: 3 });
+let touch: { x: number; y: number; t: number; lastX: number; dragging: boolean; ticks: number } | null = null;
+let flickTimers: ReturnType<typeof setTimeout>[] = [];
 
 function onTouchStart(e: TouchEvent) {
   const t = e.touches[0];
-  touchStart = t ? { x: t.clientX, y: t.clientY, t: performance.now() } : null;
+  flickTimers.forEach(clearTimeout);
+  flickTimers = [];
+  touchTicks.reset();
+  touch = t ? { x: t.clientX, y: t.clientY, t: performance.now(), lastX: t.clientX, dragging: false, ticks: 0 } : null;
+}
+
+function onTouchMove(e: TouchEvent) {
+  const t = e.touches[0];
+  if (!touch || !t) return;
+  const dx = t.clientX - touch.lastX;
+  touch.lastX = t.clientX;
+  if (!touch.dragging) {
+    const totalX = t.clientX - touch.x;
+    const totalY = t.clientY - touch.y;
+    if (Math.abs(totalX) > 12 && Math.abs(totalX) > Math.abs(totalY) * 1.2) touch.dragging = true;
+    else return;
+  }
+  const n = touchTicks.push(-dx, performance.now()); // finger moving left = forward
+  for (let i = 0; i < Math.abs(n); i++) if (move(n > 0 ? 1 : -1, true)) touch.ticks++;
 }
 
 function onTouchEnd(e: TouchEvent) {
-  const start = touchStart;
-  touchStart = null;
+  const start = touch;
+  touch = null;
   const t = e.changedTouches[0];
   if (!start || !t) return;
   const dx = t.clientX - start.x;
   const dy = t.clientY - start.y;
-  const fast = Math.abs(dx) / Math.max(1, performance.now() - start.t) > 0.25; // px per ms
-  if (Math.abs(dx) > Math.abs(dy) * 1.2 && (Math.abs(dx) > SWIPE_DISTANCE || (fast && Math.abs(dx) > 16))) step(dx < 0 ? 1 : -1);
+  if (Math.abs(dx) < 16 || Math.abs(dx) < Math.abs(dy) * 1.2) return;
+  const dir = dx < 0 ? 1 : -1;
+  const velocity = Math.abs(dx) / Math.max(1, performance.now() - start.t); // px per ms
+  if (start.ticks === 0) move(dir, true); // a short swipe is still one tick
+  const extra = Math.min(3, Math.floor(velocity / 1.1)); // a hard flick keeps spinning
+  for (let i = 0; i < extra; i++) flickTimers.push(setTimeout(() => move(dir, true), 130 * (i + 1)));
 }
 
 function enable() {
@@ -146,6 +187,7 @@ function enable() {
   scroller.value?.addEventListener("scroll", onScroll, { passive: true });
   scroller.value?.addEventListener("wheel", onWheel, { passive: false });
   scroller.value?.addEventListener("touchstart", onTouchStart, { passive: true });
+  scroller.value?.addEventListener("touchmove", onTouchMove, { passive: true });
   scroller.value?.addEventListener("touchend", onTouchEnd, { passive: true });
   window.addEventListener("keydown", onKey);
   window.addEventListener("resize", onScroll);
@@ -163,8 +205,10 @@ function disable() {
   scroller.value?.removeEventListener("scroll", onScroll);
   scroller.value?.removeEventListener("wheel", onWheel);
   scroller.value?.removeEventListener("touchstart", onTouchStart);
+  scroller.value?.removeEventListener("touchmove", onTouchMove);
   scroller.value?.removeEventListener("touchend", onTouchEnd);
-  clearTimeout(wheelTimer);
+  flickTimers.forEach(clearTimeout);
+  clearTimeout(pendingTimer);
   window.removeEventListener("keydown", onKey);
   window.removeEventListener("resize", onScroll);
   cancelAnimationFrame(raf);

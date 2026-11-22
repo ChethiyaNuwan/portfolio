@@ -1,8 +1,8 @@
 @import "tailwindcss";
 @import "@nuxt/ui";
 
-/* True only when the horizontal stage is active (same query as HorizontalStage.vue and the .stage-* rules below) */
-@custom-variant stage (@media (min-width: 1024px) and (min-height: 600px) and (prefers-reduced-motion: no-preference));
+/* True only when the sideways stage is active: desktop, or any touch device (same query as HorizontalStage.vue) */
+@custom-variant stage (@media (min-width: 1024px) and (min-height: 600px) and (prefers-reduced-motion: no-preference), (pointer: coarse) and (min-height: 420px) and (prefers-reduced-motion: no-preference));
 
 @theme static {
   --font-sans: "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
@@ -271,16 +271,20 @@ h3 {
 .stage-panel-scroll {
   padding: clamp(1.25rem, 4vw, 3rem);
 }
-/* Keep content clear of the edge buttons when sections are side by side */
+/* Keep content clear of the edge buttons (desktop only: touch devices have no edge buttons) */
 @media (min-width: 1024px) and (min-height: 600px) and (prefers-reduced-motion: no-preference) {
   .stage-panel-scroll {
     padding-inline: max(5.5rem, 4vw);
+  }
+  /* the home section never scrolls on desktop: it fits the screen instead */
+  .stage-panel-scroll.stage-fit {
+    overflow-y: hidden;
   }
 }
 .stage-more {
   display: none;
 }
-@media (min-width: 1024px) and (min-height: 600px) and (prefers-reduced-motion: no-preference) {
+@media (min-width: 1024px) and (min-height: 600px) and (prefers-reduced-motion: no-preference), (pointer: coarse) and (min-height: 420px) and (prefers-reduced-motion: no-preference) {
   .stage {
     position: relative;
     height: calc(100svh - var(--footer-h));
@@ -294,7 +298,7 @@ h3 {
     scroll-snap-type: x mandatory;
     scroll-behavior: smooth;
     overscroll-behavior-x: contain;
-    touch-action: pan-y; /* sideways swipes are handled in HorizontalStage.vue so a short swipe is enough */
+    touch-action: pan-y; /* sideways drags are handled in HorizontalStage.vue as detented ticks */
     scrollbar-width: none;
   }
   .stage-scroller::-webkit-scrollbar {
@@ -317,10 +321,6 @@ h3 {
   }
   .stage-panel-scroll::-webkit-scrollbar {
     display: none;
-  }
-  /* the home section never scrolls: it fits the screen instead */
-  .stage-panel-scroll.stage-fit {
-    overflow-y: hidden;
   }
 }
 
@@ -745,5 +745,26 @@ h3 {
   .footer-social:hover,
   .footer-social:focus-visible {
     transform: none;
+  }
+}
+
+/* Visual tick on the footer progress line: it thickens briefly each time a section is passed
+   (the Mac trackpad cannot be buzzed from a web page, so this is the feedback there) */
+.tick-line {
+  position: absolute;
+  inset-inline: 0;
+  top: 0;
+  height: 2px;
+  animation: tick-line 0.32s cubic-bezier(0.2, 0.8, 0.1, 1);
+}
+@keyframes tick-line {
+  0% { height: 6px; filter: brightness(1.6); }
+  100% { height: 2px; filter: none; }
+}
+
+/* Touch devices swipe sideways: no edge buttons (placed last so it wins over the base .stage-edge style) */
+@media (pointer: coarse) {
+  .stage-edge {
+    display: none;
   }
 }

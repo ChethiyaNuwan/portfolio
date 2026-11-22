@@ -1,6 +1,9 @@
 @import "tailwindcss";
 @import "@nuxt/ui";
 
+/* True only when the horizontal stage is active (same query as HorizontalStage.vue and the .stage-* rules below) */
+@custom-variant stage (@media (min-width: 1024px) and (min-height: 600px) and (prefers-reduced-motion: no-preference));
+
 @theme static {
   --font-sans: "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
   --font-display: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
@@ -134,4 +137,170 @@ h3 {
 .admin-btn-primary:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+/* ---------- Kinetic type ---------- */
+.display {
+  font-size: clamp(3.25rem, 11vw, 10rem);
+  line-height: 0.9;
+  letter-spacing: -0.045em;
+  font-weight: calc(300 + 400 * var(--panel-p, 1));
+  color: var(--ui-text-highlighted);
+}
+.display-md {
+  font-size: clamp(2.5rem, 7vw, 6.5rem);
+  line-height: 0.95;
+  letter-spacing: -0.04em;
+  font-weight: calc(300 + 400 * var(--panel-p, 1));
+  color: var(--ui-text-highlighted);
+}
+.outline-text {
+  -webkit-text-stroke: 1.5px var(--ui-text-highlighted);
+  color: transparent;
+}
+
+.k-word {
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: bottom;
+  padding-bottom: 0.12em;
+  margin-bottom: -0.12em;
+}
+.k-char {
+  display: inline-block;
+  transform: translateY(108%) rotate(5deg);
+  opacity: 0;
+  transition:
+    transform 0.9s cubic-bezier(0.2, 0.8, 0.1, 1),
+    opacity 0.5s ease;
+  transition-delay: calc(var(--delay, 0ms) + var(--i, 0) * 28ms);
+}
+.is-in .k-char {
+  transform: none;
+  opacity: 1;
+}
+
+/* ---------- Giant marquee ---------- */
+.big-marquee {
+  overflow: hidden;
+  width: 100%;
+  user-select: none;
+}
+.big-marquee-track {
+  display: flex;
+  width: max-content;
+  animation: big-marquee linear infinite;
+}
+.big-marquee-group {
+  display: flex;
+  flex: none;
+  gap: 3rem;
+  padding-right: 3rem;
+}
+.big-marquee-word {
+  font-family: var(--font-display);
+  font-size: clamp(3rem, 8vw, 7rem);
+  line-height: 1;
+  letter-spacing: -0.03em;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.big-marquee-word.is-outline {
+  -webkit-text-stroke: 1.5px var(--ui-text-highlighted);
+  color: transparent;
+}
+.big-marquee-word.is-fill {
+  color: var(--ui-text-highlighted);
+}
+@keyframes big-marquee {
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+/* ---------- Pinterest-style staggered drop-in ---------- */
+.drop {
+  opacity: 0;
+  transform: translateY(70px) scale(0.9) rotate(var(--r, 0deg));
+}
+.is-in .drop {
+  opacity: 1;
+  transform: none;
+  transition:
+    transform 0.95s cubic-bezier(0.2, 0.8, 0.1, 1) calc(var(--i, 0) * 85ms),
+    opacity 0.6s ease calc(var(--i, 0) * 85ms);
+}
+
+/* No JS, or reduced motion: show everything, no movement */
+@media (scripting: none) {
+  .k-char,
+  .drop {
+    opacity: 1;
+    transform: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .k-char,
+  .drop {
+    opacity: 1;
+    transform: none;
+    transition: none !important;
+  }
+  .big-marquee-track {
+    animation: none;
+  }
+}
+
+/* ---------- Horizontal stage (desktop, motion allowed). Elsewhere it is a normal vertical page. ---------- */
+.stage-panel {
+  padding: clamp(1.25rem, 4vw, 3rem);
+}
+.stage-nav {
+  display: none;
+}
+@media (min-width: 1024px) and (min-height: 600px) and (prefers-reduced-motion: no-preference) {
+  .stage-sticky {
+    position: sticky;
+    top: var(--ui-header-height, 4rem);
+    height: calc(100svh - var(--ui-header-height, 4rem));
+    overflow: hidden;
+  }
+  .stage-track {
+    display: flex;
+    height: 100%;
+    width: max-content;
+    will-change: transform;
+  }
+  .stage-panel {
+    flex: none;
+    width: var(--panel-w, 100vw);
+    height: 100%;
+    overflow: hidden;
+  }
+  .stage-panel {
+    padding-bottom: 5rem;
+  }
+  .stage-nav {
+    display: flex;
+  }
+}
+
+/* Carousel depth: neighbours recede and tilt away from the active slide */
+.project-slide {
+  opacity: 0.45;
+  transform: perspective(1400px) rotateY(-7deg) scale(0.92);
+  transition:
+    transform 0.7s cubic-bezier(0.2, 0.8, 0.1, 1),
+    opacity 0.5s ease;
+}
+.project-slide.is-active {
+  opacity: 1;
+  transform: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .project-slide {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
 }

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 // One full-screen section. A real <section>, always in reading order in the DOM. When its content is taller than the
-// screen it scrolls vertically by itself, with a fade and chevron hinting that there is more below.
-defineProps<{ id: string; label: string }>();
+// screen it scrolls vertically by itself (unless it is marked "fit", like the home section).
+defineProps<{ id: string; label: string; fit?: boolean }>();
 
 const scroll = ref<HTMLElement>();
 const more = ref(false);
@@ -26,11 +26,8 @@ onBeforeUnmount(() => ro?.disconnect());
 
 <template>
   <section :id="id" :aria-labelledby="`${id}-heading`" data-stage-panel :data-label="label" class="stage-panel relative">
-    <div ref="scroll" class="stage-panel-scroll" :tabindex="more ? 0 : undefined" @scroll.passive="update">
+    <div ref="scroll" class="stage-panel-scroll" :class="{ 'stage-fit': fit }" :tabindex="more && !fit ? 0 : undefined" @scroll.passive="update">
       <slot />
-    </div>
-    <div v-show="more" class="stage-more" aria-hidden="true">
-      <UIcon name="i-lucide-chevrons-down" class="size-6 animate-bounce motion-reduce:animate-none" />
     </div>
   </section>
 </template>

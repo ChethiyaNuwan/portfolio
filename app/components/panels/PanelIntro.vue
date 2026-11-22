@@ -5,7 +5,7 @@ const marqueeWords = computed(() => [profile.value.title, ...content.value.servi
 </script>
 
 <template>
-  <StagePanel id="intro" label="Intro" class="overflow-hidden">
+  <StagePanel id="intro" label="Intro" fit class="overflow-hidden">
     <figure class="hero-portrait">
       <img :src="profile.avatar" :alt="`Portrait of ${profile.name}`" width="960" height="1200" fetchpriority="high" />
     </figure>
@@ -22,9 +22,9 @@ const marqueeWords = computed(() => [profile.value.title, ...content.value.servi
           </UBadge>
           <KineticText id="intro-heading" as="h1" class="display max-w-[11ch]" :text="profile.name" />
           <p class="font-display text-2xl text-toned sm:text-3xl">{{ profile.title }}</p>
-          <p class="max-w-xl text-lg leading-relaxed text-muted">{{ profile.intro }}</p>
+          <p class="hero-intro max-w-xl text-lg leading-relaxed text-muted">{{ profile.intro }}</p>
           <div class="flex flex-wrap items-center gap-3">
-            <UButton size="xl" :href="`mailto:${profile.email}`" icon="i-lucide-mail" label="Email me" />
+            <UButton size="xl" :href="`mailto:${profile.email}`" icon="i-lucide-mail" label="Contact me" />
             <UButton
               size="xl"
               color="neutral"
@@ -40,14 +40,14 @@ const marqueeWords = computed(() => [profile.value.title, ...content.value.servi
         </div>
       </div>
 
-      <dl class="flex flex-wrap gap-x-10 gap-y-3 border-t border-default pt-5">
+      <dl class="hero-stats flex flex-wrap gap-x-10 gap-y-3 border-t border-default pt-5">
         <div v-for="c in content.counters" :key="c.id" class="flex items-baseline gap-2">
           <dd class="font-display text-3xl font-semibold text-highlighted"><CountUp :end="c.value" />+</dd>
           <dt class="text-sm text-muted">{{ c.title }}</dt>
         </div>
       </dl>
 
-      <BigMarquee :words="marqueeWords" />
+      <BigMarquee class="hero-marquee" :words="marqueeWords" />
     </div>
   </StagePanel>
 </template>

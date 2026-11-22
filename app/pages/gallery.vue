@@ -1,8 +1,13 @@
 <script setup lang="ts">
-useSeoMeta({
-  title: "Gallery • Chethiya Nuwan",
-  description: "Interfaces and designs from my projects.",
+import { galleryJsonLd, jsonLdScript } from "../../server/lib/seo";
+
+const content = await useContent();
+const { site } = usePageMeta({
+  title: `Gallery • ${content.value.profile.name}`,
+  description: "Interfaces and designs from my projects, filterable by tag.",
+  path: "/gallery",
 });
+useHead({ script: [{ type: "application/ld+json", innerHTML: jsonLdScript(galleryJsonLd(content.value, site)) }] });
 </script>
 
 <template>

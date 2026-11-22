@@ -1,8 +1,19 @@
 <script setup lang="ts">
 import { navItems, socialIconMap } from "~/utils/icons";
+import { jsonLdScript, personJsonLd, websiteJsonLd } from "../../server/lib/seo";
 
 const GA_ID = "G-D7QR2BL0BT";
 const content = await useContent();
+const config = useRuntimeConfig();
+const site = ((config.public.siteUrl as string) || useRequestURL().origin).replace(/\/+$/, "");
+
+// Site-wide structured data: who the site is about and what the site is
+useHead({
+  script: [personJsonLd(content.value, site), websiteJsonLd(content.value, site)].map((o) => ({
+    type: "application/ld+json",
+    innerHTML: jsonLdScript(o),
+  })),
+});
 
 // Analytics only on the public site (admin uses its own layout)
 useHead({
@@ -16,12 +27,18 @@ useHead({
 </script>
 
 <template>
+  <a
+    href="#main"
+    class="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-md focus:bg-default focus:px-4 focus:py-2 focus:text-highlighted focus:ring-2 focus:ring-primary"
+  >
+    Skip to content
+  </a>
   <UHeader>
     <template #title>
       <span class="font-semibold tracking-tight">{{ content.profile.name }}</span>
     </template>
 
-    <UNavigationMenu :items="navItems" variant="link" />
+    <UNavigationMenu :items="navItems" variant="link" aria-label="Primary" />
 
     <template #right>
       <UColorModeButton />
@@ -33,7 +50,7 @@ useHead({
     </template>
   </UHeader>
 
-  <UMain>
+  <UMain id="main" tabindex="-1" class="outline-none">
     <slot />
   </UMain>
 

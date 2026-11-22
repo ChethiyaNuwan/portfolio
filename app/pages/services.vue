@@ -1,9 +1,10 @@
 <script setup lang="ts">
 const content = await useContent();
 
-useSeoMeta({
-  title: "Services • Chethiya Nuwan",
+usePageMeta({
+  title: `Services • ${content.value.profile.name}`,
   description: "Professional web development, design and software engineering services.",
+  path: "/services",
 });
 
 const mask = (src: string) => ({

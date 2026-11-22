@@ -2,7 +2,7 @@
 if (import.meta.server) {
   setResponseStatus(useRequestEvent()!, 404);
 }
-useHead({ title: "Page not found" });
+useHead({ title: "Page not found", meta: [{ name: "robots", content: "noindex" }] });
 </script>
 
 <template>

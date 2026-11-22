@@ -1,13 +1,16 @@
 <script setup lang="ts">
 import { socialIconMap } from "~/utils/icons";
+import { faqJsonLd } from "../../server/lib/seo";
 
 const content = await useContent();
 const profile = computed(() => content.value.profile);
 const faq = computed(() => content.value.faq.map((f) => ({ label: f.question, content: f.answer })));
 
-useSeoMeta({
-  title: "Contact • Chethiya Nuwan",
+usePageMeta({
+  title: `Contact • ${content.value.profile.name}`,
   description: "Get in touch about a project, a role, or just to say hello.",
+  path: "/contact",
+  jsonLd: [faqJsonLd(content.value)],
 });
 </script>
 

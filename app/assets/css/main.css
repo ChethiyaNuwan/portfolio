@@ -6,8 +6,67 @@
   --font-display: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
 }
 
+/* Pure black / pure white. Greys are neutral (no tint). One electric-blue accent. */
+:root {
+  --ui-bg: #ffffff;
+  --ui-bg-muted: #f5f5f5;
+  --ui-bg-elevated: #f0f0f0;
+  --ui-bg-accented: #e4e4e4;
+  --ui-border: #e4e4e4;
+  --ui-border-accented: #cfcfcf;
+  --ui-text-dimmed: #8a8a8a;
+  --ui-text-muted: #5c5c5c;
+  --ui-text-toned: #3a3a3a;
+  --ui-text: #1f1f1f;
+  --ui-text-highlighted: #000000;
+  --ui-primary: #2447ff;
+}
+.dark {
+  --ui-bg: #000000;
+  --ui-bg-muted: #0a0a0a;
+  --ui-bg-elevated: #111111;
+  --ui-bg-accented: #1c1c1c;
+  --ui-border: #1f1f1f;
+  --ui-border-accented: #333333;
+  --ui-text-dimmed: #6b6b6b;
+  --ui-text-muted: #9a9a9a;
+  --ui-text-toned: #c4c4c4;
+  --ui-text: #e8e8e8;
+  --ui-text-highlighted: #ffffff;
+  --ui-primary: #6f8bff;
+}
+
 html {
   scroll-behavior: smooth;
+  background: var(--ui-bg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+/* Route transition */
+.page-enter-active,
+.page-leave-active {
+  transition: opacity 0.35s ease, filter 0.35s ease;
+}
+.page-enter-from,
+.page-leave-to {
+  opacity: 0;
+  filter: blur(6px);
+}
+@media (prefers-reduced-motion: reduce) {
+  .page-enter-active,
+  .page-leave-active {
+    transition: none;
+  }
+}
+
+:focus-visible {
+  outline: 2px solid var(--ui-primary);
+  outline-offset: 3px;
 }
 
 h1,

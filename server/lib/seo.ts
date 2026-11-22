@@ -1,4 +1,6 @@
-import type { Content } from "./schemas";
+import type { PublicContent } from "./schemas";
+
+type Content = PublicContent;
 
 export function normalizeSiteUrl(configured: string | undefined, requestOrigin: string): string {
   const pick = configured?.trim() || requestOrigin;

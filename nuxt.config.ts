@@ -24,15 +24,26 @@ export default defineNuxtConfig({
     ],
   },
 
+  // The service worker must always be re-checked so updates reach visitors
+  routeRules: { "/sw.js": { headers: { "cache-control": "no-cache" } } },
+
   app: {
     pageTransition: { name: "page", mode: "out-in" },
     head: {
       htmlAttrs: { lang: "en" },
       title: "Chethiya Nuwan • Portfolio",
-      meta: [{ name: "viewport", content: "width=device-width, initial-scale=1, viewport-fit=cover" }],
+      meta: [
+        { name: "viewport", content: "width=device-width, initial-scale=1, viewport-fit=cover" },
+        { name: "theme-color", content: "#000000", media: "(prefers-color-scheme: dark)" },
+        { name: "theme-color", content: "#ffffff", media: "(prefers-color-scheme: light)" },
+        { name: "mobile-web-app-capable", content: "yes" },
+        { name: "apple-mobile-web-app-capable", content: "yes" },
+        { name: "apple-mobile-web-app-status-bar-style", content: "black-translucent" },
+      ],
       link: [
         { rel: "icon", href: "/favicon.ico", sizes: "any" },
-        { rel: "apple-touch-icon", href: "/favicon.ico" },
+        { rel: "apple-touch-icon", href: "/icons/apple-touch-icon.png" },
+        { rel: "manifest", href: "/manifest.webmanifest" },
       ],
     },
   },

@@ -23,6 +23,8 @@ const run = (fn: () => void) => () => {
   setTimeout(fn, 120);
 };
 
+const installEvent = useState<{ prompt(): Promise<void> } | null>("pwa-install", () => null);
+
 const groups = computed(() => {
   const list: { id: string; label: string; items: Record<string, unknown>[] }[] = [];
   if (route.path === "/" && panels.value.length) {
@@ -47,6 +49,20 @@ const groups = computed(() => {
     label: "Actions",
     items: [
       { label: "Toggle light / dark theme", icon: "i-lucide-sun-moon", onSelect: run(() => (colorMode.preference = colorMode.value === "dark" ? "light" : "dark")) },
+      ...(installEvent.value
+        ? [
+            {
+              label: "Install app",
+              icon: "i-lucide-download",
+              onSelect: run(async () => {
+                const e = installEvent.value;
+                if (!e) return;
+                await e.prompt();
+                installEvent.value = null;
+              }),
+            },
+          ]
+        : []),
       { label: "Download CV", icon: "i-lucide-file-text", onSelect: run(() => window.open("/cv", "_blank")) },
       { label: "Email me", icon: "i-lucide-mail", suffix: content.value.profile.email, onSelect: run(() => (window.location.href = `mailto:${content.value.profile.email}`)) },
       ...content.value.socials.map((s) => ({ label: s.title, icon: socialIconMap[s.icon], onSelect: run(() => window.open(s.link, "_blank", "noopener")) })),

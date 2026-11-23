@@ -46,6 +46,10 @@ docker compose -f deploy/docker-compose.yml up -d --build
 | `COOKIE_SECURE` | no | `false` only for plain-HTTP testing. |
 | `DATA_DIR` | no | Data directory (default `./.data`, `/data` in Docker). |
 
+## Installable app (PWA)
+
+The site can be installed from the browser (Chrome and Edge show an install button, iOS Safari: Share, Add to Home Screen, and the command palette has an *Install app* action where the browser offers one). It has a web app manifest (`/manifest.webmanifest`, served from the profile so the name follows the admin), icons in `public/icons/` (regenerate with `bun scripts/make-icons.mjs CN`, using your initials) and a small service worker (`public/sw.js`): pages are fetched from the network first and the last copy is used offline, built assets and images are cached, and `/api/`, `/admin` and `/cv` are never cached. If you change `sw.js`, bump its `VERSION`. The worker only registers in production builds, and needs HTTPS (or localhost).
+
 ## Admin
 
 - Sign in at `/admin`. Edit any section and press **Save**; the public site updates immediately.

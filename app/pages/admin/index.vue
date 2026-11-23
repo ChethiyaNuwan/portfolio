@@ -5,7 +5,7 @@ definePageMeta({ layout: "admin", middleware: "admin" });
 
 const { logout } = useAdminApi();
 const active = ref<string>("profile");
-const tabs = [...sectionOrder.map((k) => ({ key: k, label: sectionConfigs[k]!.label })), { key: "cv", label: "CV" }];
+const tabs = [...sectionOrder.map((k) => ({ key: k, label: sectionConfigs[k]!.label })), { key: "cv", label: "CV" }, { key: "security", label: "Security" }];
 </script>
 
 <template>
@@ -31,6 +31,7 @@ const tabs = [...sectionOrder.map((k) => ({ key: k, label: sectionConfigs[k]!.la
     </aside>
     <main class="min-w-0 flex-1">
       <CvPanel v-if="active === 'cv'" />
+      <PasskeyPanel v-else-if="active === 'security'" />
       <SectionEditor v-else :key="active" :section="active" />
     </main>
   </div>

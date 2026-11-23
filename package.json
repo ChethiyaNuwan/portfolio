@@ -17,6 +17,8 @@
     "@nuxt/fonts": "^1.2.0",
     "@nuxt/ui": "^4.13.0",
     "@nuxtjs/color-mode": "^4.1.0",
+    "@simplewebauthn/browser": "^14.0.0",
+    "@simplewebauthn/server": "^14.1.0",
     "countup.js": "^2.10.1",
     "nuxt": "^4.6.4",
     "pdf-lib": "^1.17.1",

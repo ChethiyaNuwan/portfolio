@@ -36,6 +36,26 @@ export function useAdminApi() {
     csrf.value = res.csrfToken;
   }
 
+  const passkeysSupported = () => typeof window !== "undefined" && !!window.PublicKeyCredential;
+
+  /** Sign in with a registered passkey (the browser shows its own picker). */
+  async function loginWithPasskey() {
+    const { startAuthentication } = await import("@simplewebauthn/browser");
+    const options = await $fetch<Parameters<typeof startAuthentication>[0]["optionsJSON"]>("/api/auth/passkey/options", { method: "POST" });
+    const response = await startAuthentication({ optionsJSON: options });
+    const res = await $fetch<{ csrfToken?: string; message?: string }>("/api/auth/passkey/verify", { method: "POST", body: { response }, ignoreResponseError: true });
+    if (!res.csrfToken) throw new Error(res.message || "Invalid passkey");
+    csrf.value = res.csrfToken;
+  }
+
+  /** Add a passkey to the signed-in admin account. */
+  async function addPasskey(name: string) {
+    const { startRegistration } = await import("@simplewebauthn/browser");
+    const options = await api<Parameters<typeof startRegistration>[0]["optionsJSON"]>("/api/admin/passkeys/options", { method: "POST" });
+    const response = await startRegistration({ optionsJSON: options });
+    await api("/api/admin/passkeys/verify", { method: "POST", body: { response, name } });
+  }
+
   async function logout() {
     await api("/api/auth/logout", { method: "POST" });
     csrf.value = null;
@@ -49,7 +69,7 @@ export function useAdminApi() {
     return res.url;
   }
 
-  return { api, login, logout, upload };
+  return { api, login, logout, upload, passkeysSupported, loginWithPasskey, addPasskey };
 }
 
 /** Human-readable message from a failed $fetch (validation issues, upload errors, rate limit). */

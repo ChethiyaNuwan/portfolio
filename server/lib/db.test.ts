@@ -70,3 +70,28 @@ describe("opening a database written by the previous version", () => {
     expect(store.getSection("education")).toEqual(seedContent.education);
   });
 });
+
+describe("passkeys", () => {
+  test("add, read, touch and delete", () => {
+    store = openStore(dir);
+    expect(store.listPasskeys()).toEqual([]);
+    store.addPasskey({ id: "abc", name: "Laptop", publicKey: "pk", counter: 0, transports: ["internal"] });
+    const p = store.getPasskey("abc")!;
+    expect(p.name).toBe("Laptop");
+    expect(p.transports).toEqual(["internal"]);
+    expect(p.lastUsedAt).toBeNull();
+    store.touchPasskey("abc", 5);
+    expect(store.getPasskey("abc")!.counter).toBe(5);
+    expect(store.getPasskey("abc")!.lastUsedAt).not.toBeNull();
+    expect(store.deletePasskey("abc")).toBe(true);
+    expect(store.deletePasskey("abc")).toBe(false);
+    expect(store.getPasskey("abc")).toBeUndefined();
+  });
+  test("survive reopening the database", () => {
+    store = openStore(dir);
+    store.addPasskey({ id: "k1", name: "Phone", publicKey: "pk", counter: 1, transports: [] });
+    store.close();
+    store = openStore(dir);
+    expect(store.listPasskeys().map((p) => p.id)).toEqual(["k1"]);
+  });
+});

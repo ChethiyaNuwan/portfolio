@@ -5,7 +5,7 @@ import { navItems, socialIconMap } from "~/utils/icons";
 // plus the theme toggle and contact button.
 const content = await useContent();
 const route = useRoute();
-const { panels, activeId, progress, horizontal, tickCount } = useStageState();
+const { panels, activeId, progress, mode, tickCount } = useStageState();
 
 const navEl = ref<HTMLElement>();
 
@@ -20,7 +20,7 @@ watch([activeId, () => route.path], async () => {
 const sectionMode = computed(() => route.path === "/" && panels.value.length > 0);
 
 function goSection(e: MouseEvent, id: string) {
-  if (!horizontal.value) return; // vertical layout: plain in-page anchor
+  if (mode.value === "page") return; // plain vertical page: normal in-page anchor
   e.preventDefault();
   stageJump(id);
 }
@@ -29,7 +29,7 @@ function goSection(e: MouseEvent, id: string) {
 <template>
   <footer class="site-footer fixed inset-x-0 bottom-0 z-50 border-t border-default bg-default/85 backdrop-blur-md" style="padding-bottom: env(safe-area-inset-bottom, 0px)">
     <div class="absolute inset-x-0 top-0 h-[2px]" aria-hidden="true">
-      <div v-if="sectionMode && horizontal" :key="tickCount" class="tick-line origin-left bg-primary" :style="{ transform: `scaleX(${progress})` }" />
+      <div v-if="sectionMode && mode !== 'page'" :key="tickCount" class="tick-line origin-left bg-primary" :style="{ transform: `scaleX(${progress})` }" />
     </div>
 
     <div class="mx-auto grid h-[var(--footer-h)] max-w-[120rem] grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 px-4 sm:px-6 lg:grid-cols-[1fr_auto_1fr] lg:gap-6">

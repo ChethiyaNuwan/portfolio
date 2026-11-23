@@ -7,8 +7,8 @@ const profile = computed(() => content.value.profile);
 
 <template>
   <StagePanel id="contact" label="Contact">
-    <div class="grid min-h-full items-center gap-10 lg:grid-cols-[1fr_1fr] lg:gap-16">
-      <div class="flex flex-col justify-center gap-8">
+    <div class="grid min-h-full grid-cols-[minmax(0,1fr)] items-center gap-5 md:gap-8 lg:grid-cols-[1fr_1fr] lg:gap-16">
+      <div class="flex flex-col justify-center gap-5 md:gap-8">
         <KineticText id="contact-heading" as="h2" class="display" text="Let's talk." />
         <address class="not-italic">
           <a :href="`mailto:${profile.email}`" class="inline-block break-all py-2 font-display text-[clamp(1.4rem,3.4vw,3rem)] font-medium text-highlighted underline decoration-primary decoration-2 underline-offset-8 transition-opacity hover:opacity-70">

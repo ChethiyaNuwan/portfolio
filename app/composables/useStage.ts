@@ -4,7 +4,10 @@ export function useStageState() {
     panels: useState<{ id: string; label: string }[]>("stage-panels", () => []),
     activeId: useState<string>("stage-active", () => ""),
     progress: useState<number>("stage-progress", () => 0),
+    /** true while the sections are side by side (tablet and desktop) */
     horizontal: useState<boolean>("stage-horizontal", () => false),
+    /** page = plain vertical page, sideways = tablet/desktop stage, mobile = sections stacked vertically with sideways content */
+    mode: useState<"page" | "sideways" | "mobile">("stage-mode", () => "page"),
     /** true once the visitor has moved between sections, so the hint can stop nudging */
     hinted: useState<boolean>("stage-hinted", () => false),
     /** increments on every tick (one section passed), so the footer can pulse in time with it */

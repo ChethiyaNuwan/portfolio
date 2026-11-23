@@ -706,6 +706,9 @@ h3 {
 @media (max-width: 767px) {
   .faq-viewport {
     height: 12.5rem;
+    padding-block: 0;
+    -webkit-mask-image: none;
+    mask-image: none;
   }
 }
 

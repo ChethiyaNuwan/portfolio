@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { navItems, socialIconMap } from "~/utils/icons";
+import { tickHaptic } from "~/utils/haptics";
 
 // Always-visible bar: the progress line and section navigation on the home page, page links elsewhere,
 // plus the theme toggle and contact button.
@@ -23,6 +24,39 @@ function step(dir: 1 | -1) {
   if (t) stageJump(t.id);
 }
 
+// Phones: drag along the dots to move through the sections, one tick (and one vibration) per step
+const SWIPE_STEP = 38;
+let swipe: { x: number; id: number; at: number } | null = null;
+let swiped = false;
+function onSwipeDown(e: PointerEvent) {
+  swipe = { x: e.clientX, id: e.pointerId, at: Math.max(0, activeIndex.value) };
+  swiped = false;
+}
+function onSwipeMove(e: PointerEvent) {
+  if (!swipe || e.pointerId !== swipe.id) return;
+  const dx = e.clientX - swipe.x;
+  if (Math.abs(dx) < SWIPE_STEP) return;
+  const dir = dx < 0 ? 1 : -1;
+  swipe.x = e.clientX;
+  swiped = true;
+  const t = panels.value[swipe.at + dir]; // the section the swipe has reached, not the one still scrolling into view
+  if (t) {
+    swipe.at += dir;
+    stageJump(t.id);
+    tickHaptic("tick");
+  } else tickHaptic("bump");
+}
+function onSwipeEnd() {
+  swipe = null;
+}
+function onSwipeClick(e: MouseEvent) {
+  if (swiped) {
+    e.preventDefault();
+    e.stopPropagation();
+    swiped = false;
+  }
+}
+
 const sectionMode = computed(() => route.path === "/" && panels.value.length > 0);
 
 function goSection(e: MouseEvent, id: string) {
@@ -38,9 +72,10 @@ function goSection(e: MouseEvent, id: string) {
       <div v-if="sectionMode && mode !== 'page'" :key="tickCount" class="tick-line origin-left bg-primary" :style="{ transform: `scaleX(${progress})` }" />
     </div>
 
-    <div class="mx-auto grid h-[var(--footer-h)] max-w-[120rem] grid-cols-[minmax(0,1fr)_auto] items-center gap-2 px-2 sm:px-6 md:grid-cols-[auto_minmax(0,1fr)_auto] md:gap-3 lg:grid-cols-[1fr_auto_1fr] lg:gap-6">
+    <div class="mx-auto grid h-[var(--footer-h)] max-w-[120rem] grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-1 px-2 sm:px-6 md:grid-cols-[auto_minmax(0,1fr)_auto] md:gap-3 lg:grid-cols-[1fr_auto_1fr] lg:gap-6">
       <!-- left: name and social links -->
-      <div class="hidden items-center gap-2 md:flex">
+      <div class="flex items-center gap-2">
+        <UColorModeButton size="sm" class="tap md:hidden" />
         <NuxtLink to="/" class="hidden shrink-0 font-display text-base font-semibold tracking-tight text-highlighted md:block">
           {{ content.profile.name }}
         </NuxtLink>
@@ -63,7 +98,7 @@ function goSection(e: MouseEvent, id: string) {
 
       <!-- centre: sections of the page (home) or pages of the site (elsewhere) -->
       <!-- phones: previous / current section / next, with a dot per section instead of a scrolling link row -->
-      <div v-if="sectionMode && mode !== 'page'" class="flex min-w-0 items-center justify-between md:hidden">
+      <div v-if="sectionMode && mode !== 'page'" class="flex min-w-0 touch-none select-none items-center justify-between md:hidden" @pointerdown="onSwipeDown" @pointermove="onSwipeMove" @pointerup="onSwipeEnd" @pointercancel="onSwipeEnd" @click.capture="onSwipeClick">
         <UButton icon="i-lucide-chevron-left" color="neutral" variant="ghost" size="sm" class="tap shrink-0" aria-label="Previous section" :disabled="activeIndex <= 0" @click="step(-1)" />
         <ul class="flex min-w-0 items-center justify-center">
           <li v-for="p in panels" :key="p.id" class="flex">
@@ -110,7 +145,7 @@ function goSection(e: MouseEvent, id: string) {
         <div class="mr-3"><KeybindingTicker /></div>
         <UButton :href="`mailto:${content.profile.email}`" icon="i-lucide-mail" label="Get in touch" size="sm" class="tap hidden sm:inline-flex" />
         <UButton :href="`mailto:${content.profile.email}`" icon="i-lucide-mail" aria-label="Get in touch" size="sm" class="tap sm:hidden" />
-        <UColorModeButton size="sm" class="tap" />
+        <UColorModeButton size="sm" class="tap max-md:hidden" />
       </div>
     </div>
   </footer>

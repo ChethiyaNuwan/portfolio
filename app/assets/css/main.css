@@ -301,7 +301,22 @@ h3 {
   }
 }
 .stage-more {
-  display: none;
+  background: linear-gradient(to top, var(--ui-bg) 15%, transparent);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+.stage-more.is-on {
+  opacity: 1;
+}
+.stage-more-icon {
+  animation: more-bob 1.6s ease-in-out infinite;
+}
+@keyframes more-bob {
+  0%, 100% { transform: translateY(-3px); opacity: 0.6; }
+  50% { transform: translateY(3px); opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .stage-more-icon { animation: none; }
 }
 @media (min-height: 560px) and (prefers-reduced-motion: no-preference) {
   .stage {
@@ -597,15 +612,6 @@ h3 {
 .svc-more {
   display: grid;
   grid-template-rows: 1fr;
-}
-/* Tablet: three cards in a row, all showing their text (no hover needed) */
-@media (min-width: 768px) and (max-width: 1023px) and (min-height: 700px) {
-  .svc-list {
-    flex-direction: row;
-  }
-  .svc {
-    flex: 1 1 0;
-  }
 }
 @media (min-width: 1024px) and (min-height: 600px) {
   .svc-list {

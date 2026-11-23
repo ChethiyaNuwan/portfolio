@@ -31,7 +31,7 @@ const viewer = ref<{ open: (i: number, el?: HTMLElement | null) => void }>();
 
     <p v-if="!items.length" class="border border-dashed border-default p-10 text-center text-muted">No images yet. Add some from the admin under Gallery.</p>
 
-    <DropGroup v-else as="ul" class="columns-1 gap-4 sm:columns-2 lg:columns-3" role="list" :aria-label="`${items.length} gallery images`">
+    <DropGroup v-else as="ul" class="columns-2 gap-3 sm:gap-4 lg:columns-3" role="list" :aria-label="`${items.length} gallery images`">
       <li v-for="(g, i) in items" :key="g.id" class="drop mb-4 break-inside-avoid" :style="{ '--i': i % 9, '--r': `${((i * 53) % 7) - 3}deg` }">
         <button type="button" class="pin block w-full cursor-zoom-in" :data-gallery-id="g.id" :aria-label="g.caption ? `Expand image: ${g.caption}` : 'Expand image'" @click="viewer?.open(i, $event.currentTarget as HTMLElement)">
           <img :src="g.image" :alt="g.caption" loading="lazy" class="pin-media block h-auto w-full" />

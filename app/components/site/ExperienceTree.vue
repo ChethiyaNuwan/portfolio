@@ -31,6 +31,11 @@ onMounted(() => {
 });
 const toggle = (id: string) => (openId.value = openId.value === id ? null : id);
 
+// Phone tree: the trunk runs down the left edge; each role is a branch in its own lane, a little further from the trunk.
+const TRUNK = 48; // px from the card edge to the trunk
+const dx = (lane: number) => 14 + lane * 12; // trunk -> branch distance
+const bx = (lane: number) => -TRUNK + dx(lane); // branch x, relative to the card
+
 const laneX = (side: "left" | "right") => (side === "right" ? C + LANE : C - LANE);
 const color = (lane: number) => `var(--lane-${lane + 1})`;
 const fork = (x: number, y: number) => `M ${C} ${y} C ${C} ${y - 14}, ${x} ${y - 12}, ${x} ${y - 26}`;
@@ -75,8 +80,8 @@ function connector(it: (typeof layout.value.items)[number]) {
       </g>
     </svg>
 
-    <DropGroup as="ol" class="relative grid gap-5 max-md:pl-12 md:max-lg:pl-8 md:max-lg:before:absolute md:max-lg:before:bottom-0 md:max-lg:before:left-2.5 md:max-lg:before:top-0 md:max-lg:before:w-0.5 md:max-lg:before:bg-[var(--ui-border-accented)] lg:block">
-      <span class="exp-trunk pointer-events-none absolute bottom-0 left-[10px] top-0 w-0.5 bg-[var(--ui-border-accented)] md:hidden" aria-hidden="true" />
+    <DropGroup as="ol" class="relative grid gap-5 max-md:pl-[3.75rem] md:max-lg:pl-8 md:max-lg:before:absolute md:max-lg:before:bottom-0 md:max-lg:before:left-2.5 md:max-lg:before:top-0 md:max-lg:before:w-0.5 md:max-lg:before:bg-[var(--ui-border-accented)] lg:block">
+      <span class="exp-trunk pointer-events-none absolute bottom-0 left-[11px] top-0 w-0.5 bg-[var(--ui-border-accented)] md:hidden" aria-hidden="true" />
       <li
         v-for="(it, n) in layout.items"
         :key="it.id"
@@ -84,19 +89,19 @@ function connector(it: (typeof layout.value.items)[number]) {
         :class="it.side === 'right' ? 'lg:left-[calc(50%+138px)]' : 'lg:left-0'"
         :style="{ '--y': `${it.cardTop}px`, '--i': n, '--lane': color(it.lane), borderTopColor: color(it.lane) }"
       >
-        <!-- phones: this role as a branch of the trunk on the left, joined to its card by a dashed line -->
-        <span class="exp-branch pointer-events-none absolute -top-px bottom-0 -left-[21px] w-[2.5px] bg-[var(--lane)] md:hidden" aria-hidden="true" />
-        <svg v-if="!it.present" class="exp-curve pointer-events-none absolute -left-[37px] -top-[17px] overflow-visible md:hidden" width="17" height="17" aria-hidden="true">
-          <path d="M17 17 C17 8, 0 9, 0 0" fill="none" stroke="var(--lane)" stroke-width="2.5" stroke-linecap="round" />
+        <!-- phones: this role as a branch off the trunk on the left, joined to its card by a dashed line -->
+        <span class="exp-branch pointer-events-none absolute -top-px bottom-0 w-[2.5px] bg-[var(--lane)] md:hidden" :style="{ left: `${bx(it.lane) - 1.25}px` }" aria-hidden="true" />
+        <svg v-if="!it.present" class="exp-curve pointer-events-none absolute -top-[19px] overflow-visible md:hidden" :style="{ left: `${-TRUNK}px` }" :width="dx(it.lane)" height="19" aria-hidden="true">
+          <path :d="`M${dx(it.lane)} 19 C${dx(it.lane)} 9, 0 10, 0 0`" fill="none" stroke="var(--lane)" stroke-width="2.5" stroke-linecap="round" />
           <circle cx="0" cy="0" r="4.5" fill="var(--lane)" stroke="var(--ui-bg)" stroke-width="2" />
         </svg>
-        <span v-else class="exp-now pointer-events-none absolute -left-[27px] -top-[6px] size-3 rounded-full bg-[var(--lane)] md:hidden" aria-hidden="true" />
-        <svg class="exp-curve pointer-events-none absolute -bottom-[17px] -left-[37px] overflow-visible md:hidden" width="17" height="17" aria-hidden="true">
-          <path d="M17 0 C17 9, 0 8, 0 17" fill="none" stroke="var(--lane)" stroke-width="2.5" stroke-linecap="round" />
-          <circle cx="0" cy="17" r="4.5" fill="var(--lane)" stroke="var(--ui-bg)" stroke-width="2" />
+        <span v-else class="exp-now pointer-events-none absolute -top-[6px] size-3 rounded-full bg-[var(--lane)] md:hidden" :style="{ left: `${bx(it.lane) - 6}px` }" aria-hidden="true" />
+        <svg class="exp-curve pointer-events-none absolute -bottom-[19px] overflow-visible md:hidden" :style="{ left: `${-TRUNK}px` }" :width="dx(it.lane)" height="19" aria-hidden="true">
+          <path :d="`M${dx(it.lane)} 0 C${dx(it.lane)} 10, 0 9, 0 19`" fill="none" stroke="var(--lane)" stroke-width="2.5" stroke-linecap="round" />
+          <circle cx="0" cy="19" r="4.5" fill="var(--lane)" stroke="var(--ui-bg)" stroke-width="2" />
         </svg>
-        <span class="exp-conn pointer-events-none absolute -left-5 top-[3.4rem] w-5 border-t-2 border-dashed border-[var(--lane)] md:hidden" aria-hidden="true" />
-        <span class="pointer-events-none absolute -left-[25.5px] top-[calc(3.4rem-4.5px)] size-[11px] rounded-full bg-[var(--lane)] ring-2 ring-[var(--ui-bg)] md:hidden" aria-hidden="true" />
+        <span class="exp-conn pointer-events-none absolute top-[3.4rem] border-t-2 border-dashed border-[var(--lane)] md:hidden" :style="{ left: `${bx(it.lane)}px`, width: `${-bx(it.lane)}px` }" aria-hidden="true" />
+        <span class="pointer-events-none absolute top-[calc(3.4rem-4.5px)] size-[11px] rounded-full bg-[var(--lane)] ring-2 ring-[var(--ui-bg)] md:hidden" :style="{ left: `${bx(it.lane) - 5.5}px` }" aria-hidden="true" />
         <component
           :is="compact ? 'button' : 'div'"
           :type="compact ? 'button' : undefined"

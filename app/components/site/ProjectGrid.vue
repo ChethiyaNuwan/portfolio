@@ -33,6 +33,10 @@ watch(current, (p) => (shown.value = p?.image ?? ""));
             </span>
             <span class="text-xl font-semibold text-highlighted">{{ p.title }}</span>
             <span class="line-clamp-3 text-muted">{{ p.description }}</span>
+            <span class="mt-auto inline-flex min-w-0 items-center gap-1.5 pt-1 text-sm font-medium text-primary">
+              <UIcon name="i-lucide-arrow-up-right" class="size-4 shrink-0" aria-hidden="true" />
+              <span class="truncate underline decoration-primary/40 underline-offset-4 group-hover:decoration-primary">{{ p.link.replace(/^https?:\/\//, "") }}</span>
+            </span>
           </span>
         </button>
       </li>

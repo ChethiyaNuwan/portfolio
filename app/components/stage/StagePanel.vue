@@ -29,5 +29,9 @@ onBeforeUnmount(() => ro?.disconnect());
     <div ref="scroll" class="stage-panel-scroll" :class="{ 'stage-fit': fit }" :tabindex="more && !fit ? 0 : undefined" @scroll.passive="update">
       <slot />
     </div>
+    <!-- phones: tells the visitor this section continues below -->
+    <div class="stage-more pointer-events-none absolute inset-x-0 bottom-0 z-10 flex h-16 items-end justify-center pb-1 md:hidden" :class="{ 'is-on': more && !fit }" aria-hidden="true">
+      <UIcon name="i-lucide-chevrons-down" class="stage-more-icon size-6 text-primary" />
+    </div>
   </section>
 </template>

@@ -37,7 +37,7 @@ function connector(it: (typeof layout.value.items)[number]) {
 </script>
 
 <template>
-  <div class="relative max-md:flex max-md:min-h-0 max-md:flex-1 max-md:flex-col lg:h-[var(--h)]" :style="{ '--h': `${layout.height}px` }">
+  <div class="relative lg:h-[var(--h)]" :style="{ '--h': `${layout.height}px` }">
     <svg class="pointer-events-none absolute left-1/2 top-0 hidden -translate-x-1/2 lg:block" :width="W" :height="layout.height" :viewBox="`0 0 ${W} ${layout.height}`" aria-hidden="true">
       <line :x1="C" y1="0" :x2="C" :y2="layout.height" stroke="var(--ui-border-accented)" stroke-width="2" />
 
@@ -65,11 +65,11 @@ function connector(it: (typeof layout.value.items)[number]) {
       </g>
     </svg>
 
-    <ol class="m-hscroll m-center relative grid gap-5 max-lg:pl-8 max-md:pl-0 max-md:before:hidden max-lg:before:absolute max-lg:before:bottom-0 max-lg:before:left-2.5 max-lg:before:top-0 max-lg:before:w-0.5 max-lg:before:bg-[var(--ui-border-accented)] lg:block">
+    <ol class="relative grid gap-5 max-lg:pl-8 max-lg:before:absolute max-lg:before:bottom-0 max-lg:before:left-2.5 max-lg:before:top-0 max-lg:before:w-0.5 max-lg:before:bg-[var(--ui-border-accented)] lg:block">
       <li
         v-for="it in layout.items"
         :key="it.id"
-        class="relative flex flex-col gap-3 overflow-hidden border border-default border-t-2 bg-muted/40 p-5 max-lg:overflow-visible max-md:overflow-y-auto max-md:before:hidden max-lg:before:absolute max-lg:before:-left-[1.72rem] max-lg:before:top-5 max-lg:before:size-3.5 max-lg:before:rounded-full max-lg:before:bg-[var(--lane)] max-lg:before:ring-4 max-lg:before:ring-[var(--ui-bg)] lg:absolute lg:top-[var(--y)] lg:h-[300px] lg:w-[calc(50%-138px)]"
+        class="relative flex flex-col gap-3 overflow-hidden border border-default border-t-2 bg-muted/40 p-5 max-lg:overflow-visible max-lg:before:absolute max-lg:before:-left-[1.72rem] max-lg:before:top-5 max-lg:before:size-3.5 max-lg:before:rounded-full max-lg:before:bg-[var(--lane)] max-lg:before:ring-4 max-lg:before:ring-[var(--ui-bg)] lg:absolute lg:top-[var(--y)] lg:h-[300px] lg:w-[calc(50%-138px)]"
         :class="it.side === 'right' ? 'lg:left-[calc(50%+138px)]' : 'lg:left-0'"
         :style="{ '--y': `${it.cardTop}px`, '--lane': color(it.lane), borderTopColor: color(it.lane) }"
       >

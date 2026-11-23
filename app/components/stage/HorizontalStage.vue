@@ -23,6 +23,13 @@ const index = computed(() => panels.value.findIndex((p) => p.id === activeId.val
 const prev = computed(() => panels.value[index.value - 1]);
 const next = computed(() => panels.value[index.value + 1]);
 
+// Phones: the finger drives the scroll natively (smooth and 1:1, snapping to the nearest section). The detented
+// tick gestures stay for trackpads, wheels and larger touch screens. A light tap marks each section the finger passes.
+const nativeSwipe = () => window.matchMedia("(max-width: 767px)").matches;
+let fingerDown = false;
+const onFingerDown = () => (fingerDown = true);
+const onFingerUp = () => (fingerDown = false);
+
 function paint() {
   raf = 0;
   const el = scroller.value;
@@ -42,6 +49,7 @@ function paint() {
     }
   }
   if (bestId !== activeId.value && el.scrollLeft > 8) hinted.value = true;
+  if (bestId !== activeId.value && fingerDown) tickHaptic("tick");
   activeId.value = bestId;
 }
 
@@ -185,9 +193,16 @@ function enable() {
   mode.value = "sideways";
   scroller.value?.addEventListener("scroll", onScroll, { passive: true });
   scroller.value?.addEventListener("wheel", onWheel, { passive: false });
-  scroller.value?.addEventListener("touchstart", onTouchStart, { passive: true });
-  scroller.value?.addEventListener("touchmove", onTouchMove, { passive: true });
-  scroller.value?.addEventListener("touchend", onTouchEnd, { passive: true });
+  if (nativeSwipe()) {
+    scroller.value?.addEventListener("touchstart", onFingerDown, { passive: true });
+    scroller.value?.addEventListener("touchend", onFingerUp, { passive: true });
+    scroller.value?.addEventListener("touchcancel", onFingerUp, { passive: true });
+    scroller.value?.classList.add("native-swipe");
+  } else {
+    scroller.value?.addEventListener("touchstart", onTouchStart, { passive: true });
+    scroller.value?.addEventListener("touchmove", onTouchMove, { passive: true });
+    scroller.value?.addEventListener("touchend", onTouchEnd, { passive: true });
+  }
   window.addEventListener("keydown", onKey);
   window.addEventListener("resize", onScroll);
   const hash = location.hash.slice(1);
@@ -207,6 +222,11 @@ function disable() {
   scroller.value?.removeEventListener("touchstart", onTouchStart);
   scroller.value?.removeEventListener("touchmove", onTouchMove);
   scroller.value?.removeEventListener("touchend", onTouchEnd);
+  scroller.value?.removeEventListener("touchstart", onFingerDown);
+  scroller.value?.removeEventListener("touchend", onFingerUp);
+  scroller.value?.removeEventListener("touchcancel", onFingerUp);
+  scroller.value?.classList.remove("native-swipe");
+  fingerDown = false;
   flickTimers.forEach(clearTimeout);
   clearTimeout(pendingTimer);
   window.removeEventListener("keydown", onKey);

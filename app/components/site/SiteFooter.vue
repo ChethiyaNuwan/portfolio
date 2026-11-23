@@ -75,7 +75,7 @@ function goSection(e: MouseEvent, id: string) {
     <div class="mx-auto grid h-[var(--footer-h)] max-w-[120rem] grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-1 px-2 sm:px-6 md:grid-cols-[auto_minmax(0,1fr)_auto] md:gap-3 lg:grid-cols-[1fr_auto_1fr] lg:gap-6">
       <!-- left: name and social links -->
       <div class="flex items-center gap-2">
-        <UColorModeButton size="sm" class="tap md:hidden" />
+        <UColorModeButton color="neutral" variant="outline" size="sm" class="tap md:hidden" />
         <NuxtLink to="/" class="hidden shrink-0 font-display text-base font-semibold tracking-tight text-highlighted md:block">
           {{ content.profile.name }}
         </NuxtLink>
@@ -145,7 +145,7 @@ function goSection(e: MouseEvent, id: string) {
         <div class="mr-3"><KeybindingTicker /></div>
         <UButton :href="`mailto:${content.profile.email}`" icon="i-lucide-mail" label="Get in touch" size="sm" class="tap hidden sm:inline-flex" />
         <UButton :href="`mailto:${content.profile.email}`" icon="i-lucide-mail" aria-label="Get in touch" size="sm" class="tap sm:hidden" />
-        <UColorModeButton size="sm" class="tap max-md:hidden" />
+        <UColorModeButton color="neutral" variant="outline" size="sm" class="tap max-md:hidden" />
       </div>
     </div>
   </footer>

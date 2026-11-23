@@ -31,10 +31,63 @@ onMounted(() => {
 });
 const toggle = (id: string) => (openId.value = openId.value === id ? null : id);
 
-// Phone tree: the trunk runs down the left edge; each role is a branch in its own lane, a little further from the trunk.
-const TRUNK = 48; // px from the card edge to the trunk
-const dx = (lane: number) => 14 + lane * 12; // trunk -> branch distance
-const bx = (lane: number) => -TRUNK + dx(lane); // branch x, relative to the card
+// Phone tree: a real git graph beside the list. Cards are rows, newest first. The trunk runs down the left; each role
+// is a branch that merges into the trunk above its card (or stays open if it is current) and forks off again below the
+// last row that is still inside its period, so roles that overlapped in time run side by side in separate lanes.
+const rootEl = ref<HTMLElement>();
+const rows = ref<{ top: number; bottom: number; left: number }[]>([]);
+const TX = 12; // trunk x
+const LANE0 = 28;
+const LANE_STEP = 11;
+
+function listItems(): HTMLElement[] {
+  return [...(rootEl.value?.querySelectorAll<HTMLElement>("ol > li") ?? [])];
+}
+function measure() {
+  rows.value = listItems().map((li) => ({ top: li.offsetTop, bottom: li.offsetTop + li.offsetHeight, left: li.offsetLeft }));
+}
+let ro: ResizeObserver | undefined;
+onMounted(() => {
+  measure();
+  ro = new ResizeObserver(measure); // the cards animate open and closed: follow them frame by frame
+  const ol = rootEl.value?.querySelector("ol");
+  if (ol) ro.observe(ol);
+  listItems().forEach((li) => ro!.observe(li));
+});
+onBeforeUnmount(() => ro?.disconnect());
+
+const branches = computed(() => {
+  const its = layout.value.items;
+  // last row index still inside each role's period (rows are sorted by end date, newest first)
+  const spans = its.map((it, i) => {
+    let j = i;
+    for (let k = i + 1; k < its.length; k++) if (its[k]!.period.end >= it.period.start) j = k;
+    return { from: i, to: j };
+  });
+  const laneEnd: number[] = [];
+  return its.map((it, i) => {
+    const span = spans[i]!;
+    let lane = laneEnd.findIndex((end) => end < span.from);
+    if (lane < 0) lane = laneEnd.length;
+    laneEnd[lane] = span.to;
+    return { id: it.id, present: it.present, color: color(it.lane), lane, ...span };
+  });
+});
+
+const trunkHeight = computed(() => rows.value.at(-1)?.bottom ?? 0);
+const paths = computed(() =>
+  branches.value.flatMap((b, n) => {
+    const top = rows.value[b.from];
+    const bottom = rows.value[b.to];
+    if (!top || !bottom) return [];
+    const x = LANE0 + b.lane * LANE_STEP;
+    const y0 = top.top - 9;
+    const y1 = bottom.bottom + 9;
+    const start = b.present ? `M ${x} ${top.top + 6}` : `M ${TX} ${y0} C ${TX} ${y0 + 9}, ${x} ${y0 + 5}, ${x} ${y0 + 15}`;
+    const d = `${start} L ${x} ${y1 - 15} C ${x} ${y1 - 5}, ${TX} ${y1 - 9}, ${TX} ${y1}`;
+    return [{ id: b.id, n, color: b.color, d, x, cy: top.top + 54, left: top.left, present: b.present, y0, y1 }];
+  }),
+);
 
 const laneX = (side: "left" | "right") => (side === "right" ? C + LANE : C - LANE);
 const color = (lane: number) => `var(--lane-${lane + 1})`;
@@ -52,7 +105,7 @@ function connector(it: (typeof layout.value.items)[number]) {
 </script>
 
 <template>
-  <div class="relative lg:h-[var(--h)]" :style="{ '--h': `${layout.height}px` }">
+  <div ref="rootEl" class="relative lg:h-[var(--h)]" :style="{ '--h': `${layout.height}px` }">
     <svg class="pointer-events-none absolute left-1/2 top-0 hidden -translate-x-1/2 lg:block" :width="W" :height="layout.height" :viewBox="`0 0 ${W} ${layout.height}`" aria-hidden="true">
       <line :x1="C" y1="0" :x2="C" :y2="layout.height" stroke="var(--ui-border-accented)" stroke-width="2" />
 
@@ -81,7 +134,17 @@ function connector(it: (typeof layout.value.items)[number]) {
     </svg>
 
     <DropGroup as="ol" class="relative grid gap-5 max-md:pl-[3.75rem] md:max-lg:pl-8 md:max-lg:before:absolute md:max-lg:before:bottom-0 md:max-lg:before:left-2.5 md:max-lg:before:top-0 md:max-lg:before:w-0.5 md:max-lg:before:bg-[var(--ui-border-accented)] lg:block">
-      <span class="exp-trunk pointer-events-none absolute bottom-0 left-[11px] top-0 w-0.5 bg-[var(--ui-border-accented)] md:hidden" aria-hidden="true" />
+      <svg v-if="rows.length" class="exp-graph pointer-events-none absolute left-0 top-0 overflow-visible md:hidden" width="60" :height="trunkHeight" aria-hidden="true">
+        <line class="exp-trunk" :x1="TX" y1="0" :x2="TX" :y2="trunkHeight" stroke="var(--ui-border-accented)" stroke-width="2" />
+        <g v-for="p in paths" :key="p.id" :style="{ '--i': p.n }">
+          <path class="exp-path" pathLength="1" :d="p.d" fill="none" :stroke="p.color" stroke-width="2.5" stroke-linecap="round" />
+          <circle v-if="!p.present" class="exp-dot" :cx="TX" :cy="p.y0" r="4.5" :fill="p.color" stroke="var(--ui-bg)" stroke-width="2" />
+          <circle class="exp-dot" :cx="TX" :cy="p.y1" r="4.5" :fill="p.color" stroke="var(--ui-bg)" stroke-width="2" />
+          <circle v-if="p.present" class="exp-dot exp-now" :cx="p.x" :cy="p.y0 + 15" r="5" :fill="p.color" />
+          <line class="exp-dash" :x1="p.x" :y1="p.cy" :x2="p.left" :y2="p.cy" :stroke="p.color" stroke-width="2" stroke-dasharray="3 4" />
+          <circle class="exp-dot" :cx="p.x" :cy="p.cy" r="4.5" :fill="p.color" stroke="var(--ui-bg)" stroke-width="2" />
+        </g>
+      </svg>
       <li
         v-for="(it, n) in layout.items"
         :key="it.id"
@@ -89,19 +152,6 @@ function connector(it: (typeof layout.value.items)[number]) {
         :class="it.side === 'right' ? 'lg:left-[calc(50%+138px)]' : 'lg:left-0'"
         :style="{ '--y': `${it.cardTop}px`, '--i': n, '--lane': color(it.lane), borderTopColor: color(it.lane) }"
       >
-        <!-- phones: this role as a branch off the trunk on the left, joined to its card by a dashed line -->
-        <span class="exp-branch pointer-events-none absolute -top-px bottom-0 w-[2.5px] bg-[var(--lane)] md:hidden" :style="{ left: `${bx(it.lane) - 1.25}px` }" aria-hidden="true" />
-        <svg v-if="!it.present" class="exp-curve pointer-events-none absolute -top-[19px] overflow-visible md:hidden" :style="{ left: `${-TRUNK}px` }" :width="dx(it.lane)" height="19" aria-hidden="true">
-          <path :d="`M${dx(it.lane)} 19 C${dx(it.lane)} 9, 0 10, 0 0`" fill="none" stroke="var(--lane)" stroke-width="2.5" stroke-linecap="round" />
-          <circle cx="0" cy="0" r="4.5" fill="var(--lane)" stroke="var(--ui-bg)" stroke-width="2" />
-        </svg>
-        <span v-else class="exp-now pointer-events-none absolute -top-[6px] size-3 rounded-full bg-[var(--lane)] md:hidden" :style="{ left: `${bx(it.lane) - 6}px` }" aria-hidden="true" />
-        <svg class="exp-curve pointer-events-none absolute -bottom-[19px] overflow-visible md:hidden" :style="{ left: `${-TRUNK}px` }" :width="dx(it.lane)" height="19" aria-hidden="true">
-          <path :d="`M${dx(it.lane)} 0 C${dx(it.lane)} 10, 0 9, 0 19`" fill="none" stroke="var(--lane)" stroke-width="2.5" stroke-linecap="round" />
-          <circle cx="0" cy="19" r="4.5" fill="var(--lane)" stroke="var(--ui-bg)" stroke-width="2" />
-        </svg>
-        <span class="exp-conn pointer-events-none absolute top-[3.4rem] border-t-2 border-dashed border-[var(--lane)] md:hidden" :style="{ left: `${bx(it.lane)}px`, width: `${-bx(it.lane)}px` }" aria-hidden="true" />
-        <span class="pointer-events-none absolute top-[calc(3.4rem-4.5px)] size-[11px] rounded-full bg-[var(--lane)] ring-2 ring-[var(--ui-bg)] md:hidden" :style="{ left: `${bx(it.lane) - 5.5}px` }" aria-hidden="true" />
         <component
           :is="compact ? 'button' : 'div'"
           :type="compact ? 'button' : undefined"

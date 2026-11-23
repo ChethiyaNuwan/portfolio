@@ -13,9 +13,9 @@ const tilt = (i: number) => `${((i * 37) % 9) - 4}deg`;
       <PanelHead id="stack" title="Stack">
         <p class="max-w-sm text-lg text-muted">Languages, frameworks and tools I use day to day. Hover a tile for its name.</p>
       </PanelHead>
-      <DropGroup as="ul" class="m-hscroll m-tiles columns-3 gap-3 sm:columns-4 md:columns-5 lg:columns-6" role="list">
-        <li v-for="(s, i) in content.stack" :key="s.id" class="drop mb-3 break-inside-avoid max-md:h-full" :style="{ '--i': i % 12, '--r': tilt(i) }">
-          <a :href="s.link" target="_blank" rel="noopener noreferrer" class="pin flex items-center justify-center max-md:!aspect-auto max-md:h-full" :class="aspect(i)" :aria-label="s.title">
+      <DropGroup as="ul" class="columns-3 gap-3 sm:columns-4 md:columns-5 lg:columns-6" role="list">
+        <li v-for="(s, i) in content.stack" :key="s.id" class="drop mb-3 break-inside-avoid" :style="{ '--i': i % 12, '--r': tilt(i) }">
+          <a :href="s.link" target="_blank" rel="noopener noreferrer" class="pin flex items-center justify-center" :class="aspect(i)" :aria-label="s.title">
             <img :src="s.logo" alt="" class="pin-media pin-logo size-[44%] max-w-20 object-contain" />
             <span class="pin-label">{{ s.title }}</span>
           </a>

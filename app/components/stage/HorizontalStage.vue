@@ -1,26 +1,21 @@
 <script setup lang="ts">
-// Three layouts for the same markup (CSS decides the layout, this component decides how it behaves):
-//  - desktop and tablet (>= 768px wide): the sections sit side by side in a horizontal scroll-snap container; each
-//    section locks into place and scrolls vertically by itself. Sideways movement is "crown-like": a continuous gesture
-//    is cut into ticks, one section per tick, with haptics where the device allows (see utils/haptics.ts).
-//  - mobile (< 768px): inverted. The sections are stacked vertically and snap as you scroll up and down, and inside a
-//    section the content (cards, tiles, images) scrolls sideways.
-//  - anything else (short windows, reduced motion on a large screen): an ordinary vertical page.
+// Two layouts for the same markup (CSS decides the layout, this component decides how it behaves):
+//  - any screen with room (>= 560px high, motion allowed), phones included: the sections sit side by side in a
+//    horizontal scroll-snap container; each locks into place and scrolls vertically by itself. Sideways movement is
+//    "crown-like": a continuous gesture is cut into ticks, one section per tick, with haptics where the device allows.
+//  - anything else (very short windows, reduced motion): an ordinary vertical page.
 import { KEYMAP, isMac, matchesAny, sectionDigit } from "~/utils/keybindings";
 import { tickHaptic } from "~/utils/haptics";
 import { createTickAccumulator } from "~/utils/ticks";
 
 // Keep in sync with the @media rules in main.css
-const QUERY = "(min-width: 768px) and (min-height: 560px) and (prefers-reduced-motion: no-preference)";
-const MOBILE_QUERY = "(max-width: 767px)";
+const QUERY = "(min-height: 560px) and (prefers-reduced-motion: no-preference)";
 
 const scroller = ref<HTMLElement>();
 const { panels, activeId, progress, horizontal, hinted, tickCount, mode } = useStageState();
 
 let panelEls: HTMLElement[] = [];
 let mq: MediaQueryList | null = null;
-let mobileMq: MediaQueryList | null = null;
-let io: IntersectionObserver | null = null;
 let raf = 0;
 
 const clamp = (n: number, a: number, b: number) => Math.min(b, Math.max(a, n));
@@ -221,110 +216,15 @@ function disable() {
   for (const el of panelEls) el.style.removeProperty("--panel-p");
 }
 
-// ---- mobile: sections stacked vertically (the document scrolls and snaps), content scrolls sideways inside them
-function onWindowScroll() {
-  const max = document.documentElement.scrollHeight - window.innerHeight;
-  progress.value = max > 0 ? clamp(window.scrollY / max, 0, 1) : 0;
-}
-
-// Mouse wheel on the stacked layout (a narrow desktop window): browsers snap small wheel movements back to where they
-// started, so step one section per 90px of wheel travel instead. Finger swipes keep their native snapping.
-const mobileWheel = createTickAccumulator({ threshold: 90, quietMs: 150, maxPerPush: 3 });
-
-function canScrollInside(start: EventTarget | null, dy: number): boolean {
-  for (let el = start instanceof HTMLElement ? start : null; el && el !== document.body; el = el.parentElement) {
-    const oy = getComputedStyle(el).overflowY;
-    if ((oy === "auto" || oy === "scroll") && el.scrollHeight > el.clientHeight + 1) {
-      if (dy > 0 ? el.scrollTop + el.clientHeight < el.scrollHeight - 1 : el.scrollTop > 0) return true;
-    }
-  }
-  return false;
-}
-
-function onMobileWheel(e: WheelEvent) {
-  if (e.ctrlKey || Math.abs(e.deltaY) < Math.abs(e.deltaX) || !e.deltaY) return;
-  if (canScrollInside(e.target, e.deltaY)) return; // a tall card or the FAQ uses the wheel first
-  e.preventDefault();
-  const n = mobileWheel.push(e.deltaY, performance.now());
-  for (let i = 0; i < Math.abs(n); i++) {
-    const count = panels.value.length;
-    const base = pending ?? Math.max(0, index.value);
-    const nextIndex = clamp(base + (n > 0 ? 1 : -1), 0, count - 1);
-    if (nextIndex === base) break;
-    pending = nextIndex;
-    clearTimeout(pendingTimer);
-    pendingTimer = setTimeout(() => (pending = null), 900);
-    document.getElementById(panels.value[nextIndex]!.id)?.scrollIntoView({ block: "start", behavior: "smooth" });
-  }
-}
-
-function enableMobile() {
-  if (mode.value === "mobile") return;
-  mode.value = "mobile";
-  const current = activeId.value;
-  io = new IntersectionObserver(
-    (entries) => {
-      for (const e of entries) {
-        if (!e.isIntersecting || e.intersectionRatio < 0.55 || e.target.id === activeId.value) continue;
-        activeId.value = e.target.id;
-        tickCount.value++;
-        hinted.value = true;
-        tickHaptic("tick"); // a light tap each time a section snaps into place
-      }
-    },
-    { threshold: [0.55, 0.8] },
-  );
-  panelEls.forEach((el) => io!.observe(el));
-  window.addEventListener("scroll", onWindowScroll, { passive: true });
-  window.addEventListener("wheel", onMobileWheel, { passive: false });
-  // keep the visitor on the same section when the layout switches (rotation, resize)
-  const hash = location.hash.slice(1);
-  const target = document.getElementById(hash && panelEls.some((p) => p.id === hash) ? hash : current);
-  requestAnimationFrame(() => {
-    target?.scrollIntoView({ block: "start", behavior: "instant" as ScrollBehavior });
-    onWindowScroll();
-  });
-}
-
-function disableMobile() {
-  if (mode.value !== "mobile") return;
-  mode.value = "page";
-  io?.disconnect();
-  io = null;
-  window.removeEventListener("scroll", onWindowScroll);
-  window.removeEventListener("wheel", onMobileWheel);
-  clearTimeout(pendingTimer);
-  pending = null;
-}
-
 function jumpAny(id: string) {
-  if (mode.value === "mobile") {
-    document.getElementById(id)?.scrollIntoView({ block: "start", behavior: "smooth" });
-    hinted.value = true;
-  } else jumpTo(id);
-}
-
-// One resize can fire several media-query events, so only act on a real change of layout, and remember which
-// section the visitor was on before anything is torn down.
-function desiredMode(): "page" | "sideways" | "mobile" {
-  return mq?.matches ? "sideways" : mobileMq?.matches ? "mobile" : "page";
+  jumpTo(id);
 }
 
 function sync() {
-  const next = desiredMode();
-  if (next === mode.value) return;
-  const id = activeId.value;
-  if (mode.value === "sideways") disable();
-  if (mode.value === "mobile") disableMobile();
-  if (next === "sideways") {
-    enable();
-    activeId.value = id;
-    // coming from the stacked layout: show the same section
-    const el = panelEls.find((p) => p.id === id);
-    if (el) requestAnimationFrame(() => scroller.value?.scrollTo({ left: el.offsetLeft, behavior: "instant" as ScrollBehavior }));
-  } else if (next === "mobile") {
-    enableMobile();
-  }
+  const want = mq?.matches ? "sideways" : "page";
+  if (want === mode.value) return;
+  if (want === "sideways") enable();
+  else disable();
 }
 
 onMounted(() => {
@@ -333,17 +233,13 @@ onMounted(() => {
   activeId.value = panels.value[0]?.id ?? "";
   registerStageJump(jumpAny);
   mq = window.matchMedia(QUERY);
-  mobileMq = window.matchMedia(MOBILE_QUERY);
   mq.addEventListener("change", sync);
-  mobileMq.addEventListener("change", sync);
   sync();
 });
 
 onBeforeUnmount(() => {
   mq?.removeEventListener("change", sync);
-  mobileMq?.removeEventListener("change", sync);
   disable();
-  disableMobile();
   registerStageJump(null);
   panels.value = [];
   activeId.value = "";

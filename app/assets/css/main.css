@@ -930,7 +930,8 @@ h3 {
   .stage-panel-scroll {
     padding: 1rem 0.875rem;
   }
-  .stage-edge {
+  .stage-edge,
+  .stage-edge-right.stage-nudge {
     display: none;
   }
 }

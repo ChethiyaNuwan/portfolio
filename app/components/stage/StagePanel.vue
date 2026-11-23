@@ -30,7 +30,7 @@ onBeforeUnmount(() => ro?.disconnect());
       <slot />
     </div>
     <!-- phones: tells the visitor this section continues below -->
-    <div class="stage-more pointer-events-none absolute inset-x-0 bottom-0 z-10 flex h-16 items-end justify-center pb-1 md:hidden" :class="{ 'is-on': more && !fit }" aria-hidden="true">
+    <div class="stage-more pointer-events-none absolute inset-x-0 bottom-0 z-10 flex h-8 items-end justify-center md:hidden" :class="{ 'is-on': more && !fit }" aria-hidden="true">
       <UIcon name="i-lucide-chevrons-down" class="stage-more-icon size-6 text-primary" />
     </div>
   </section>

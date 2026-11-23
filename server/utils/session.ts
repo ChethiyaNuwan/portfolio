@@ -5,6 +5,8 @@ import { csrfMatches } from "../lib/auth";
 export interface AdminSessionData {
   authenticated?: boolean;
   csrf?: string;
+  /** WebAuthn challenge for the ceremony in progress */
+  challenge?: string;
 }
 
 const SESSION_HOURS = 8;

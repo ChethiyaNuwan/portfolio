@@ -83,7 +83,7 @@ const paths = computed(() =>
     const x = LANE0 + b.lane * LANE_STEP;
     const y0 = top.top - 9;
     const y1 = bottom.bottom + 9;
-    const start = b.present ? `M ${x} ${top.top + 6}` : `M ${TX} ${y0} C ${TX} ${y0 + 9}, ${x} ${y0 + 5}, ${x} ${y0 + 15}`;
+    const start = b.present ? `M ${x} 6` : `M ${TX} ${y0} C ${TX} ${y0 + 9}, ${x} ${y0 + 5}, ${x} ${y0 + 15}`;
     const d = `${start} L ${x} ${y1 - 15} C ${x} ${y1 - 5}, ${TX} ${y1 - 9}, ${TX} ${y1}`;
     return [{ id: b.id, n, color: b.color, d, x, cy: top.top + 54, left: top.left, present: b.present, y0, y1 }];
   }),
@@ -140,7 +140,7 @@ function connector(it: (typeof layout.value.items)[number]) {
           <path class="exp-path" pathLength="1" :d="p.d" fill="none" :stroke="p.color" stroke-width="2.5" stroke-linecap="round" />
           <circle v-if="!p.present" class="exp-dot" :cx="TX" :cy="p.y0" r="4.5" :fill="p.color" stroke="var(--ui-bg)" stroke-width="2" />
           <circle class="exp-dot" :cx="TX" :cy="p.y1" r="4.5" :fill="p.color" stroke="var(--ui-bg)" stroke-width="2" />
-          <circle v-if="p.present" class="exp-dot exp-now" :cx="p.x" :cy="p.y0 + 15" r="5" :fill="p.color" />
+          <circle v-if="p.present" class="exp-dot exp-now" :cx="p.x" :cy="6" r="5" :fill="p.color" />
           <line class="exp-dash" :x1="p.x" :y1="p.cy" :x2="p.left" :y2="p.cy" :stroke="p.color" stroke-width="2" stroke-dasharray="3 4" />
           <circle class="exp-dot" :cx="p.x" :cy="p.cy" r="4.5" :fill="p.color" stroke="var(--ui-bg)" stroke-width="2" />
         </g>

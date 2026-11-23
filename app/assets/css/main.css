@@ -580,7 +580,7 @@ h3 {
   grid-template-rows: 1fr;
 }
 /* Tablet: three cards in a row, all showing their text (no hover needed) */
-@media (min-width: 768px) and (max-width: 1023px) {
+@media (min-width: 768px) and (max-width: 1023px) and (min-height: 700px) {
   .svc-list {
     flex-direction: row;
   }
@@ -588,7 +588,7 @@ h3 {
     flex: 1 1 0;
   }
 }
-@media (min-width: 1024px) {
+@media (min-width: 1024px) and (min-height: 600px) {
   .svc-list {
     flex-direction: row;
     height: min(26rem, 56vh);

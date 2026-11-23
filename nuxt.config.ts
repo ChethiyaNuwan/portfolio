@@ -29,7 +29,7 @@ export default defineNuxtConfig({
     head: {
       htmlAttrs: { lang: "en" },
       title: "Chethiya Nuwan • Portfolio",
-      meta: [{ name: "viewport", content: "width=device-width, initial-scale=1" }],
+      meta: [{ name: "viewport", content: "width=device-width, initial-scale=1, viewport-fit=cover" }],
       link: [
         { rel: "icon", href: "/favicon.ico", sizes: "any" },
         { rel: "apple-touch-icon", href: "/favicon.ico" },

@@ -40,8 +40,8 @@ const marqueeWords = computed(() => [profile.value.title, ...content.value.servi
         </div>
       </div>
 
-      <dl class="hero-stats flex flex-wrap gap-x-10 gap-y-3 pt-5">
-        <div v-for="c in content.counters" :key="c.id" class="flex items-baseline gap-2">
+      <dl class="hero-stats grid grid-cols-2 gap-x-6 gap-y-2 pt-5 sm:flex sm:flex-wrap sm:gap-x-10 sm:gap-y-3">
+        <div v-for="c in content.counters" :key="c.id" class="flex min-w-0 flex-col gap-0.5 sm:flex-row sm:items-baseline sm:gap-2">
           <dd class="font-display text-3xl font-semibold text-highlighted"><CountUp :end="c.value" />+</dd>
           <dt class="text-sm text-muted">{{ c.title }}</dt>
         </div>

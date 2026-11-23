@@ -1,8 +1,8 @@
 @import "tailwindcss";
 @import "@nuxt/ui";
 
-/* True only when the sideways stage is active: desktop, or any touch device (same query as HorizontalStage.vue) */
-@custom-variant stage (@media (min-width: 1024px) and (min-height: 600px) and (prefers-reduced-motion: no-preference), (pointer: coarse) and (min-height: 420px) and (prefers-reduced-motion: no-preference));
+/* True only when the sideways stage is active: tablet and desktop (same query as HorizontalStage.vue) */
+@custom-variant stage (@media (min-width: 768px) and (min-height: 560px) and (prefers-reduced-motion: no-preference));
 
 @theme static {
   --font-sans: "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
@@ -49,6 +49,23 @@ html {
   scroll-behavior: smooth;
   background: var(--ui-bg);
   --footer-h: 3.5rem;
+  /* the footer plus the device's bottom safe area (home indicator) */
+  --footer-space: calc(var(--footer-h) + env(safe-area-inset-bottom, 0px));
+  -webkit-tap-highlight-color: transparent;
+  -webkit-text-size-adjust: 100%;
+}
+@media (pointer: coarse) {
+  html {
+    --footer-h: 4rem;
+  }
+}
+body {
+  overscroll-behavior: none;
+}
+a,
+button,
+[role="button"] {
+  touch-action: manipulation;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -271,12 +288,14 @@ h3 {
 .stage-panel-scroll {
   padding: clamp(1.25rem, 4vw, 3rem);
 }
-/* Keep content clear of the edge buttons (desktop only: touch devices have no edge buttons) */
-@media (min-width: 1024px) and (min-height: 600px) and (prefers-reduced-motion: no-preference) {
+/* Keep content clear of the edge buttons (mouse users on tablet and desktop; touch devices have none) */
+@media (min-width: 768px) and (min-height: 560px) and (prefers-reduced-motion: no-preference) and (pointer: fine) {
   .stage-panel-scroll {
     padding-inline: max(5.5rem, 4vw);
   }
-  /* the home section never scrolls on desktop: it fits the screen instead */
+}
+/* the home section never scrolls on tablet or desktop: it fits the screen instead */
+@media (min-width: 768px) and (min-height: 560px) and (prefers-reduced-motion: no-preference) {
   .stage-panel-scroll.stage-fit {
     overflow-y: hidden;
   }
@@ -284,10 +303,10 @@ h3 {
 .stage-more {
   display: none;
 }
-@media (min-width: 1024px) and (min-height: 600px) and (prefers-reduced-motion: no-preference), (pointer: coarse) and (min-height: 420px) and (prefers-reduced-motion: no-preference) {
+@media (min-width: 768px) and (min-height: 560px) and (prefers-reduced-motion: no-preference) {
   .stage {
     position: relative;
-    height: calc(100svh - var(--footer-h));
+    height: calc(100svh - var(--footer-space));
     overflow: hidden;
   }
   .stage-scroller {
@@ -324,14 +343,18 @@ h3 {
   }
 }
 
-/* Short screens: drop the least important hero details so it always fits without scrolling */
-@media (min-width: 1024px) and (max-height: 820px) {
+/* Short screens (desktop windows and phones): drop the least important hero details so it fits */
+@media (max-height: 820px) {
   .hero-marquee {
     display: none;
   }
 }
-@media (min-width: 1024px) and (max-height: 700px) {
-  .hero-stats,
+@media (max-height: 700px) {
+  .hero-stats {
+    display: none;
+  }
+}
+@media (max-height: 560px) {
   .hero-intro {
     display: none;
   }
@@ -452,7 +475,7 @@ h3 {
 :root:not(.dark) .hero-portrait img {
   mix-blend-mode: multiply;
 }
-@media (min-width: 1024px) {
+@media (min-width: 768px) {
   .hero-portrait {
     width: min(58%, 62rem);
     opacity: 0.92;
@@ -555,6 +578,15 @@ h3 {
 .svc-more {
   display: grid;
   grid-template-rows: 1fr;
+}
+/* Tablet: three cards in a row, all showing their text (no hover needed) */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .svc-list {
+    flex-direction: row;
+  }
+  .svc {
+    flex: 1 1 0;
+  }
 }
 @media (min-width: 1024px) {
   .svc-list {
@@ -762,45 +794,183 @@ h3 {
   100% { height: 2px; filter: none; }
 }
 
-/* Touch devices swipe sideways: no edge buttons (placed last so it wins over the base .stage-edge style) */
+/* Touch devices swipe sideways: no edge buttons, only a small nudging chevron until the first move */
 @media (pointer: coarse) {
   .stage-edge {
     display: none;
   }
+  .stage-edge-right.stage-nudge {
+    display: flex;
+    width: 2.25rem;
+    pointer-events: none;
+  }
+  .stage-edge-right.stage-nudge .stage-chevron {
+    width: 1.75rem;
+    height: 1.75rem;
+  }
+  /* comfortable touch targets */
+  .tap {
+    min-height: 2.75rem;
+    min-width: 2.75rem;
+    justify-content: center;
+  }
+  .footer-nav-list {
+    column-gap: 0.1rem;
+  }
+  .footer-link {
+    display: inline-block;
+    padding: 0.95rem 0.7rem;
+  }
+  .footer-link::after {
+    bottom: 0.55rem;
+  }
+  .footer-nav {
+    padding-block: 0;
+    -webkit-mask-image: linear-gradient(to right, transparent 0, #000 1.1rem, #000 calc(100% - 1.1rem), transparent 100%);
+    mask-image: linear-gradient(to right, transparent 0, #000 1.1rem, #000 calc(100% - 1.1rem), transparent 100%);
+  }
 }
 
-/* ---------- Footer navigation: the active tab glows ---------- */
-.footer-link {
-  position: relative;
-  transition: color 0.3s ease, text-shadow 0.45s ease;
-}
-.footer-link[aria-current] {
-  text-shadow:
-    0 0 10px color-mix(in srgb, var(--ui-primary) 85%, transparent),
-    0 0 24px color-mix(in srgb, var(--ui-primary) 55%, transparent);
-}
-.footer-link::after {
-  content: "";
-  position: absolute;
-  left: 50%;
-  bottom: -7px;
-  width: 1.1rem;
-  height: 2px;
-  border-radius: 2px;
-  background: var(--ui-primary);
-  box-shadow: 0 0 8px var(--ui-primary), 0 0 18px var(--ui-primary);
-  transform: translateX(-50%) scaleX(0);
-  transition: transform 0.45s cubic-bezier(0.2, 0.8, 0.1, 1);
-}
-.footer-link[aria-current]::after {
-  transform: translateX(-50%) scaleX(1);
-}
-:root:not(.dark) .footer-link[aria-current] {
-  text-shadow: 0 0 10px color-mix(in srgb, var(--ui-primary) 45%, transparent);
-}
-@media (prefers-reduced-motion: reduce) {
-  .footer-link,
-  .footer-link::after {
-    transition: none;
+/* =====================================================================================================
+   MOBILE (< 768px): the behaviour is inverted. The sections are stacked vertically and snap as you scroll
+   up and down; inside a section, whatever would scroll vertically scrolls sideways instead.
+   ===================================================================================================== */
+@media (max-width: 767px) {
+  html {
+    scroll-snap-type: y mandatory;
+  }
+  .stage-panel {
+    height: calc(100svh - var(--footer-space));
+    overflow: hidden;
+    scroll-snap-align: start;
+    scroll-snap-stop: always;
+  }
+  .stage-panel-scroll {
+    height: 100%;
+    overflow-x: hidden;
+    overflow-y: auto; /* only if a section's content is taller than the screen */
+    scrollbar-width: none;
+  }
+  .stage-panel-scroll::-webkit-scrollbar {
+    display: none;
+  }
+  .stage-panel-scroll.stage-fit {
+    overflow-y: hidden;
+  }
+  /* each section's content is exactly one screen tall, so its rows get a fixed height and long cards scroll inside themselves */
+  .stage-panel-scroll > div {
+    height: 100%;
+    min-height: 0;
+  }
+  .stage-panel-scroll > div > * {
+    min-width: 0;
+  }
+
+  /* tiny phones: the intro paragraph makes way so the buttons stay on screen */
+  @media (max-height: 600px) {
+    .hero-intro {
+      display: none;
+    }
+  }
+
+  /* a row of swipeable cards */
+  .m-hscroll {
+    display: flex !important;
+    flex-direction: row !important;
+    flex: 1 1 0;
+    min-height: 0;
+    gap: 0.9rem;
+    margin-inline: calc(clamp(1.25rem, 4vw, 3rem) * -1);
+    padding-inline: clamp(1.25rem, 4vw, 3rem);
+    scroll-padding-inline: clamp(1.25rem, 4vw, 3rem);
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-snap-type: x mandatory;
+    overscroll-behavior-x: contain;
+    scrollbar-width: none;
+    columns: auto !important;
+  }
+  .m-hscroll::-webkit-scrollbar {
+    display: none;
+  }
+  /* cards are as tall as their content and centred; a card taller than the screen scrolls inside itself */
+  .m-center {
+    align-items: center !important;
+  }
+  .m-center > * {
+    max-height: 100%;
+  }
+  .m-hscroll > * {
+    flex: 0 0 var(--card-w, 84vw);
+    min-width: 0;
+    margin: 0 !important;
+    scroll-snap-align: start;
+    overflow-y: auto;
+    scrollbar-width: none;
+  }
+
+  /* Stack: tiles flow in columns of three, scrolling sideways */
+  .m-tiles {
+    display: grid !important;
+    grid-auto-flow: column;
+    grid-template-rows: repeat(3, minmax(0, 1fr));
+    grid-auto-columns: 31vw;
+    gap: 0.6rem;
+  }
+  .m-tiles > * {
+    flex: none;
+    overflow: visible;
+  }
+
+  /* Services: cards in a row */
+  .svc-list {
+    flex-direction: row;
+    align-items: center;
+    flex: 1 1 0;
+    min-height: 0;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    margin-inline: calc(clamp(1.25rem, 4vw, 3rem) * -1);
+    padding-inline: clamp(1.25rem, 4vw, 3rem);
+    scrollbar-width: none;
+  }
+  .svc-list::-webkit-scrollbar {
+    display: none;
+  }
+  .svc {
+    flex: 0 0 80vw;
+    scroll-snap-align: start;
+  }
+
+  /* FAQ: question and answer cards in a row, shown in full (no typing) */
+  .faq-viewport {
+    min-width: 0;
+    height: auto;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-snap-type: x mandatory;
+    -webkit-mask-image: none;
+    mask-image: none;
+    padding: 0;
+  }
+  .faq-viewport > dl {
+    flex-direction: row;
+    align-items: center;
+    gap: 0.9rem;
+    width: max-content;
+  }
+  .faq-viewport > dl > div {
+    flex: 0 0 80vw;
+    scroll-snap-align: start;
+    border: 1px solid var(--ui-border);
+    padding: 1rem;
+    background: color-mix(in srgb, var(--ui-bg-muted) 40%, transparent);
+  }
+  .faq-type .tw {
+    opacity: 1;
+    animation: none !important;
+  }
+  .faq-skip {
+    display: none;
   }
 }

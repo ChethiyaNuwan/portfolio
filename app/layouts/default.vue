@@ -31,7 +31,7 @@ useHead({
     Skip to content
   </a>
 
-  <UMain id="main" tabindex="-1" class="min-h-0 pb-[var(--footer-h)] outline-none">
+  <UMain id="main" tabindex="-1" class="min-h-0 pb-[var(--footer-space)] outline-none">
     <slot />
   </UMain>
 

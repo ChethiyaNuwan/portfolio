@@ -7,7 +7,7 @@ const mask = (src: string) => ({ maskImage: `url(${src})`, WebkitMaskImage: `url
   <StagePanel id="services" label="Services">
     <div class="flex min-h-full flex-col gap-8">
       <PanelHead id="services" title="Services" outline>
-        <p class="max-w-sm text-lg text-muted">Hover a card to read more.</p>
+        <p class="max-w-sm text-lg text-muted"><span class="hidden [@media(hover:hover)_and_(min-width:1024px)]:inline">Hover a card to read more.</span><span class="[@media(hover:hover)_and_(min-width:1024px)]:hidden">What I can build for you.</span></p>
       </PanelHead>
       <DropGroup as="ul" class="svc-list" role="list">
         <li v-for="(s, i) in content.services" :key="s.id" class="svc">

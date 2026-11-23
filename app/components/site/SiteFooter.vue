@@ -17,6 +17,13 @@ watch([activeId, () => route.path], async () => {
   if (nav && a && nav.scrollWidth > nav.clientWidth) nav.scrollTo({ left: a.offsetLeft - nav.clientWidth / 2 + a.offsetWidth / 2, behavior: "smooth" });
 });
 
+const activeIndex = computed(() => panels.value.findIndex((p) => p.id === activeId.value));
+const activeLabel = computed(() => panels.value[activeIndex.value]?.label ?? "");
+function step(dir: 1 | -1) {
+  const t = panels.value[activeIndex.value + dir];
+  if (t) stageJump(t.id);
+}
+
 const sectionMode = computed(() => route.path === "/" && panels.value.length > 0);
 
 function goSection(e: MouseEvent, id: string) {
@@ -32,9 +39,9 @@ function goSection(e: MouseEvent, id: string) {
       <div v-if="sectionMode && mode !== 'page'" :key="tickCount" class="tick-line origin-left bg-primary" :style="{ transform: `scaleX(${progress})` }" />
     </div>
 
-    <div class="mx-auto grid h-[var(--footer-h)] max-w-[120rem] grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 px-4 sm:px-6 lg:grid-cols-[1fr_auto_1fr] lg:gap-6">
+    <div class="mx-auto grid h-[var(--footer-h)] max-w-[120rem] grid-cols-[minmax(0,1fr)_auto] items-center gap-2 px-2 sm:px-6 md:grid-cols-[auto_minmax(0,1fr)_auto] md:gap-3 lg:grid-cols-[1fr_auto_1fr] lg:gap-6">
       <!-- left: name and social links -->
-      <div class="flex items-center gap-2">
+      <div class="hidden items-center gap-2 md:flex">
         <NuxtLink to="/" class="hidden shrink-0 font-display text-base font-semibold tracking-tight text-highlighted md:block">
           {{ content.profile.name }}
         </NuxtLink>
@@ -56,7 +63,22 @@ function goSection(e: MouseEvent, id: string) {
       </div>
 
       <!-- centre: sections of the page (home) or pages of the site (elsewhere) -->
-      <nav v-if="sectionMode" ref="navEl" class="footer-nav min-w-0 overflow-x-auto px-3 py-2" aria-label="Sections on this page">
+      <!-- phones: previous / current section / next, with a dot per section instead of a scrolling link row -->
+      <div v-if="sectionMode && mode !== 'page'" class="flex min-w-0 items-center justify-between md:hidden">
+        <UButton icon="i-lucide-chevron-left" color="neutral" variant="ghost" size="sm" class="tap shrink-0" aria-label="Previous section" :disabled="activeIndex <= 0" @click="step(-1)" />
+        <div class="flex min-w-0 flex-col items-center gap-1.5">
+          <span class="truncate text-sm font-medium text-highlighted" aria-live="polite">{{ activeLabel }}</span>
+          <ul class="flex items-center">
+            <li v-for="p in panels" :key="p.id">
+              <a :href="`#${p.id}`" class="flex h-4 w-5 items-center justify-center" :aria-label="p.label" :aria-current="activeId === p.id ? 'true' : undefined" @click="goSection($event, p.id)">
+                <span class="block h-1 rounded-full transition-all duration-300" :class="activeId === p.id ? 'w-4 bg-primary' : 'w-1 bg-[var(--ui-border-accented)]'" />
+              </a>
+            </li>
+          </ul>
+        </div>
+        <UButton icon="i-lucide-chevron-right" color="neutral" variant="ghost" size="sm" class="tap shrink-0" aria-label="Next section" :disabled="activeIndex >= panels.length - 1" @click="step(1)" />
+      </div>
+      <nav v-if="sectionMode" ref="navEl" class="footer-nav min-w-0 overflow-x-auto px-3 py-2" :class="mode !== 'page' && 'max-md:hidden'" aria-label="Sections on this page">
         <ul class="footer-nav-list flex items-center justify-start gap-x-5 whitespace-nowrap lg:justify-center">
           <li v-for="p in panels" :key="p.id">
             <a

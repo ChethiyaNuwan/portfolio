@@ -21,6 +21,16 @@ const layout = computed(() =>
   ),
 );
 
+// On phones the cards collapse to their title; one is open at a time, the top one at load
+const openId = ref<string | null>(layout.value.items[0]?.id ?? null);
+const compact = ref(false);
+onMounted(() => {
+  const mq = window.matchMedia("(max-width: 767px)");
+  compact.value = mq.matches;
+  mq.addEventListener("change", (e) => (compact.value = e.matches));
+});
+const toggle = (id: string) => (openId.value = openId.value === id ? null : id);
+
 const laneX = (side: "left" | "right") => (side === "right" ? C + LANE : C - LANE);
 const color = (lane: number) => `var(--lane-${lane + 1})`;
 const fork = (x: number, y: number) => `M ${C} ${y} C ${C} ${y - 14}, ${x} ${y - 12}, ${x} ${y - 26}`;
@@ -73,21 +83,33 @@ function connector(it: (typeof layout.value.items)[number]) {
         :class="it.side === 'right' ? 'lg:left-[calc(50%+138px)]' : 'lg:left-0'"
         :style="{ '--y': `${it.cardTop}px`, '--lane': color(it.lane), borderTopColor: color(it.lane) }"
       >
-        <div class="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm">
-          <time class="font-medium text-toned">{{ byId[it.id]!.year }}</time>
-          <span class="text-muted">{{ durationLabel(it.period) }}</span>
-        </div>
-        <div class="flex items-center gap-3">
-          <img :src="byId[it.id]!.logo" alt="" class="size-10 shrink-0 border border-default bg-elevated p-1.5 object-contain" />
-          <div class="min-w-0">
-            <h3 class="font-display text-xl font-semibold leading-tight text-highlighted sm:text-2xl">{{ byId[it.id]!.title }}</h3>
-            <p class="text-toned">{{ byId[it.id]!.company }}</p>
+        <component
+          :is="compact ? 'button' : 'div'"
+          :type="compact ? 'button' : undefined"
+          :aria-expanded="compact ? openId === it.id : undefined"
+          :aria-controls="compact ? `exp-${it.id}` : undefined"
+          class="flex w-full flex-col gap-3 text-left max-md:cursor-pointer"
+          @click="compact && toggle(it.id)"
+        >
+          <div class="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm">
+            <time class="font-medium text-toned">{{ byId[it.id]!.year }}</time>
+            <span class="text-muted">{{ durationLabel(it.period) }}</span>
           </div>
+          <div class="flex items-center gap-3">
+            <img :src="byId[it.id]!.logo" alt="" class="size-10 shrink-0 border border-default bg-elevated p-1.5 object-contain" />
+            <div class="min-w-0 flex-1">
+              <h3 class="font-display text-xl font-semibold leading-tight text-highlighted sm:text-2xl">{{ byId[it.id]!.title }}</h3>
+              <p class="text-toned">{{ byId[it.id]!.company }}</p>
+            </div>
+            <UIcon name="i-lucide-chevron-down" class="size-5 shrink-0 text-muted transition-transform md:hidden" :class="openId === it.id && 'rotate-180'" aria-hidden="true" />
+          </div>
+        </component>
+        <div :id="`exp-${it.id}`" class="flex min-h-0 flex-col gap-3" :class="openId !== it.id && 'max-md:hidden'">
+          <div v-if="byId[it.id]!.labels.length" class="flex flex-wrap gap-2">
+            <UBadge v-for="l in byId[it.id]!.labels" :key="l" :label="l" color="neutral" variant="outline" />
+          </div>
+          <p class="min-h-0 text-sm leading-relaxed text-muted lg:line-clamp-4">{{ byId[it.id]!.description }}</p>
         </div>
-        <div v-if="byId[it.id]!.labels.length" class="flex flex-wrap gap-2">
-          <UBadge v-for="l in byId[it.id]!.labels" :key="l" :label="l" color="neutral" variant="outline" />
-        </div>
-        <p class="min-h-0 text-sm leading-relaxed text-muted lg:line-clamp-4">{{ byId[it.id]!.description }}</p>
       </li>
     </ol>
   </div>

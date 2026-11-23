@@ -8,6 +8,7 @@ export const seedContent: Content = {
     "intro": "Passionate about creating efficient, user-focused solutions. I specialize in scalable applications, performance optimization, and seamless user experiences, leveraging technology to solve dynamic challenges.",
     "email": process.env.SEED_PROFILE_EMAIL?.trim() || "hello@example.com",
     "avatar": "/profile.jpg",
+    "avatarMobile": "",
     "phone": "",
     "location": ""
   },

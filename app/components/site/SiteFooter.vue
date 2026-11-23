@@ -18,7 +18,6 @@ watch([activeId, () => route.path], async () => {
 });
 
 const activeIndex = computed(() => panels.value.findIndex((p) => p.id === activeId.value));
-const activeLabel = computed(() => panels.value[activeIndex.value]?.label ?? "");
 function step(dir: 1 | -1) {
   const t = panels.value[activeIndex.value + dir];
   if (t) stageJump(t.id);
@@ -66,16 +65,14 @@ function goSection(e: MouseEvent, id: string) {
       <!-- phones: previous / current section / next, with a dot per section instead of a scrolling link row -->
       <div v-if="sectionMode && mode !== 'page'" class="flex min-w-0 items-center justify-between md:hidden">
         <UButton icon="i-lucide-chevron-left" color="neutral" variant="ghost" size="sm" class="tap shrink-0" aria-label="Previous section" :disabled="activeIndex <= 0" @click="step(-1)" />
-        <div class="flex min-w-0 flex-col items-center gap-1.5">
-          <span class="truncate text-sm font-medium text-highlighted" aria-live="polite">{{ activeLabel }}</span>
-          <ul class="flex items-center">
-            <li v-for="p in panels" :key="p.id">
-              <a :href="`#${p.id}`" class="flex h-4 w-5 items-center justify-center" :aria-label="p.label" :aria-current="activeId === p.id ? 'true' : undefined" @click="goSection($event, p.id)">
-                <span class="block h-1 rounded-full transition-all duration-300" :class="activeId === p.id ? 'w-4 bg-primary' : 'w-1 bg-[var(--ui-border-accented)]'" />
-              </a>
-            </li>
-          </ul>
-        </div>
+        <ul class="flex min-w-0 items-center justify-center">
+          <li v-for="p in panels" :key="p.id" class="flex">
+            <a :href="`#${p.id}`" class="flex h-11 items-center justify-center transition-all duration-300" :class="activeId === p.id ? 'px-2' : 'w-4'" :aria-label="p.label" :aria-current="activeId === p.id ? 'true' : undefined" @click="goSection($event, p.id)">
+              <span v-if="activeId === p.id" class="whitespace-nowrap text-sm font-medium text-highlighted" aria-live="polite">{{ p.label }}</span>
+              <span v-else class="block size-1 rounded-full bg-[var(--ui-border-accented)]" />
+            </a>
+          </li>
+        </ul>
         <UButton icon="i-lucide-chevron-right" color="neutral" variant="ghost" size="sm" class="tap shrink-0" aria-label="Next section" :disabled="activeIndex >= panels.length - 1" @click="step(1)" />
       </div>
       <nav v-if="sectionMode" ref="navEl" class="footer-nav min-w-0 overflow-x-auto px-3 py-2" :class="mode !== 'page' && 'max-md:hidden'" aria-label="Sections on this page">

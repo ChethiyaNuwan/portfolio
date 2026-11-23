@@ -14,6 +14,7 @@ export const sectionSchemas = {
     intro: long,
     email: z.email().max(200),
     avatar: url,
+    avatarMobile: url.default(""),
     phone: short.default(""),
     location: short.default(""),
   }),

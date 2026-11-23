@@ -40,7 +40,10 @@ const lines = computed(() => {
 
 // Only three items are in view at a time: when a new question starts, the oldest one scrolls up and fades out.
 // The visitor can still scroll by hand; automatic scrolling backs off for a few seconds after they do.
-const VISIBLE = 3;
+const VISIBLE = ref(3); // one at a time on phones
+onMounted(() => {
+  if (window.matchMedia("(max-width: 767px)").matches) VISIBLE.value = 1;
+});
 const MANUAL_HOLD = 3500;
 let lastManual = 0;
 let timers: ReturnType<typeof setTimeout>[] = [];
@@ -48,7 +51,7 @@ let timers: ReturnType<typeof setTimeout>[] = [];
 const markManual = () => (lastManual = Date.now());
 
 function follow(i: number) {
-  const el = itemEls.value[i - (VISIBLE - 1)];
+  const el = itemEls.value[i - (VISIBLE.value - 1)];
   if (!viewport.value || !el || Date.now() - lastManual < MANUAL_HOLD) return;
   viewport.value.scrollTo({ top: el.offsetTop - 4, behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
 }
@@ -60,7 +63,7 @@ watch(
     timers = [];
     if (!go) return;
     lines.value.forEach((l, i) => {
-      if (i >= VISIBLE) timers.push(setTimeout(() => follow(i), l.at));
+      if (i >= VISIBLE.value) timers.push(setTimeout(() => follow(i), l.at));
     });
   },
 );

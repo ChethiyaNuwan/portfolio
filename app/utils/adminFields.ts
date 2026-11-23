@@ -17,7 +17,7 @@ const area = (key: string, label: string): FieldDef => ({ key, label, type: "tex
 const img = (key: string, label: string): FieldDef => ({ key, label, type: "image" });
 
 export const sectionConfigs: Record<string, SectionConfig> = {
-  profile: { label: "Profile", kind: "object", fields: [t("name", "Name"), t("title", "Job title"), area("intro", "Intro"), t("email", "Email (used for mailto: links)"), t("phone", "Phone (shown on CV)"), t("location", "Location (shown on CV)"), img("avatar", "Avatar")] },
+  profile: { label: "Profile", kind: "object", fields: [t("name", "Name"), t("title", "Job title"), area("intro", "Intro"), t("email", "Email (used for mailto: links)"), t("phone", "Phone (shown on CV)"), t("location", "Location (shown on CV)"), img("avatar", "Avatar"), img("avatarMobile", "Avatar for phones (optional, falls back to Avatar)")] },
   counters: { label: "Counters", kind: "list", itemLabel: "title", fields: [t("title", "Title"), { key: "value", label: "Value", type: "number" }] },
   experience: {
     label: "Experience", kind: "list", itemLabel: "company",

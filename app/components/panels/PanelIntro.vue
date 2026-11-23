@@ -7,7 +7,10 @@ const marqueeWords = computed(() => [profile.value.title, ...content.value.servi
 <template>
   <StagePanel id="intro" label="Intro" fit class="overflow-hidden">
     <figure class="hero-portrait">
-      <img :src="profile.avatar" :alt="`Portrait of ${profile.name}`" width="960" height="1200" fetchpriority="high" />
+      <picture>
+        <source v-if="profile.avatarMobile" media="(max-width: 767px)" :srcset="profile.avatarMobile" />
+        <img :src="profile.avatar" :alt="`Portrait of ${profile.name}`" width="960" height="1200" fetchpriority="high" />
+      </picture>
     </figure>
 
     <div class="relative z-10 flex min-h-full flex-col justify-between gap-5">

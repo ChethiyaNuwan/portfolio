@@ -75,14 +75,28 @@ function connector(it: (typeof layout.value.items)[number]) {
       </g>
     </svg>
 
-    <ol class="relative grid gap-5 max-lg:pl-8 max-lg:before:absolute max-lg:before:bottom-0 max-lg:before:left-2.5 max-lg:before:top-0 max-lg:before:w-0.5 max-lg:before:bg-[var(--ui-border-accented)] lg:block">
+    <DropGroup as="ol" class="relative grid gap-5 max-md:pl-12 md:max-lg:pl-8 md:max-lg:before:absolute md:max-lg:before:bottom-0 md:max-lg:before:left-2.5 md:max-lg:before:top-0 md:max-lg:before:w-0.5 md:max-lg:before:bg-[var(--ui-border-accented)] lg:block">
+      <span class="exp-trunk pointer-events-none absolute bottom-0 left-[10px] top-0 w-0.5 bg-[var(--ui-border-accented)] md:hidden" aria-hidden="true" />
       <li
-        v-for="it in layout.items"
+        v-for="(it, n) in layout.items"
         :key="it.id"
-        class="relative flex flex-col gap-3 overflow-hidden border border-default border-t-2 bg-muted/40 p-5 max-lg:overflow-visible max-lg:before:absolute max-lg:before:-left-[1.72rem] max-lg:before:top-5 max-lg:before:size-3.5 max-lg:before:rounded-full max-lg:before:bg-[var(--lane)] max-lg:before:ring-4 max-lg:before:ring-[var(--ui-bg)] lg:absolute lg:top-[var(--y)] lg:h-[300px] lg:w-[calc(50%-138px)]"
+        class="drop relative flex flex-col gap-3 overflow-hidden border border-default border-t-2 bg-muted/40 p-5 max-lg:overflow-visible md:max-lg:before:absolute md:max-lg:before:-left-[1.72rem] md:max-lg:before:top-5 md:max-lg:before:size-3.5 md:max-lg:before:rounded-full md:max-lg:before:bg-[var(--lane)] md:max-lg:before:ring-4 md:max-lg:before:ring-[var(--ui-bg)] lg:absolute lg:top-[var(--y)] lg:h-[300px] lg:w-[calc(50%-138px)]"
         :class="it.side === 'right' ? 'lg:left-[calc(50%+138px)]' : 'lg:left-0'"
-        :style="{ '--y': `${it.cardTop}px`, '--lane': color(it.lane), borderTopColor: color(it.lane) }"
+        :style="{ '--y': `${it.cardTop}px`, '--i': n, '--lane': color(it.lane), borderTopColor: color(it.lane) }"
       >
+        <!-- phones: this role as a branch of the trunk on the left, joined to its card by a dashed line -->
+        <span class="exp-branch pointer-events-none absolute -top-px bottom-0 -left-[21px] w-[2.5px] bg-[var(--lane)] md:hidden" aria-hidden="true" />
+        <svg v-if="!it.present" class="exp-curve pointer-events-none absolute -left-[37px] -top-[17px] overflow-visible md:hidden" width="17" height="17" aria-hidden="true">
+          <path d="M17 17 C17 8, 0 9, 0 0" fill="none" stroke="var(--lane)" stroke-width="2.5" stroke-linecap="round" />
+          <circle cx="0" cy="0" r="4.5" fill="var(--lane)" stroke="var(--ui-bg)" stroke-width="2" />
+        </svg>
+        <span v-else class="exp-now pointer-events-none absolute -left-[27px] -top-[6px] size-3 rounded-full bg-[var(--lane)] md:hidden" aria-hidden="true" />
+        <svg class="exp-curve pointer-events-none absolute -bottom-[17px] -left-[37px] overflow-visible md:hidden" width="17" height="17" aria-hidden="true">
+          <path d="M17 0 C17 9, 0 8, 0 17" fill="none" stroke="var(--lane)" stroke-width="2.5" stroke-linecap="round" />
+          <circle cx="0" cy="17" r="4.5" fill="var(--lane)" stroke="var(--ui-bg)" stroke-width="2" />
+        </svg>
+        <span class="exp-conn pointer-events-none absolute -left-5 top-[3.4rem] w-5 border-t-2 border-dashed border-[var(--lane)] md:hidden" aria-hidden="true" />
+        <span class="pointer-events-none absolute -left-[25.5px] top-[calc(3.4rem-4.5px)] size-[11px] rounded-full bg-[var(--lane)] ring-2 ring-[var(--ui-bg)] md:hidden" aria-hidden="true" />
         <component
           :is="compact ? 'button' : 'div'"
           :type="compact ? 'button' : undefined"
@@ -104,13 +118,15 @@ function connector(it: (typeof layout.value.items)[number]) {
             <UIcon name="i-lucide-chevron-down" class="size-5 shrink-0 text-muted transition-transform md:hidden" :class="openId === it.id && 'rotate-180'" aria-hidden="true" />
           </div>
         </component>
-        <div :id="`exp-${it.id}`" class="flex min-h-0 flex-col gap-3" :class="openId !== it.id && 'max-md:hidden'">
-          <div v-if="byId[it.id]!.labels.length" class="flex flex-wrap gap-2">
-            <UBadge v-for="l in byId[it.id]!.labels" :key="l" :label="l" color="neutral" variant="outline" />
+        <div :id="`exp-${it.id}`" class="exp-body min-h-0" :data-open="openId === it.id">
+          <div class="flex min-h-0 flex-col gap-3">
+            <div v-if="byId[it.id]!.labels.length" class="flex flex-wrap gap-2">
+              <UBadge v-for="l in byId[it.id]!.labels" :key="l" :label="l" color="neutral" variant="outline" />
+            </div>
+            <p class="min-h-0 text-sm leading-relaxed text-muted lg:line-clamp-4">{{ byId[it.id]!.description }}</p>
           </div>
-          <p class="min-h-0 text-sm leading-relaxed text-muted lg:line-clamp-4">{{ byId[it.id]!.description }}</p>
         </div>
       </li>
-    </ol>
+    </DropGroup>
   </div>
 </template>

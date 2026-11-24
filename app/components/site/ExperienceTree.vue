@@ -97,14 +97,22 @@ const active = ref(-1);
 const deskSvg = ref<SVGSVGElement>();
 const mobSvg = ref<SVGSVGElement>();
 const avatar = computed(() => content.value.profile.avatar);
-// One loop = the climb, then a rest at the top (the avatar fades out there and back in at the bottom).
-const HOLD = 2.6;
+// One loop = the climb, a short rest at the top, and a new start at the bottom. The avatar pops in at the bottom and
+// bursts out at the top (it does not just fade).
+const HOLD = 1.2;
+const TOP_D = 28; // where the avatar stops on the desktop tree (clear of the svg edge)
+const TOP_M = 15;
 const travelSeconds = (h: number) => Math.max(8, h / 55);
 const T = computed(() => travelSeconds(layout.value.height) + HOLD);
 const TM = computed(() => travelSeconds(trunkHeight.value) + HOLD);
 const travelFrac = (h: number) => travelSeconds(h) / (travelSeconds(h) + HOLD);
-// loop fraction (0..1) at which the avatar is level with y
-const frac = (y: number, h: number) => Math.min(travelFrac(h) - 0.005, Math.max(0.005, travelFrac(h) * (1 - y / h)));
+// loop fraction (0..1) at which the avatar is level with y, for a trunk of height h that the avatar climbs to `top`
+const fracAt = (y: number, h: number, top: number) => Math.min(travelFrac(h) - 0.005, Math.max(0.005, (travelFrac(h) * (h - y)) / (h - top)));
+const fd = (y: number) => fracAt(y, layout.value.height, TOP_D);
+const fm = (y: number) => fracAt(y, trunkHeight.value, TOP_M);
+// the avatar's size over one loop: pops in, rides, bursts and vanishes at the top
+const popTimes = (h: number) => `0;0.05;0.09;${travelFrac(h)};${(travelFrac(h) + (1 - travelFrac(h)) * 0.4).toFixed(4)};1`;
+const POP = "0;1.25;1;1;1.45;0";
 const litYear = ref("");
 let poll: ReturnType<typeof setInterval> | undefined;
 onMounted(() => {
@@ -116,7 +124,8 @@ onMounted(() => {
     if (!svg || !svg.getCurrentTime) return void (active.value = -1);
     const h = desktop ? layout.value.height : trunkHeight.value;
     const dur = desktop ? T.value : TM.value;
-    const y = h * (1 - Math.min(1, (svg.getCurrentTime() % dur) / travelSeconds(h)));
+    const top = desktop ? TOP_D : TOP_M;
+    const y = h - (h - top) * Math.min(1, (svg.getCurrentTime() % dur) / travelSeconds(h));
     litYear.value = desktop ? (layout.value.years.find((yr) => Math.abs(yr.y - y) < 20)?.label ?? "") : "";
     const spans = desktop ? layout.value.items.map((it) => [it.yTop, it.yBottom] as const) : rows.value.map((r) => [r.top, r.bottom] as const);
     let best = -1;
@@ -157,12 +166,12 @@ function connector(it: (typeof layout.value.items)[number]) {
 
 <template>
   <div ref="rootEl" class="relative lg:h-[var(--h)]" :style="{ '--h': `${layout.height}px` }">
-    <svg ref="deskSvg" class="pointer-events-none absolute left-1/2 top-0 hidden -translate-x-1/2 lg:block" :width="W" :height="layout.height" :viewBox="`0 0 ${W} ${layout.height}`" aria-hidden="true">
+    <svg ref="deskSvg" class="pointer-events-none absolute left-1/2 top-0 hidden -translate-x-1/2 overflow-visible lg:block" :width="W" :height="layout.height" :viewBox="`0 0 ${W} ${layout.height}`" aria-hidden="true">
       <line :x1="C" y1="0" :x2="C" :y2="layout.height" stroke="var(--ui-border-accented)" stroke-width="2" />
       <g v-if="motionOk" class="tree-ball">
-        <animateMotion :dur="`${T}s`" repeatCount="indefinite" :path="`M 0 ${layout.height} L 0 0`" keyPoints="0;1;1" :keyTimes="`0;${travelFrac(layout.height)};1`" calcMode="linear" />
-        <animate attributeName="opacity" :dur="`${T}s`" repeatCount="indefinite" values="0;1;1;0" keyTimes="0;0.04;0.93;1" />
+        <animateMotion :dur="`${T}s`" repeatCount="indefinite" :path="`M 0 ${layout.height} L 0 ${TOP_D}`" keyPoints="0;1;1" :keyTimes="`0;${travelFrac(layout.height)};1`" calcMode="linear" />
         <g :transform="`translate(${C} 0)`">
+          <animateTransform attributeName="transform" type="scale" additive="sum" :dur="`${T}s`" repeatCount="indefinite" :values="POP" :keyTimes="popTimes(layout.height)" />
           <circle r="16" fill="none" stroke="var(--ui-primary)" stroke-width="2">
             <animate attributeName="r" values="16;30" dur="1.3s" repeatCount="indefinite" />
             <animate attributeName="opacity" values="0.85;0" dur="1.3s" repeatCount="indefinite" />
@@ -187,8 +196,8 @@ function connector(it: (typeof layout.value.items)[number]) {
         <circle :cx="connector(it).x" :cy="connector(it).ay" r="5" :fill="color(it.lane)" stroke="var(--ui-bg)" stroke-width="2" />
 
         <circle v-if="motionOk" r="6" :fill="color(it.lane)" stroke="var(--ui-bg)" stroke-width="2" opacity="0">
-          <animateMotion :dur="`${T}s`" repeatCount="indefinite" :path="branchPath(it)" keyPoints="0;0;1;1" :keyTimes="`0;${frac(it.yBottom, layout.height)};${frac(it.yTop, layout.height)};1`" calcMode="linear" />
-          <animate attributeName="opacity" :dur="`${T}s`" repeatCount="indefinite" values="0;0;1;1;0;0" :keyTimes="`0;${frac(it.yBottom, layout.height)};${frac(it.yBottom, layout.height) + 0.005};${frac(it.yTop, layout.height)};${Math.min(0.995, frac(it.yTop, layout.height) + 0.005)};1`" />
+          <animateMotion :dur="`${T}s`" repeatCount="indefinite" :path="branchPath(it)" keyPoints="0;0;1;1" :keyTimes="`0;${fd(it.yBottom)};${fd(it.yTop)};1`" calcMode="linear" />
+          <animate attributeName="opacity" :dur="`${T}s`" repeatCount="indefinite" values="0;0;1;1;0;0" :keyTimes="`0;${fd(it.yBottom)};${fd(it.yBottom) + 0.005};${fd(it.yTop)};${Math.min(0.995, fd(it.yTop) + 0.005)};1`" />
         </circle>
 
         <template v-if="it.present">
@@ -208,9 +217,9 @@ function connector(it: (typeof layout.value.items)[number]) {
       <svg v-if="rows.length" ref="mobSvg" class="exp-graph pointer-events-none absolute left-0 top-0 overflow-visible md:hidden" width="60" :height="trunkHeight" aria-hidden="true">
         <line class="exp-trunk" :x1="TX" y1="0" :x2="TX" :y2="trunkHeight" stroke="var(--ui-border-accented)" stroke-width="2" />
         <g v-if="motionOk" class="tree-ball">
-          <animateMotion :dur="`${TM}s`" repeatCount="indefinite" :path="`M 0 ${trunkHeight} L 0 0`" keyPoints="0;1;1" :keyTimes="`0;${travelFrac(trunkHeight)};1`" calcMode="linear" />
-          <animate attributeName="opacity" :dur="`${TM}s`" repeatCount="indefinite" values="0;1;1;0" keyTimes="0;0.04;0.93;1" />
+          <animateMotion :dur="`${TM}s`" repeatCount="indefinite" :path="`M 0 ${trunkHeight} L 0 ${TOP_M}`" keyPoints="0;1;1" :keyTimes="`0;${travelFrac(trunkHeight)};1`" calcMode="linear" />
           <g :transform="`translate(${TX} 0)`">
+            <animateTransform attributeName="transform" type="scale" additive="sum" :dur="`${TM}s`" repeatCount="indefinite" :values="POP" :keyTimes="popTimes(trunkHeight)" />
             <circle r="11" fill="none" stroke="var(--ui-primary)" stroke-width="2">
               <animate attributeName="r" values="11;22" dur="1.3s" repeatCount="indefinite" />
               <animate attributeName="opacity" values="0.85;0" dur="1.3s" repeatCount="indefinite" />
@@ -226,8 +235,8 @@ function connector(it: (typeof layout.value.items)[number]) {
           <circle class="exp-dot" :cx="TX" :cy="p.y1" r="4.5" :fill="p.color" stroke="var(--ui-bg)" stroke-width="2" />
           <circle v-if="p.present" class="exp-dot exp-now" :cx="p.x" :cy="6" r="5" :fill="p.color" />
           <circle v-if="motionOk" r="5" :fill="p.color" stroke="var(--ui-bg)" stroke-width="1.5" opacity="0">
-            <animateMotion :dur="`${TM}s`" repeatCount="indefinite" :path="p.d" keyPoints="1;1;0;0" :keyTimes="`0;${frac(p.y1, trunkHeight)};${frac(p.y0, trunkHeight)};1`" calcMode="linear" />
-            <animate attributeName="opacity" :dur="`${TM}s`" repeatCount="indefinite" values="0;0;1;1;0;0" :keyTimes="`0;${frac(p.y1, trunkHeight)};${frac(p.y1, trunkHeight) + 0.005};${frac(p.y0, trunkHeight)};${Math.min(0.995, frac(p.y0, trunkHeight) + 0.005)};1`" />
+            <animateMotion :dur="`${TM}s`" repeatCount="indefinite" :path="p.d" keyPoints="1;1;0;0" :keyTimes="`0;${fm(p.y1)};${fm(p.y0)};1`" calcMode="linear" />
+            <animate attributeName="opacity" :dur="`${TM}s`" repeatCount="indefinite" values="0;0;1;1;0;0" :keyTimes="`0;${fm(p.y1)};${fm(p.y1) + 0.005};${fm(p.y0)};${Math.min(0.995, fm(p.y0) + 0.005)};1`" />
           </circle>
           <line class="exp-dash" :x1="p.x" :y1="p.cy" :x2="p.left" :y2="p.cy" :stroke="p.color" stroke-width="2" stroke-dasharray="3 4" />
           <circle class="exp-dot" :cx="p.x" :cy="p.cy" r="4.5" :fill="p.color" stroke="var(--ui-bg)" stroke-width="2" />

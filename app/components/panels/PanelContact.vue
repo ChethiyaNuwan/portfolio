@@ -1,4 +1,5 @@
 <script setup lang="ts">
+const label = useSectionLabel("contact", "Contact");
 import { socialIconMap } from "~/utils/icons";
 
 const content = await useContent();
@@ -6,7 +7,7 @@ const profile = computed(() => content.value.profile);
 </script>
 
 <template>
-  <StagePanel id="contact" label="Contact">
+  <StagePanel id="contact" :label="label">
     <div class="grid min-h-full grid-cols-[minmax(0,1fr)] content-start items-start gap-5 md:gap-8 lg:grid-cols-[1fr_1fr] lg:content-normal lg:items-center lg:gap-16">
       <div class="flex flex-col justify-center gap-5 md:gap-8">
         <KineticText id="contact-heading" as="h2" class="display" text="Let's talk." />

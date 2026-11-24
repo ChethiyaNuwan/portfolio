@@ -75,12 +75,12 @@ const heading = (item: Record<string, unknown>, i: number) => String(item[config
             <div class="flex gap-2">
               <button class="admin-btn" :disabled="i === 0" @click="move(i, -1)">↑</button>
               <button class="admin-btn" :disabled="i === data.length - 1" @click="move(i, 1)">↓</button>
-              <button class="admin-btn text-red-400" @click="remove(i)">Delete</button>
+              <button v-if="!config.fixed" class="admin-btn text-red-400" @click="remove(i)">Delete</button>
             </div>
           </div>
           <FieldInput v-for="f in config.fields" :key="f.key" v-model="item[f.key]" :def="f" :item="item" />
         </div>
-        <button class="admin-btn w-max" @click="add">+ Add item</button>
+        <button v-if="!config.fixed" class="admin-btn w-max" @click="add">+ Add item</button>
       </template>
     </template>
   </section>

@@ -1,4 +1,4 @@
-export type FieldType = "text" | "textarea" | "number" | "image" | "imagelist" | "select" | "tags" | "period" | "stackpick" | "color";
+export type FieldType = "toggle" | "text" | "textarea" | "number" | "image" | "imagelist" | "select" | "tags" | "period" | "stackpick" | "color";
 export interface FieldDef {
   key: string;
   label: string;
@@ -8,6 +8,7 @@ export interface FieldDef {
 export interface SectionConfig {
   label: string;
   kind: "object" | "list";
+  fixed?: boolean; // list whose items cannot be added or deleted, only reordered and edited
   itemLabel?: string; // field used as the list item heading
   fields: FieldDef[];
 }
@@ -18,6 +19,7 @@ const img = (key: string, label: string): FieldDef => ({ key, label, type: "imag
 
 export const sectionConfigs: Record<string, SectionConfig> = {
   profile: { label: "Profile", kind: "object", fields: [t("name", "Name"), t("title", "Job title"), area("intro", "Intro"), t("email", "Email (used for mailto: links)"), t("phone", "Phone (shown on CV)"), t("location", "Location (shown on CV)"), img("avatar", "Avatar"), img("avatarMobile", "Avatar for phones (optional, falls back to Avatar)"), { key: "marquee", label: "Scrolling words at the bottom of the home page (comma separated; empty = job title and service names)", type: "tags" }] },
+  sections: { label: "Sections", kind: "list", fixed: true, itemLabel: "label", fields: [t("label", "Name in the navigation (and the section title)"), { key: "visible", label: "Show this section on the home page", type: "toggle" }] },
   theme: { label: "Appearance", kind: "object", fields: [{ key: "accentDark", label: "Accent colour in dark mode", type: "color" }, { key: "accentLight", label: "Accent colour in light mode", type: "color" }] },
   counters: { label: "Counters", kind: "list", itemLabel: "title", fields: [t("title", "Title"), { key: "value", label: "Value", type: "number" }] },
   experience: {

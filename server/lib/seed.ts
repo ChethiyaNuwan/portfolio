@@ -331,6 +331,14 @@ export const seedContent: Content = {
         "stack": ["7", "5", "9", "19"]
     }
   ],
+  "sections": [
+    { "id": "intro", "label": "Intro", "visible": true },
+    { "id": "work", "label": "Projects", "visible": true },
+    { "id": "experience", "label": "Experience", "visible": true },
+    { "id": "stack", "label": "Stack", "visible": true },
+    { "id": "services", "label": "Services", "visible": true },
+    { "id": "contact", "label": "Contact", "visible": true }
+  ],
   "theme": {
     "accentDark": "#6f8bff",
     "accentLight": "#2447ff"

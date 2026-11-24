@@ -1,4 +1,5 @@
 <script setup lang="ts">
+const label = useSectionLabel("stack", "Stack");
 const content = await useContent();
 
 // Tiles of different heights in columns, like pins. This section scrolls vertically if it does not fit.
@@ -35,9 +36,9 @@ function onTile(e: MouseEvent, id: string) {
 </script>
 
 <template>
-  <StagePanel id="stack" label="Stack">
+  <StagePanel id="stack" :label="label">
     <div class="flex min-h-full flex-col gap-8">
-      <PanelHead id="stack" title="Stack">
+      <PanelHead id="stack" :title="label">
         <p class="max-w-sm text-lg text-muted"><span class="hidden [@media(hover:hover)]:inline">Languages, frameworks and tools I use day to day. Hover a tile for its name.</span><span class="[@media(hover:hover)]:hidden">Languages, frameworks and tools I use day to day. Tap a tile for its name, tap again to open it.</span></p>
       </PanelHead>
       <DropGroup ref="grid" as="ul" class="columns-3 gap-3 sm:columns-4 md:columns-5 lg:columns-6" role="list" v-bind="bind">

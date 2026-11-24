@@ -59,6 +59,15 @@ function onSwipeClick(e: MouseEvent) {
 
 const sectionMode = computed(() => route.path === "/" && panels.value.length > 0);
 
+// "Get in touch" takes you to the contact section when this page has one, otherwise it opens a mail
+const hasContact = computed(() => sectionMode.value && panels.value.some((p) => p.id === "contact"));
+const touchHref = computed(() => (hasContact.value ? "#contact" : `mailto:${content.value.profile.email}`));
+function goTouch(e: MouseEvent) {
+  if (!hasContact.value || mode.value === "page") return;
+  e.preventDefault();
+  stageJump("contact");
+}
+
 function goSection(e: MouseEvent, id: string) {
   if (mode.value === "page") return; // plain vertical page: normal in-page anchor
   e.preventDefault();
@@ -143,8 +152,8 @@ function goSection(e: MouseEvent, id: string) {
       <!-- right: contact and theme -->
       <div class="flex items-center justify-end gap-1">
         <div class="mr-3"><KeybindingTicker /></div>
-        <UButton data-track="contact_click" data-track-from="footer" :href="`mailto:${content.profile.email}`" icon="i-lucide-mail" label="Get in touch" size="sm" class="tap hidden sm:inline-flex" />
-        <UButton data-track="contact_click" data-track-from="footer" :href="`mailto:${content.profile.email}`" icon="i-lucide-mail" aria-label="Get in touch" size="sm" class="tap sm:hidden" />
+        <UButton data-track="contact_click" data-track-from="footer" :href="touchHref" icon="i-lucide-mail" label="Get in touch" @click="goTouch" size="sm" class="tap hidden sm:inline-flex" />
+        <UButton data-track="contact_click" data-track-from="footer" :href="touchHref" icon="i-lucide-mail" aria-label="Get in touch" @click="goTouch" size="sm" class="tap sm:hidden" />
         <ThemeToggle class="tap max-md:hidden" />
       </div>
     </div>

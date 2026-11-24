@@ -1,4 +1,5 @@
 <script setup lang="ts">
+const label = useSectionLabel("services", "Services");
 const content = await useContent();
 const mask = (src: string) => ({ maskImage: `url(${src})`, WebkitMaskImage: `url(${src})`, maskSize: "contain", WebkitMaskSize: "contain", maskRepeat: "no-repeat", WebkitMaskRepeat: "no-repeat", maskPosition: "center", WebkitMaskPosition: "center" });
 
@@ -9,9 +10,9 @@ const { active, bind } = useCycle(listEl, () => content.value.services.length, {
 </script>
 
 <template>
-  <StagePanel id="services" label="Services">
+  <StagePanel id="services" :label="label">
     <div class="flex min-h-full flex-col gap-8">
-      <PanelHead id="services" title="Services">
+      <PanelHead id="services" :title="label">
         <p class="max-w-sm text-lg text-muted"><span class="hidden [@media(hover:hover)_and_(min-width:1024px)]:inline">Hover a card to read more.</span><span class="[@media(hover:hover)_and_(min-width:1024px)]:hidden">What I can build for you.</span></p>
       </PanelHead>
       <DropGroup ref="list" as="ul" class="svc-list" :class="{ 'has-on': active >= 0 }" role="list" v-bind="bind">

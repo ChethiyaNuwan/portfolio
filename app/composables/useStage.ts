@@ -15,6 +15,12 @@ export function useStageState() {
   };
 }
 
+/** the name a section has in the navigation and as its title; set in the admin (Sections) */
+export function useSectionLabel(id: string, fallback: string) {
+  const { data } = useNuxtData<{ sections?: { id: string; label: string }[] }>("content");
+  return computed(() => data.value?.sections?.find((s) => s.id === id)?.label || fallback);
+}
+
 let jumper: ((id: string) => void) | null = null;
 export const registerStageJump = (fn: ((id: string) => void) | null) => {
   jumper = fn;

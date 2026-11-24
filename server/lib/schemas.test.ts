@@ -82,3 +82,19 @@ describe("theme accent", () => {
     expect(sectionSchemas.theme.safeParse(seedContent.theme).success).toBe(true);
   });
 });
+
+describe("sections", () => {
+  test("old data without sections gets every section in the default order", () => {
+    const parsed = sectionSchemas.sections.parse(undefined);
+    expect(parsed.map((s) => s.id)).toEqual(["intro", "work", "experience", "stack", "services", "contact"]);
+  });
+  test("keeps the saved order, adds missing sections, drops unknown ones", () => {
+    const parsed = sectionSchemas.sections.parse([{ id: "contact", label: "Hire me", visible: true }, { id: "nope", label: "x", visible: true }, { id: "intro", label: "Hi", visible: false }]);
+    expect(parsed.map((s) => s.id).slice(0, 2)).toEqual(["contact", "intro"]);
+    expect(parsed).toHaveLength(6);
+  });
+  test("at least one section must stay shown", () => {
+    const hidden = ["intro", "work", "experience", "stack", "services", "contact"].map((id) => ({ id, label: id, visible: false }));
+    expect(sectionSchemas.sections.safeParse(hidden).success).toBe(false);
+  });
+});

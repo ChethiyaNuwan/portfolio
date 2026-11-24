@@ -1,4 +1,5 @@
 <script setup lang="ts">
+const label = useSectionLabel("intro", "Intro");
 const content = await useContent();
 const profile = computed(() => content.value.profile);
 // the words are edited in the admin (Profile); empty falls back to the job title and the service names
@@ -6,7 +7,7 @@ const marqueeWords = computed(() => (profile.value.marquee?.length ? profile.val
 </script>
 
 <template>
-  <StagePanel id="intro" label="Intro" fit class="overflow-hidden">
+  <StagePanel id="intro" :label="label" fit class="overflow-hidden">
     <figure class="hero-portrait">
       <picture>
         <source v-if="profile.avatarMobile" media="(max-width: 767px)" :srcset="profile.avatarMobile" />

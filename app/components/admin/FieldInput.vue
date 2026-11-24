@@ -39,6 +39,10 @@ const asString = computed({
   get: () => (model.value as string) ?? "",
   set: (v: string) => (model.value = v),
 });
+const asBool = computed({
+  get: () => model.value !== false,
+  set: (v: boolean) => (model.value = v),
+});
 const asNumber = computed({
   get: () => (model.value as number) ?? 0,
   set: (v: number | string) => (model.value = Number(v) || 0),
@@ -74,6 +78,10 @@ const asNumber = computed({
     </div>
     <p v-if="bulkError" class="text-sm text-red-500">{{ bulkError }}</p>
   </div>
+  <label v-else-if="props.def.type === 'toggle'" class="flex items-center gap-3">
+    <input v-model="asBool" type="checkbox" class="size-5 accent-[var(--ui-primary)]" />
+    <span class="text-sm text-muted">{{ props.def.label }}</span>
+  </label>
   <label v-else class="flex flex-col gap-1">
     <span class="text-sm text-muted">{{ props.def.label }}</span>
     <ImageField v-if="props.def.type === 'image'" v-model="asString" />

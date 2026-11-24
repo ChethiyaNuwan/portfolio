@@ -8,6 +8,17 @@ const id = z.string().trim().min(1).max(64);
 
 export const socialIcons = ["github", "linkedin", "instagram", "newspaper", "mail"] as const;
 
+/** the sections of the home page, in their default order, with their default names in the navigation */
+export const panelDefaults = [
+  { id: "intro", label: "Intro" },
+  { id: "work", label: "Projects" },
+  { id: "experience", label: "Experience" },
+  { id: "stack", label: "Stack" },
+  { id: "services", label: "Services" },
+  { id: "contact", label: "Contact" },
+] as const;
+const panelIds = panelDefaults.map((p) => p.id) as [string, ...string[]];
+
 export const sectionSchemas = {
   profile: z.object({
     name: short.min(1),
@@ -96,6 +107,24 @@ export const sectionSchemas = {
   socials: z
     .array(z.object({ id, title: short, icon: z.enum(socialIcons), link: url }))
     .max(30),
+  /** which sections the home page shows, in what order, and what each is called */
+  sections: z.preprocess(
+    (v) => {
+      // keep the saved order, drop unknown or repeated entries, and add any section that is missing at the end
+      const seen = new Set<string>();
+      const out: { id: string; label: string; visible: boolean }[] = [];
+      for (const s of Array.isArray(v) ? v : []) {
+        if (!s || typeof s !== "object" || !panelIds.includes((s as { id: string }).id) || seen.has((s as { id: string }).id)) continue;
+        seen.add((s as { id: string }).id);
+        out.push(s as (typeof out)[number]);
+      }
+      for (const d of panelDefaults) if (!seen.has(d.id)) out.push({ id: d.id, label: d.label, visible: true });
+      return out;
+    },
+    z
+      .array(z.object({ id: z.enum(panelIds), label: short.min(1), visible: z.boolean().default(true) }))
+      .refine((a) => a.some((s) => s.visible), "Keep at least one section shown"),
+  ),
   /** the accent colour used across the site, set separately for dark and light mode */
   theme: z.object({
     accentDark: z.string().regex(/^#[0-9a-fA-F]{6}$/, "Use a colour like #6f8bff"),

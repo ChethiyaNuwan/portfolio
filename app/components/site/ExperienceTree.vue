@@ -89,6 +89,24 @@ const paths = computed(() =>
   }),
 );
 
+// The branch ball is positioned from the same linear-in-y clock as the avatar (not along the path, whose length is not
+// proportional to height), so both reach every row at the same moment.
+function ball(p: { x: number; y0: number; y1: number; present: boolean }) {
+  const pts: [number, number][] = [[p.y1, TX], [Math.max(p.y1 - 12, p.y0 + 12), p.x]];
+  if (p.present) pts.push([6, p.x]);
+  else pts.push([Math.min(p.y0 + 12, p.y1 - 12), p.x], [p.y0, TX]);
+  const t: number[] = [];
+  pts.forEach(([y], i) => t.push(Math.max(fm(y), i ? t[i - 1]! + 0.0005 : 0.005)));
+  const last = Math.min(t.at(-1)!, 0.998);
+  const times = [0, ...t.map((v) => Math.min(v, 0.998)), 1];
+  return {
+    kt: times.map((v) => v.toFixed(4)).join(";"),
+    cx: [pts[0]![1], ...pts.map(([, x]) => x), pts.at(-1)![1]],
+    cy: [pts[0]![0], ...pts.map(([y]) => y), pts.at(-1)![0]],
+    ot: `0;${t[0]!.toFixed(4)};${last.toFixed(4)}`,
+  };
+}
+
 // Loop: your avatar rides up the trunk (bottom to top) with a pulsing ring, a coloured ball follows each branch while
 // the avatar is level with it, years light up as it passes, and the role it is passing lights up. The motion is SVG
 // animation (all on one clock); a light poll reads that clock to know which role to highlight.
@@ -229,9 +247,10 @@ function connector(it: (typeof layout.value.items)[number]) {
           <circle v-if="!p.present" class="exp-dot" :cx="TX" :cy="p.y0" r="4.5" :fill="p.color" stroke="var(--ui-bg)" stroke-width="2" />
           <circle class="exp-dot" :cx="TX" :cy="p.y1" r="4.5" :fill="p.color" stroke="var(--ui-bg)" stroke-width="2" />
           <circle v-if="p.present" class="exp-dot exp-now" :cx="p.x" :cy="6" r="5" :fill="p.color" />
-          <circle v-if="motionOk" r="5" :fill="p.color" stroke="var(--ui-bg)" stroke-width="1.5" opacity="0">
-            <animateMotion :dur="`${TM}s`" repeatCount="indefinite" :path="p.d" keyPoints="1;1;0;0" :keyTimes="`0;${fm(p.y1)};${fm(p.y0)};1`" calcMode="linear" />
-            <animate attributeName="opacity" :dur="`${TM}s`" repeatCount="indefinite" values="0;0;1;1;0;0" :keyTimes="`0;${fm(p.y1)};${fm(p.y1) + 0.005};${fm(p.y0)};${Math.min(0.995, fm(p.y0) + 0.005)};1`" />
+          <circle v-if="motionOk" r="5" :fill="p.color" stroke="var(--ui-bg)" stroke-width="1.5" opacity="0" :cx="ball(p).cx[0]" :cy="ball(p).cy[0]">
+            <animate attributeName="cx" :dur="`${TM}s`" repeatCount="indefinite" :values="ball(p).cx.join(';')" :keyTimes="ball(p).kt" calcMode="linear" />
+            <animate attributeName="cy" :dur="`${TM}s`" repeatCount="indefinite" :values="ball(p).cy.join(';')" :keyTimes="ball(p).kt" calcMode="linear" />
+            <animate attributeName="opacity" :dur="`${TM}s`" repeatCount="indefinite" values="0;1;0" :keyTimes="ball(p).ot" calcMode="discrete" />
           </circle>
           <line class="exp-dash" :x1="p.x" :y1="p.cy" :x2="p.left" :y2="p.cy" :stroke="p.color" stroke-width="2" stroke-dasharray="3 4" />
           <circle class="exp-dot" :cx="p.x" :cy="p.cy" r="4.5" :fill="p.color" stroke="var(--ui-bg)" stroke-width="2" />

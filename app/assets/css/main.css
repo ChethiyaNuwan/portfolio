@@ -732,8 +732,17 @@ h3 {
   .faq-viewport {
     height: 12.5rem;
     padding-block: 0;
+    scroll-snap-type: y mandatory;
     -webkit-mask-image: none;
     mask-image: none;
+  }
+  /* each question with its answer fills the window, so the next question never shows beneath it */
+  .faq-viewport dl {
+    gap: 0;
+  }
+  .faq-viewport dl > div {
+    min-height: 12.5rem;
+    scroll-snap-align: start;
   }
 }
 

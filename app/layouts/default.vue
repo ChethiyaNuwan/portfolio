@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import { jsonLdScript, personJsonLd, websiteJsonLd } from "../../server/lib/seo";
 
-const GA_ID = "G-D7QR2BL0BT";
 const content = await useContent();
 const config = useRuntimeConfig();
+// Google Analytics measurement ID (NUXT_PUBLIC_GA_ID, e.g. G-XXXXXXXXXX); empty = Google Analytics is not loaded
+const GA_ID = String(config.public.gaId || "").trim();
 const site = ((config.public.siteUrl as string) || useRequestURL().origin).replace(/\/+$/, "");
 
 // Site-wide structured data (who the site is about, and what the site is) + analytics on the public site only
@@ -13,14 +14,16 @@ useHead({
     innerHTML: jsonLdScript(o),
   })),
 });
-useHead({
-  script: [
-    { src: `https://www.googletagmanager.com/gtag/js?id=${GA_ID}`, async: true },
-    {
-      innerHTML: `window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','${GA_ID}');`,
-    },
-  ],
-});
+if (/^G-[A-Z0-9]+$/i.test(GA_ID)) {
+  useHead({
+    script: [
+      { src: `https://www.googletagmanager.com/gtag/js?id=${GA_ID}`, async: true },
+      {
+        innerHTML: `window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','${GA_ID}');`,
+      },
+    ],
+  });
+}
 </script>
 
 <template>

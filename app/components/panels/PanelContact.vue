@@ -15,7 +15,8 @@ const profile = computed(() => content.value.profile);
           <a :href="`mailto:${profile.email}`" class="inline-block break-all py-2 font-display text-[clamp(1.4rem,3.4vw,3rem)] font-medium text-highlighted underline decoration-primary decoration-2 underline-offset-8 transition-opacity hover:opacity-70">
             {{ profile.email }}
           </a>
-          <p v-if="profile.phone || profile.location" class="mt-3 text-lg text-muted">{{ [profile.location, profile.phone].filter(Boolean).join(" · ") }}</p>
+          <p v-if="profile.phone" class="mt-3 text-lg text-muted">{{ profile.phone }}</p>
+          <p v-if="profile.location" class="text-lg text-muted" :class="{ 'mt-3': !profile.phone }">{{ profile.location }}</p>
         </address>
         <div class="flex flex-wrap items-center gap-2">
           <UButton v-for="s in content.socials" :key="s.id" :to="s.link" target="_blank" rel="noopener noreferrer" :icon="socialIconMap[s.icon]" :label="s.title" color="neutral" variant="outline" class="tap" />

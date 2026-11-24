@@ -72,7 +72,7 @@ watch(() => props.state, (s) => s && (lastRect = s.rect), { immediate: true });
           <div class="spot-backdrop absolute inset-0 bg-black/60" />
           <article
             class="spot-card pointer-events-auto relative grid max-h-full w-[min(100%,66rem)] cursor-pointer grid-rows-[auto_auto] overflow-hidden border border-highlighted bg-default shadow-[0_50px_120px_-30px_rgb(0_0_0/0.95)] md:grid-rows-1"
-            :class="stackItems.length && 'md:grid-cols-[1.45fr_1fr]'"
+            :class="stackItems.length ? 'md:grid-cols-[1.45fr_1fr]' : ''"
             :aria-label="`${state.project.title}, highlighted project`"
             @pointerenter="emit('hold')"
             @pointerleave="emit('release')"

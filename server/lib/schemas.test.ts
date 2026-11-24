@@ -55,3 +55,29 @@ describe("redesign content model", () => {
     expect(sectionSchemas.gallery.safeParse([{ id: "1" }]).success).toBe(false);
   });
 });
+
+describe("structured experience dates", () => {
+  const old = { id: "1", year: "Jan 2023 - Jun 2023", title: "Dev", company: "Acme", labels: [], description: "", link: "", logo: "" };
+
+  test("an entry saved with only the text is read into dates", () => {
+    const [e] = sectionSchemas.experience.parse([old]);
+    expect(e).toMatchObject({ startYear: 2023, startMonth: 1, endYear: 2023, endMonth: 6, present: false, showMonth: true });
+    expect(e!.year).toBe("Jan 2023 - Jun 2023");
+  });
+
+  test("the text is always derived from the dates, and hiding months drops them", () => {
+    const [e] = sectionSchemas.experience.parse([{ ...old, year: "ignored", startYear: 2020, startMonth: 4, endYear: 2024, endMonth: 9, present: false, showMonth: false }]);
+    expect(e!.year).toBe("2020 - 2024");
+    const [p] = sectionSchemas.experience.parse([{ ...old, startYear: 2022, startMonth: 3, endYear: 2022, endMonth: 0, present: true, showMonth: true }]);
+    expect(p!.year).toBe("Mar 2022 - Present");
+  });
+
+  test("an out-of-range year is rejected", () => {
+    expect(sectionSchemas.experience.safeParse([{ ...old, startYear: 1800, endYear: 2000 }]).success).toBe(false);
+  });
+
+  test("projects take a list of stack ids and default to none; the marquee words default to empty", () => {
+    expect(sectionSchemas.projects.parse([{ ...seedContent.projects[0]!, stack: undefined }])[0]!.stack).toEqual([]);
+    expect(sectionSchemas.profile.parse({ ...seedContent.profile, marquee: undefined }).marquee).toEqual([]);
+  });
+});

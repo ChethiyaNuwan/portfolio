@@ -13,15 +13,33 @@ const isOpen = computed({
 const current = computed(() => projects.value.find((p) => p.id === openId.value) ?? null);
 const shown = ref<string>("");
 watch(current, (p) => (shown.value = p?.image ?? ""));
+
+// Spotlight loop: one card at a time comes out of the screen while the rest dims, then the next one. Pointing at the
+// grid, focusing a card or opening a project stops it. Only cards that are on screen take their turn.
+const emit = defineEmits<{ spot: [on: boolean] }>();
+const grid = ref<HTMLElement>();
+const cards = computed(() => [...(grid.value?.querySelectorAll<HTMLElement>(":scope > li > .proj-card") ?? [])]);
+function onScreen(i: number) {
+  const el = cards.value[i];
+  if (!el) return false;
+  const r = el.getBoundingClientRect();
+  const h = Math.min(r.height, window.innerHeight);
+  const visible = Math.min(r.bottom, window.innerHeight - 70) - Math.max(r.top, 0);
+  return visible > h * 0.6 && r.left >= -4 && r.right <= window.innerWidth + 4;
+}
+const { active, bind, pause, resume } = useCycle(grid, () => projects.value.length, { interval: 3400, eligible: onScreen });
+watch(isOpen, (open) => (open ? pause() : resume()));
+watch(active, (a) => emit("spot", a >= 0));
 </script>
 
 <template>
   <div>
-    <ul class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-      <li v-for="p in projects" :key="p.id">
+    <ul ref="grid" class="proj-grid grid gap-6 sm:grid-cols-2 lg:grid-cols-3" :class="{ 'has-spot': active >= 0 }" v-bind="bind">
+      <li v-for="(p, i) in projects" :key="p.id">
         <button
           type="button"
-          class="group flex h-full w-full flex-col overflow-hidden border border-default bg-muted/40 text-left transition-colors hover:border-accented focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+          class="proj-card group flex h-full w-full flex-col overflow-hidden border border-default bg-muted/40 text-left hover:border-accented focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+          :class="{ 'is-spot': active === i }"
           @click="openId = p.id"
         >
           <span class="block aspect-[16/10] overflow-hidden bg-muted">
@@ -33,6 +51,7 @@ watch(current, (p) => (shown.value = p?.image ?? ""));
             </span>
             <span class="text-xl font-semibold text-highlighted">{{ p.title }}</span>
             <span class="line-clamp-3 text-muted">{{ p.description }}</span>
+            <StackChips v-if="p.stack?.length" :ids="p.stack" />
             <span class="mt-auto inline-flex min-w-0 items-center gap-1.5 pt-1 text-sm font-medium text-primary">
               <UIcon name="i-lucide-arrow-up-right" class="size-4 shrink-0" aria-hidden="true" />
               <span class="truncate underline decoration-primary/40 underline-offset-4 group-hover:decoration-primary">{{ p.link.replace(/^https?:\/\//, "") }}</span>
@@ -60,6 +79,7 @@ watch(current, (p) => (shown.value = p?.image ?? ""));
             </button>
           </div>
           <p class="leading-relaxed text-muted">{{ current.description }}</p>
+          <StackChips v-if="current.stack?.length" :ids="current.stack" size="md" />
           <div class="flex flex-wrap items-center gap-2">
             <UBadge v-for="t in current.tags" :key="t" :label="t" color="neutral" variant="subtle" />
             <UBadge :label="`${current.theme} theme`" color="neutral" variant="outline" />

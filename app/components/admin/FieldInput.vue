@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { FieldDef } from "../../utils/adminFields";
 
-const props = defineProps<{ def: FieldDef }>();
+const props = defineProps<{ def: FieldDef; item?: Record<string, any> }>();
 const model = defineModel<unknown>();
 
 const tags = computed({
@@ -25,7 +25,12 @@ const asNumber = computed({
 </script>
 
 <template>
-  <div v-if="props.def.type === 'imagelist'" class="flex flex-col gap-2">
+  <PeriodField v-if="props.def.type === 'period' && props.item" :item="props.item as never" />
+  <div v-else-if="props.def.type === 'stackpick'" class="flex flex-col gap-1">
+    <span class="text-sm text-muted">{{ props.def.label }}</span>
+    <StackPicker :model-value="(Array.isArray(model) ? model : []) as string[]" @update:model-value="model = $event" />
+  </div>
+  <div v-else-if="props.def.type === 'imagelist'" class="flex flex-col gap-2">
     <span class="text-sm text-muted">{{ props.def.label }}</span>
     <div v-for="(_, i) in images" :key="i" class="flex items-start gap-2">
       <div class="flex-1"><ImageField v-model="images[i]" /></div>

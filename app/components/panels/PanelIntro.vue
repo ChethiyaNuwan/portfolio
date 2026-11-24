@@ -1,7 +1,8 @@
 <script setup lang="ts">
 const content = await useContent();
 const profile = computed(() => content.value.profile);
-const marqueeWords = computed(() => [profile.value.title, ...content.value.services.map((s) => s.title)].filter(Boolean));
+// the words are edited in the admin (Profile); empty falls back to the job title and the service names
+const marqueeWords = computed(() => (profile.value.marquee?.length ? profile.value.marquee : [profile.value.title, ...content.value.services.map((s) => s.title)]).filter(Boolean));
 </script>
 
 <template>
@@ -23,7 +24,7 @@ const marqueeWords = computed(() => [profile.value.title, ...content.value.servi
             </span>
             Available for work
           </UBadge>
-          <KineticText id="intro-heading" as="h1" class="display max-w-[11ch]" :text="profile.name" />
+          <KineticText id="intro-heading" as="h1" class="display max-w-[11ch]" :text="profile.name" loop />
           <p class="font-display text-2xl text-toned sm:text-3xl">{{ profile.title }}</p>
           <p class="hero-intro max-w-xl text-lg leading-relaxed text-muted">{{ profile.intro }}</p>
           <div class="flex flex-wrap items-center gap-3">

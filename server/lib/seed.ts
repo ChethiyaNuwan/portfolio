@@ -9,6 +9,7 @@ export const seedContent: Content = {
     "email": process.env.SEED_PROFILE_EMAIL?.trim() || "hello@example.com",
     "avatar": "/profile.jpg",
     "avatarMobile": "",
+    "marquee": [],
     "phone": "",
     "location": ""
   },
@@ -38,6 +39,12 @@ export const seedContent: Content = {
     {
       "id": "1",
       "year": "2025 - Present",
+      "startYear": 2025,
+      "startMonth": 0,
+      "endYear": 2025,
+      "endMonth": 0,
+      "present": true,
+      "showMonth": false,
       "title": "Fullstack Engineer",
       "company": "Invadraw",
       "labels": [
@@ -50,6 +57,12 @@ export const seedContent: Content = {
     {
       "id": "2",
       "year": "2022 - Present",
+      "startYear": 2022,
+      "startMonth": 0,
+      "endYear": 2022,
+      "endMonth": 0,
+      "present": true,
+      "showMonth": false,
       "title": "Fullstack Developer",
       "company": "Freelancer",
       "labels": [
@@ -64,6 +77,12 @@ export const seedContent: Content = {
     {
       "id": "3",
       "year": "Jan 2023 - Jun 2023",
+      "startYear": 2023,
+      "startMonth": 1,
+      "endYear": 2023,
+      "endMonth": 6,
+      "present": false,
+      "showMonth": true,
       "title": "Software Engineer Intern",
       "company": "DirectFn",
       "labels": [
@@ -282,7 +301,8 @@ export const seedContent: Content = {
       "pages": 10,
       "image": "/business-admin.png",
         "tags": ["Business", "Dashboard"],
-        "gallery": []
+        "gallery": [],
+        "stack": ["7", "6", "9", "18"]
     },
     {
       "id": "2",
@@ -294,7 +314,8 @@ export const seedContent: Content = {
       "pages": 10,
       "image": "/dtuk.png",
         "tags": ["Booking", "Travel"],
-        "gallery": []
+        "gallery": [],
+        "stack": ["8", "6", "15", "18"]
     },
     {
       "id": "3",
@@ -306,7 +327,8 @@ export const seedContent: Content = {
       "pages": 10,
       "image": "/ssimpex.png",
         "tags": ["E-Commerce", "Retail"],
-        "gallery": []
+        "gallery": [],
+        "stack": ["7", "5", "9", "19"]
     }
   ],
   "gallery": [

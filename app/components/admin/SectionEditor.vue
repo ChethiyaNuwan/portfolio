@@ -78,7 +78,7 @@ const heading = (item: Record<string, unknown>, i: number) => String(item[config
               <button class="admin-btn text-red-400" @click="remove(i)">Delete</button>
             </div>
           </div>
-          <FieldInput v-for="f in config.fields" :key="f.key" v-model="item[f.key]" :def="f" />
+          <FieldInput v-for="f in config.fields" :key="f.key" v-model="item[f.key]" :def="f" :item="item" />
         </div>
         <button class="admin-btn w-max" @click="add">+ Add item</button>
       </template>

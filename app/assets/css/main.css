@@ -689,7 +689,7 @@ h3 {
   overflow-y: auto;
   overscroll-behavior: contain;
   scrollbar-width: none;
-  padding-block: 0.25rem 2rem;
+  padding-block: 1.9rem 2.4rem;
   -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 1.6rem, #000 calc(100% - 2.4rem), transparent 100%);
   mask-image: linear-gradient(to bottom, transparent 0, #000 1.6rem, #000 calc(100% - 2.4rem), transparent 100%);
 }
@@ -931,4 +931,181 @@ h3 {
 .stage-scroller.native-swipe {
   touch-action: pan-x pan-y;
   -webkit-overflow-scrolling: touch;
+}
+
+/* ---------- Theme change ripple (View Transitions): the page animates the new theme itself ---------- */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+::view-transition-old(root) {
+  z-index: 1;
+}
+::view-transition-new(root) {
+  z-index: 2;
+}
+/* ---------- Footer navigation: the active tab glows ---------- */
+.footer-link {
+  position: relative;
+  transition: color 0.3s ease, text-shadow 0.45s ease;
+}
+.footer-link[aria-current] {
+  text-shadow:
+    0 0 10px color-mix(in srgb, var(--ui-primary) 85%, transparent),
+    0 0 24px color-mix(in srgb, var(--ui-primary) 55%, transparent);
+}
+.footer-link::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: -7px;
+  width: 1.1rem;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--ui-primary);
+  box-shadow: 0 0 8px var(--ui-primary), 0 0 18px var(--ui-primary);
+  transform: translateX(-50%) scaleX(0);
+  transition: transform 0.45s cubic-bezier(0.2, 0.8, 0.1, 1);
+}
+.footer-link[aria-current]::after {
+  transform: translateX(-50%) scaleX(1);
+}
+:root:not(.dark) .footer-link[aria-current] {
+  text-shadow: 0 0 10px color-mix(in srgb, var(--ui-primary) 45%, transparent);
+}
+@media (prefers-reduced-motion: reduce) {
+  .footer-link,
+  .footer-link::after {
+    transition: none;
+  }
+}
+
+/* the section label on phones glows like the active footer tab */
+.footer-glow {
+  text-shadow:
+    0 0 10px color-mix(in srgb, var(--ui-primary) 85%, transparent),
+    0 0 24px color-mix(in srgb, var(--ui-primary) 55%, transparent);
+}
+:root:not(.dark) .footer-glow {
+  text-shadow: 0 0 10px color-mix(in srgb, var(--ui-primary) 45%, transparent);
+}
+
+/* ---------- Loop animations (see useCycle): a highlight that travels from item to item ---------- */
+/* hero name: a wave of colour and lift runs through the letters, then rests */
+@keyframes k-wave {
+  0%, 22%, 100% { translate: 0 0; color: inherit; }
+  8% { translate: 0 -0.07em; color: var(--ui-primary); text-shadow: 0 0 0.35em color-mix(in srgb, var(--ui-primary) 55%, transparent); }
+}
+.k-loop.is-in .k-char {
+  animation: k-wave 6s ease-in-out infinite;
+  animation-delay: calc(2.2s + var(--i, 0) * 80ms);
+}
+
+/* stack tiles and project cards share the "hover" look while the loop is on them */
+.pin.is-on {
+  transform: translateY(-8px) scale(1.025);
+  border-color: var(--ui-text-highlighted);
+  box-shadow: 0 22px 44px -22px rgb(0 0 0 / 0.7);
+  z-index: 2;
+}
+.pin.is-on .pin-media {
+  transform: scale(1.08);
+}
+.pin.is-on .pin-label {
+  transform: none;
+  opacity: 1;
+}
+
+/* services: the loop picks the open card, like hover does */
+.svc.is-on article {
+  border-color: var(--ui-primary);
+  background-color: var(--ui-bg-elevated);
+}
+@media (min-width: 1024px) and (min-height: 600px) {
+  .svc.is-on {
+    flex-grow: 2.4;
+  }
+  .svc.is-on .svc-more {
+    grid-template-rows: 1fr;
+    opacity: 1;
+  }
+  .svc-list.has-on .svc:first-child:not(.is-on):not(:hover):not(:focus-within) {
+    flex-grow: 1;
+  }
+  .svc-list.has-on:not(:hover):not(:focus-within) .svc:first-child:not(.is-on) .svc-more {
+    grid-template-rows: 0fr;
+    opacity: 0;
+  }
+}
+
+/* projects: one card at a time comes out of the screen while everything else dims */
+.proj-card {
+  transition: transform 0.8s cubic-bezier(0.2, 0.8, 0.1, 1), opacity 0.6s ease, filter 0.6s ease, box-shadow 0.8s ease, border-color 0.4s;
+}
+.proj-grid.has-spot .proj-card:not(.is-spot) {
+  opacity: 0.28;
+  filter: blur(1.5px) saturate(0.7);
+}
+.proj-card.is-spot {
+  position: relative;
+  z-index: 5;
+  transform: scale(1.1);
+  border-color: var(--ui-text-highlighted);
+  box-shadow: 0 40px 90px -30px rgb(0 0 0 / 0.9), 0 0 0 1px color-mix(in srgb, var(--ui-primary) 50%, transparent);
+}
+@media (max-width: 767px) {
+  .proj-card.is-spot {
+    transform: scale(1.04);
+  }
+}
+.spotlit > header,
+.spotlit .proj-dimmable {
+  opacity: 0.25;
+  transition: opacity 0.6s ease;
+}
+.proj-dimmable {
+  transition: opacity 0.6s ease;
+}
+
+/* stack chips inside a project: a highlight runs along them */
+.chip-loop {
+  transition: border-color 0.4s ease, background-color 0.4s ease, color 0.4s ease, transform 0.4s ease;
+}
+.chip-loop.is-on {
+  border-color: var(--ui-primary);
+  background-color: color-mix(in srgb, var(--ui-primary) 16%, transparent);
+  color: var(--ui-text-highlighted);
+  transform: translateY(-2px);
+}
+
+/* git tree loop: the current role lights up, the dashed links flow, a pulse travels the trunk */
+@keyframes tree-flow {
+  to { stroke-dashoffset: -14; }
+}
+.tree-flow {
+  animation: tree-flow 1.1s linear infinite;
+}
+.tree-glow {
+  filter: drop-shadow(0 0 5px var(--glow, var(--ui-primary)));
+  transition: filter 0.5s ease;
+}
+.exp-card {
+  transition: border-color 0.5s ease, box-shadow 0.5s ease, background-color 0.5s ease;
+}
+.exp-card.is-on {
+  background-color: var(--ui-bg-elevated);
+  box-shadow: 0 0 0 1px var(--lane), 0 18px 50px -24px var(--lane);
+}
+@media (prefers-reduced-motion: reduce) {
+  .tree-flow, .k-loop.is-in .k-char { animation: none; }
+}
+
+/* phone git graph: the active role's branch thickens and glows, its dashed link flows */
+.exp-graph g.is-on .exp-path {
+  stroke-width: 3.5;
+  filter: drop-shadow(0 0 4px var(--glow));
+}
+.exp-graph g.is-on .exp-dash {
+  animation: tree-flow 1.1s linear infinite;
 }

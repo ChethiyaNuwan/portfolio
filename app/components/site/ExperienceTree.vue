@@ -89,6 +89,12 @@ const paths = computed(() =>
   }),
 );
 
+// Loop: the roles light up one after another (card, branch and its dashed link); hovering stops it. A small pulse
+// also travels down the trunk.
+const { active, bind } = useCycle(rootEl, () => layout.value.items.length, { interval: 3000 });
+const motionOk = ref(false);
+onMounted(() => (motionOk.value = !window.matchMedia("(prefers-reduced-motion: reduce)").matches));
+
 const laneX = (side: "left" | "right") => (side === "right" ? C + LANE : C - LANE);
 const color = (lane: number) => `var(--lane-${lane + 1})`;
 const fork = (x: number, y: number) => `M ${C} ${y} C ${C} ${y - 14}, ${x} ${y - 12}, ${x} ${y - 26}`;
@@ -105,19 +111,24 @@ function connector(it: (typeof layout.value.items)[number]) {
 </script>
 
 <template>
-  <div ref="rootEl" class="relative lg:h-[var(--h)]" :style="{ '--h': `${layout.height}px` }">
+  <div ref="rootEl" class="relative lg:h-[var(--h)]" :style="{ '--h': `${layout.height}px` }" v-bind="bind">
     <svg class="pointer-events-none absolute left-1/2 top-0 hidden -translate-x-1/2 lg:block" :width="W" :height="layout.height" :viewBox="`0 0 ${W} ${layout.height}`" aria-hidden="true">
       <line :x1="C" y1="0" :x2="C" :y2="layout.height" stroke="var(--ui-border-accented)" stroke-width="2" />
+      <circle v-if="motionOk" :cx="C" cy="0" r="4" fill="var(--ui-primary)" class="tree-glow">
+        <animateMotion :dur="`${Math.max(6, layout.height / 70)}s`" repeatCount="indefinite" :path="`M 0 0 L 0 ${layout.height}`" />
+      </circle>
 
-      <g v-for="it in layout.items" :key="it.id">
-        <path :d="fork(laneX(it.side), it.yBottom)" fill="none" :stroke="color(it.lane)" stroke-width="3" stroke-linecap="round" />
-        <line :x1="laneX(it.side)" :y1="it.yBottom - 26" :x2="laneX(it.side)" :y2="it.present ? it.yTop : it.yTop + 26" :stroke="color(it.lane)" stroke-width="3" stroke-linecap="round" />
-        <path v-if="!it.present" :d="merge(laneX(it.side), it.yTop)" fill="none" :stroke="color(it.lane)" stroke-width="3" stroke-linecap="round" />
+      <g v-for="(it, n) in layout.items" :key="it.id" :style="{ '--glow': color(it.lane) }">
+        <g :class="active === n && 'tree-glow'">
+          <path :d="fork(laneX(it.side), it.yBottom)" fill="none" :stroke="color(it.lane)" :stroke-width="active === n ? 4 : 3" stroke-linecap="round" />
+          <line :x1="laneX(it.side)" :y1="it.yBottom - 26" :x2="laneX(it.side)" :y2="it.present ? it.yTop : it.yTop + 26" :stroke="color(it.lane)" :stroke-width="active === n ? 4 : 3" stroke-linecap="round" />
+          <path v-if="!it.present" :d="merge(laneX(it.side), it.yTop)" fill="none" :stroke="color(it.lane)" :stroke-width="active === n ? 4 : 3" stroke-linecap="round" />
+        </g>
 
         <circle :cx="C" :cy="it.yBottom" r="5" :fill="color(it.lane)" stroke="var(--ui-bg)" stroke-width="2" />
         <circle v-if="!it.present" :cx="C" :cy="it.yTop" r="5" :fill="color(it.lane)" stroke="var(--ui-bg)" stroke-width="2" />
 
-        <path :d="connector(it).path" fill="none" :stroke="color(it.lane)" stroke-width="2" stroke-dasharray="3 4" opacity="0.8" />
+        <path :d="connector(it).path" fill="none" :stroke="color(it.lane)" stroke-width="2" stroke-dasharray="3 4" opacity="0.8" :class="active === n && 'tree-flow'" />
         <circle :cx="connector(it).x" :cy="connector(it).ay" r="5" :fill="color(it.lane)" stroke="var(--ui-bg)" stroke-width="2" />
 
         <template v-if="it.present">
@@ -136,7 +147,10 @@ function connector(it: (typeof layout.value.items)[number]) {
     <DropGroup as="ol" class="relative grid gap-5 max-md:pl-[3.75rem] md:max-lg:pl-8 md:max-lg:before:absolute md:max-lg:before:bottom-0 md:max-lg:before:left-2.5 md:max-lg:before:top-0 md:max-lg:before:w-0.5 md:max-lg:before:bg-[var(--ui-border-accented)] lg:block">
       <svg v-if="rows.length" class="exp-graph pointer-events-none absolute left-0 top-0 overflow-visible md:hidden" width="60" :height="trunkHeight" aria-hidden="true">
         <line class="exp-trunk" :x1="TX" y1="0" :x2="TX" :y2="trunkHeight" stroke="var(--ui-border-accented)" stroke-width="2" />
-        <g v-for="p in paths" :key="p.id" :style="{ '--i': p.n }">
+        <circle v-if="motionOk" :cx="TX" cy="0" r="3.5" fill="var(--ui-primary)" class="tree-glow">
+          <animateMotion :dur="`${Math.max(5, trunkHeight / 70)}s`" repeatCount="indefinite" :path="`M 0 0 L 0 ${trunkHeight}`" />
+        </circle>
+        <g v-for="p in paths" :key="p.id" :class="{ 'is-on': active === p.n }" :style="{ '--i': p.n, '--glow': p.color }">
           <path class="exp-path" pathLength="1" :d="p.d" fill="none" :stroke="p.color" stroke-width="2.5" stroke-linecap="round" />
           <circle v-if="!p.present" class="exp-dot" :cx="TX" :cy="p.y0" r="4.5" :fill="p.color" stroke="var(--ui-bg)" stroke-width="2" />
           <circle class="exp-dot" :cx="TX" :cy="p.y1" r="4.5" :fill="p.color" stroke="var(--ui-bg)" stroke-width="2" />
@@ -148,8 +162,8 @@ function connector(it: (typeof layout.value.items)[number]) {
       <li
         v-for="(it, n) in layout.items"
         :key="it.id"
-        class="drop relative flex flex-col gap-3 overflow-hidden border border-default border-t-2 bg-muted/40 p-5 max-lg:overflow-visible md:max-lg:before:absolute md:max-lg:before:-left-[1.72rem] md:max-lg:before:top-5 md:max-lg:before:size-3.5 md:max-lg:before:rounded-full md:max-lg:before:bg-[var(--lane)] md:max-lg:before:ring-4 md:max-lg:before:ring-[var(--ui-bg)] lg:absolute lg:top-[var(--y)] lg:h-[300px] lg:w-[calc(50%-138px)]"
-        :class="it.side === 'right' ? 'lg:left-[calc(50%+138px)]' : 'lg:left-0'"
+        class="drop exp-card relative flex flex-col gap-3 overflow-hidden border border-default border-t-2 bg-muted/40 p-5 max-lg:overflow-visible md:max-lg:before:absolute md:max-lg:before:-left-[1.72rem] md:max-lg:before:top-5 md:max-lg:before:size-3.5 md:max-lg:before:rounded-full md:max-lg:before:bg-[var(--lane)] md:max-lg:before:ring-4 md:max-lg:before:ring-[var(--ui-bg)] lg:absolute lg:top-[var(--y)] lg:h-[300px] lg:w-[calc(50%-138px)]"
+        :class="[it.side === 'right' ? 'lg:left-[calc(50%+138px)]' : 'lg:left-0', active === n && 'is-on']"
         :style="{ '--y': `${it.cardTop}px`, '--i': n, '--lane': color(it.lane), borderTopColor: color(it.lane) }"
       >
         <component

@@ -18,7 +18,6 @@ useHead({ script: [{ type: "application/ld+json", innerHTML: jsonLdScript(projec
     <PanelExperience />
     <PanelStack />
     <PanelServices />
-    <PanelGallery />
     <PanelContact />
   </HorizontalStage>
 </template>

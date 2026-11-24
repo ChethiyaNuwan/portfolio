@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { formatPeriod, parsePeriodText } from "./period";
 
 const short = z.string().trim().max(200);
 const long = z.string().trim().max(4000);
@@ -15,22 +16,41 @@ export const sectionSchemas = {
     email: z.email().max(200),
     avatar: url,
     avatarMobile: url.default(""),
+    /** words in the big scrolling band on the home page; empty = job title and service names */
+    marquee: z.array(short).max(20).default([]),
     phone: short.default(""),
     location: short.default(""),
   }),
   counters: z.array(z.object({ id, title: short, value: z.number().int().min(0).max(1_000_000) })).max(20),
   experience: z
     .array(
-      z.object({
+      z
+        .preprocess(
+          // entries saved before dates were structured only have the text: read the dates out of it
+          (raw) => {
+            const e = raw as Record<string, unknown>;
+            if (e && typeof e === "object" && e.startYear === undefined) return { ...e, ...parsePeriodText(typeof e.year === "string" ? e.year : "") };
+            return raw;
+          },
+          z.object({
         id,
-        year: short,
+        year: short.default(""),
+        startYear: z.number().int().min(1950).max(2100),
+        startMonth: z.number().int().min(0).max(12).default(0),
+        endYear: z.number().int().min(1950).max(2100),
+        endMonth: z.number().int().min(0).max(12).default(0),
+        present: z.boolean().default(false),
+        showMonth: z.boolean().default(true),
         title: short,
         company: short,
         labels: z.array(short).max(20),
         description: long,
         link: url,
         logo: url,
-      }),
+          }),
+        )
+        // the readable text is always derived from the dates
+        .transform((e) => ({ ...e, year: formatPeriod(e) })),
     )
     .max(100),
   stack: z
@@ -64,6 +84,8 @@ export const sectionSchemas = {
         image: url,
         tags: z.array(short).max(20).default([]),
         gallery: z.array(url).max(30).default([]),
+        /** ids of the stack items used in this project */
+        stack: z.array(id).max(40).default([]),
       }),
     )
     .max(100),

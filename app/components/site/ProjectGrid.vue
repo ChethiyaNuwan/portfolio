@@ -26,7 +26,7 @@ function onScreen(i: number) {
   const visible = Math.min(r.bottom, window.innerHeight - 70) - Math.max(r.top, 0);
   return visible > h * 0.6 && r.left >= -4 && r.right <= window.innerWidth + 4;
 }
-const { active, bind, pause, resume } = useCycle(grid, () => projects.value.length, { interval: 3400, eligible: onScreen });
+const { active, bind, pause, resume } = useCycle(grid, () => projects.value.length, { interval: 4600, eligible: onScreen, startDelay: 1800 });
 watch(isOpen, (open) => (open ? pause() : resume()));
 
 // the project currently coming out, and the grid card it grows from

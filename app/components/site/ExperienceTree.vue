@@ -97,10 +97,15 @@ const active = ref(-1);
 const deskSvg = ref<SVGSVGElement>();
 const mobSvg = ref<SVGSVGElement>();
 const avatar = computed(() => content.value.profile.avatar);
-const loopSeconds = (h: number) => Math.max(8, h / 55);
-const T = computed(() => loopSeconds(layout.value.height));
-const TM = computed(() => loopSeconds(trunkHeight.value));
-const frac = (y: number, h: number) => Math.min(0.98, Math.max(0.02, 1 - y / h)); // loop fraction at which the avatar is at y
+// One loop = the climb, then a rest at the top (the avatar fades out there and back in at the bottom).
+const HOLD = 2.6;
+const travelSeconds = (h: number) => Math.max(8, h / 55);
+const T = computed(() => travelSeconds(layout.value.height) + HOLD);
+const TM = computed(() => travelSeconds(trunkHeight.value) + HOLD);
+const travelFrac = (h: number) => travelSeconds(h) / (travelSeconds(h) + HOLD);
+// loop fraction (0..1) at which the avatar is level with y
+const frac = (y: number, h: number) => Math.min(travelFrac(h) - 0.005, Math.max(0.005, travelFrac(h) * (1 - y / h)));
+const litYear = ref("");
 let poll: ReturnType<typeof setInterval> | undefined;
 onMounted(() => {
   motionOk.value = !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -111,7 +116,8 @@ onMounted(() => {
     if (!svg || !svg.getCurrentTime) return void (active.value = -1);
     const h = desktop ? layout.value.height : trunkHeight.value;
     const dur = desktop ? T.value : TM.value;
-    const y = h * (1 - ((svg.getCurrentTime() % dur) / dur));
+    const y = h * (1 - Math.min(1, (svg.getCurrentTime() % dur) / travelSeconds(h)));
+    litYear.value = desktop ? (layout.value.years.find((yr) => Math.abs(yr.y - y) < 20)?.label ?? "") : "";
     const spans = desktop ? layout.value.items.map((it) => [it.yTop, it.yBottom] as const) : rows.value.map((r) => [r.top, r.bottom] as const);
     let best = -1;
     let bestD = Infinity;
@@ -124,7 +130,7 @@ onMounted(() => {
       }
     });
     active.value = best;
-  }, 120);
+  }, 80);
 });
 onBeforeUnmount(() => clearInterval(poll));
 
@@ -154,7 +160,8 @@ function connector(it: (typeof layout.value.items)[number]) {
     <svg ref="deskSvg" class="pointer-events-none absolute left-1/2 top-0 hidden -translate-x-1/2 lg:block" :width="W" :height="layout.height" :viewBox="`0 0 ${W} ${layout.height}`" aria-hidden="true">
       <line :x1="C" y1="0" :x2="C" :y2="layout.height" stroke="var(--ui-border-accented)" stroke-width="2" />
       <g v-if="motionOk" class="tree-ball">
-        <animateMotion :dur="`${T}s`" repeatCount="indefinite" :path="`M 0 ${layout.height} L 0 0`" />
+        <animateMotion :dur="`${T}s`" repeatCount="indefinite" :path="`M 0 ${layout.height} L 0 0`" keyPoints="0;1;1" :keyTimes="`0;${travelFrac(layout.height)};1`" calcMode="linear" />
+        <animate attributeName="opacity" :dur="`${T}s`" repeatCount="indefinite" values="0;1;1;0" keyTimes="0;0.04;0.93;1" />
         <g :transform="`translate(${C} 0)`">
           <circle r="16" fill="none" stroke="var(--ui-primary)" stroke-width="2">
             <animate attributeName="r" values="16;30" dur="1.3s" repeatCount="indefinite" />
@@ -191,7 +198,7 @@ function connector(it: (typeof layout.value.items)[number]) {
         </template>
       </g>
 
-      <g v-for="y in layout.years" :key="y.label" :class="motionOk && 'year-hit'" :style="{ '--T': `${T}s`, '--d': `${frac(y.y, layout.height) * T}s` }">
+      <g v-for="y in layout.years" :key="y.label" class="year-pill" :class="litYear === y.label && 'is-lit'">
         <rect :x="C - 22" :y="y.y - 9" width="44" height="18" rx="9" fill="var(--ui-bg)" stroke="var(--ui-border-accented)" />
         <text :x="C" :y="y.y + 4" text-anchor="middle" font-size="10" fill="var(--ui-text-muted)">{{ y.label }}</text>
       </g>
@@ -201,7 +208,8 @@ function connector(it: (typeof layout.value.items)[number]) {
       <svg v-if="rows.length" ref="mobSvg" class="exp-graph pointer-events-none absolute left-0 top-0 overflow-visible md:hidden" width="60" :height="trunkHeight" aria-hidden="true">
         <line class="exp-trunk" :x1="TX" y1="0" :x2="TX" :y2="trunkHeight" stroke="var(--ui-border-accented)" stroke-width="2" />
         <g v-if="motionOk" class="tree-ball">
-          <animateMotion :dur="`${TM}s`" repeatCount="indefinite" :path="`M 0 ${trunkHeight} L 0 0`" />
+          <animateMotion :dur="`${TM}s`" repeatCount="indefinite" :path="`M 0 ${trunkHeight} L 0 0`" keyPoints="0;1;1" :keyTimes="`0;${travelFrac(trunkHeight)};1`" calcMode="linear" />
+          <animate attributeName="opacity" :dur="`${TM}s`" repeatCount="indefinite" values="0;1;1;0" keyTimes="0;0.04;0.93;1" />
           <g :transform="`translate(${TX} 0)`">
             <circle r="11" fill="none" stroke="var(--ui-primary)" stroke-width="2">
               <animate attributeName="r" values="11;22" dur="1.3s" repeatCount="indefinite" />

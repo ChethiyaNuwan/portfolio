@@ -9,15 +9,18 @@
 export function useCycle(
   el: Ref<HTMLElement | null | undefined>,
   count: () => number,
-  opts: { interval?: number; resumeAfter?: number; eligible?: (i: number) => boolean; sequence?: () => number[] } = {},
+  opts: { interval?: number; resumeAfter?: number; eligible?: (i: number) => boolean; sequence?: () => number[]; startDelay?: number } = {},
 ) {
   const interval = opts.interval ?? 2600;
   const resumeAfter = opts.resumeAfter ?? 1400;
+  // wait a moment after the section arrives: it is usually still sliding into place and should not start mid-scroll
+  const startDelay = opts.startDelay ?? 900;
   const active = ref(-1);
   const visible = ref(false);
   const held = ref(false);
   let tick: ReturnType<typeof setInterval> | undefined;
   let release: ReturnType<typeof setTimeout> | undefined;
+  let startTimer: ReturnType<typeof setTimeout> | undefined;
   let reduced = false;
 
   const stop = () => {
@@ -40,14 +43,20 @@ export function useCycle(
       }
     }
   }
-  function sync() {
+  // `pos` is kept while the loop is stopped, so after a hover (or leaving and coming back) it carries on from the
+  // item it had reached instead of starting over
+  function sync(delay = 0) {
     stop();
+    clearTimeout(startTimer);
     if (visible.value && !held.value && !reduced && count() > 1) {
-      advance();
-      tick = setInterval(advance, interval);
+      const run = () => {
+        advance();
+        tick = setInterval(advance, interval);
+      };
+      if (delay) startTimer = setTimeout(run, delay);
+      else run();
     } else {
       active.value = -1;
-      pos = -1;
     }
   }
 
@@ -68,10 +77,11 @@ export function useCycle(
     io.observe(node);
     onBeforeUnmount(() => io.disconnect());
   });
-  watch([visible, held], sync);
+  watch([visible, held], ([v], [wasVisible]) => sync(v && !wasVisible ? startDelay : 0));
   onBeforeUnmount(() => {
     stop();
     clearTimeout(release);
+    clearTimeout(startTimer);
   });
 
   const bind = { onPointerenter: pause, onPointerleave: resume, onFocusin: pause, onFocusout: resume };

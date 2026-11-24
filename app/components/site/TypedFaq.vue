@@ -11,7 +11,10 @@ const PAUSE = 520; // after an answer
 const root = ref<HTMLElement>();
 const viewport = ref<HTMLElement>();
 const itemEls = ref<HTMLElement[]>([]);
-const inView = useInView(root, { threshold: 0.25 });
+const seen = useInView(root, { threshold: 0.25 });
+// Typing starts a moment after the section arrives, so it does not compete with the slide into place.
+const inView = ref(false);
+watch(seen, (s) => s && setTimeout(() => (inView.value = true), 1100));
 const skipped = ref(false);
 
 interface Ch {

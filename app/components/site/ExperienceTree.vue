@@ -147,7 +147,9 @@ onMounted(() => {
     const dur = desktop ? T.value : TM.value;
     const top = desktop ? TOP_D : TOP_M;
     const y = h - (h - top) * Math.min(1, (svg.getCurrentTime() % dur) / travelSeconds(h));
-    litYear.value = desktop ? (layout.value.years.find((yr) => Math.abs(yr.y - y) < 20)?.label ?? "") : "";
+    // a year stays lit from the moment the avatar reaches it until the avatar reaches the next one (or the loop restarts)
+    const passed = desktop ? layout.value.years.filter((yr) => yr.y >= y - 4) : [];
+    litYear.value = passed.length && (svg.getCurrentTime() % dur) < travelSeconds(h) + HOLD ? passed.reduce((m, yr) => (yr.y < m.y ? yr : m)).label : "";
     const spans = desktop ? layout.value.items.map((it) => [it.yTop, it.yBottom] as const) : rows.value.map((r) => [r.top, r.bottom] as const);
     const on: number[] = [];
     spans.forEach(([top, bottom], i) => {

@@ -16,6 +16,8 @@ const seen = useInView(root, { threshold: 0.25 });
 const inView = ref(false);
 watch(seen, (s) => s && setTimeout(() => (inView.value = true), 1100));
 const skipped = ref(false);
+// Only the pair being typed has running animations (hundreds of delayed per-character animations at once made the slide into this section stutter).
+const cur = ref(-1);
 
 interface Ch {
   ch: string;
@@ -64,8 +66,10 @@ watch(
   (go) => {
     timers.forEach(clearTimeout);
     timers = [];
+    cur.value = -1;
     if (!go) return;
     lines.value.forEach((l, i) => {
+      timers.push(setTimeout(() => (cur.value = i), l.at));
       if (i >= VISIBLE.value) timers.push(setTimeout(() => follow(i), l.at));
     });
   },
@@ -91,15 +95,15 @@ onBeforeUnmount(() => timers.forEach(clearTimeout));
       @pointerdown="markManual"
     >
       <dl class="flex flex-col gap-5">
-        <div v-for="(l, i) in lines" :key="l.id" :ref="(el) => { if (el) itemEls[i] = el as HTMLElement; }" class="flex flex-col gap-1">
+        <div v-for="(l, i) in lines" :key="l.id" :ref="(el) => { if (el) itemEls[i] = el as HTMLElement; }" class="flex flex-col gap-1" :class="i < cur ? 'is-done' : i === cur ? 'is-now' : ''">
           <dt class="faq-q font-display text-base font-medium text-highlighted sm:text-lg">
             <template v-for="(w, wi) in l.q" :key="wi">
-              <span class="inline-block"><span v-for="(c, ci) in w" :key="ci" class="tw" :style="{ '--t': `${c.t}ms`, '--d': `${c.d}ms` }">{{ c.ch }}</span></span>{{ " " }}
+              <span class="inline-block"><span v-for="(c, ci) in w" :key="ci" class="tw" :style="{ '--t': `${c.t - l.at}ms`, '--d': `${c.d}ms` }">{{ c.ch }}</span></span>{{ " " }}
             </template>
           </dt>
           <dd class="faq-a text-sm leading-relaxed text-muted">
             <template v-for="(w, wi) in l.a" :key="wi">
-              <span class="inline-block"><span v-for="(c, ci) in w" :key="ci" class="tw" :style="{ '--t': `${c.t}ms`, '--d': `${c.d}ms` }">{{ c.ch }}</span></span>{{ " " }}
+              <span class="inline-block"><span v-for="(c, ci) in w" :key="ci" class="tw" :style="{ '--t': `${c.t - l.at}ms`, '--d': `${c.d}ms` }">{{ c.ch }}</span></span>{{ " " }}
             </template>
           </dd>
         </div>

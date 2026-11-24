@@ -681,7 +681,10 @@ h3 {
 .faq-type .tw {
   opacity: 0;
 }
-.faq-type.is-typing .tw {
+.faq-type.is-typing .is-done .tw {
+  opacity: 1;
+}
+.faq-type.is-typing .is-now .tw {
   animation: tw-type var(--d, 20ms) linear var(--t, 0ms) forwards;
 }
 .faq-type.faq-done .tw {

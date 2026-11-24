@@ -6,6 +6,7 @@
       </PanelHead>
       <div class="mx-auto w-full max-w-6xl">
         <ExperienceTree />
+        <EducationList />
       </div>
     </div>
   </StagePanel>

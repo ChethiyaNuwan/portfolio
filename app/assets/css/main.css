@@ -1098,22 +1098,32 @@ h3 {
 
 /* projects: one card at a time comes out of the screen while everything else dims */
 .proj-card {
-  transition: transform 0.8s cubic-bezier(0.2, 0.8, 0.1, 1), opacity 0.6s ease, filter 0.6s ease, box-shadow 0.8s ease, border-color 0.4s;
+  transition: transform 0.8s cubic-bezier(0.2, 0.8, 0.1, 1), width 0.8s cubic-bezier(0.2, 0.8, 0.1, 1), margin 0.8s cubic-bezier(0.2, 0.8, 0.1, 1), opacity 0.6s ease, filter 0.6s ease, box-shadow 0.8s ease, border-color 0.4s;
 }
 .proj-grid.has-spot .proj-card:not(.is-spot) {
   opacity: 0.25;
   filter: blur(1.5px) saturate(0.7);
 }
+/* it comes out wider (a real wider box, centred on its place) and a little bigger; the picture keeps its height, so a
+   wider box just shows more of the image instead of zooming it */
 .proj-card.is-spot {
   position: relative;
   z-index: 30; /* above the section change arrows (z-20) */
-  transform: scale(1.3, 1.16); /* grows wider than it grows tall */
+  width: calc(100% + 4.5rem);
+  margin-inline: -2.25rem;
+  transform: scale(1.07);
   border-color: var(--ui-text-highlighted);
   box-shadow: 0 40px 90px -30px rgb(0 0 0 / 0.9), 0 0 0 1px color-mix(in srgb, var(--ui-primary) 50%, transparent);
 }
+.proj-grid:has(.is-spot) .proj-card.is-spot .proj-media {
+  aspect-ratio: auto;
+  height: var(--media-h, auto);
+}
 @media (max-width: 767px) {
   .proj-card.is-spot {
-    transform: scale(1.1, 1.05);
+    width: calc(100% + 1rem);
+    margin-inline: -0.5rem;
+    transform: scale(1.03);
   }
 }
 .spotlit > header {

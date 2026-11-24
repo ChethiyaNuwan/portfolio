@@ -32,6 +32,20 @@ function onScreen(i: number) {
   return visible > h * 0.6 && r.left >= -4 && r.right <= window.innerWidth + 4;
 }
 const { active, bind, pause, resume } = useCycle(grid, () => projects.value.length, { interval: 4600, eligible: onScreen, startDelay: 1800 });
+// The card that comes out gets wider for real (not scaled), so its picture keeps the size it had and simply shows more of
+// the image. The resting picture height is measured so it can be held while the card widens.
+const mediaH = ref(0);
+let gridRo: ResizeObserver | undefined;
+function measureMedia() {
+  if (active.value >= 0) return;
+  const m = grid.value?.querySelector<HTMLElement>(".proj-media");
+  if (m) mediaH.value = m.offsetHeight;
+}
+onMounted(() => {
+  measureMedia();
+  if (grid.value) (gridRo = new ResizeObserver(measureMedia)).observe(grid.value);
+});
+onBeforeUnmount(() => gridRo?.disconnect());
 watch(isOpen, (open) => (open ? pause() : resume()));
 
 watch(active, (a) => emit("spot", a >= 0));
@@ -52,7 +66,7 @@ onBeforeUnmount(() => clearInterval(slider));
 
 <template>
   <div>
-    <ul ref="grid" class="proj-grid grid gap-6 sm:grid-cols-2 lg:grid-cols-3" :class="{ 'has-spot': active >= 0 }" v-bind="bind">
+    <ul ref="grid" class="proj-grid grid gap-6 sm:grid-cols-2 lg:grid-cols-3" :class="{ 'has-spot': active >= 0 }" :style="mediaH ? { '--media-h': `${mediaH}px` } : undefined" v-bind="bind">
       <li v-for="(p, i) in projects" :key="p.id">
         <button
           type="button"
@@ -60,7 +74,7 @@ onBeforeUnmount(() => clearInterval(slider));
           :class="{ 'is-spot': active === i }"
           @click="openId = p.id"
         >
-          <span class="relative block aspect-[16/10] overflow-hidden bg-muted">
+          <span class="proj-media relative block aspect-[16/10] overflow-hidden bg-muted">
             <span class="flex size-full transition-transform duration-700 ease-[cubic-bezier(0.2,0.8,0.1,1)] motion-reduce:transition-none" :style="{ transform: active === i ? `translateX(-${slide * 100}%)` : undefined }">
               <img :src="p.image" :alt="`Screenshot of ${p.title}`" loading="lazy" class="size-full shrink-0 object-cover object-top transition-transform duration-500 group-hover:scale-[1.03] motion-reduce:transition-none" />
               <template v-if="active === i">

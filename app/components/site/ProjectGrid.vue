@@ -14,8 +14,10 @@ const current = computed(() => projects.value.find((p) => p.id === openId.value)
 const shown = ref<string>("");
 watch(current, (p) => (shown.value = p?.image ?? ""));
 
-// Spotlight loop: one card at a time comes out of the screen while the rest dims, then the next one. Pointing at the
-// grid, focusing a card or opening a project stops it. Only cards that are on screen take their turn.
+// Spotlight loop: one card at a time comes out of the screen in place (bigger and wider) while the rest dims, then the
+// next one. Its images slide past while it is out. Pointing at the grid, focusing a card or opening a project stops
+// it. Only cards that are on screen take their turn.
+const emit = defineEmits<{ spot: [on: boolean] }>();
 const grid = ref<HTMLElement>();
 const cardEls = () => [...(grid.value?.querySelectorAll<HTMLElement>(":scope > li > .proj-card") ?? [])];
 function onScreen(i: number) {
@@ -29,12 +31,19 @@ function onScreen(i: number) {
 const { active, bind, pause, resume } = useCycle(grid, () => projects.value.length, { interval: 4600, eligible: onScreen, startDelay: 1800 });
 watch(isOpen, (open) => (open ? pause() : resume()));
 
-// the project currently coming out, and the grid card it grows from
-const spot = ref<{ project: (typeof projects.value)[number]; rect: DOMRect } | null>(null);
+watch(active, (a) => emit("spot", a >= 0));
+
+// the images of the card that is out slide past one at a time (cover first, then the project's other images)
+const slide = ref(0);
+let slider: ReturnType<typeof setInterval> | undefined;
+const imagesOf = (p: (typeof projects.value)[number]) => [p.image, ...p.gallery].filter(Boolean).slice(0, 8);
 watch(active, (a) => {
-  const el = a >= 0 ? cardEls()[a] : undefined;
-  spot.value = el && projects.value[a] ? { project: projects.value[a]!, rect: el.getBoundingClientRect() } : null;
+  clearInterval(slider);
+  slide.value = 0;
+  const p = projects.value[a];
+  if (p && imagesOf(p).length > 1) slider = setInterval(() => (slide.value = (slide.value + 1) % imagesOf(p).length), 1500);
 });
+onBeforeUnmount(() => clearInterval(slider));
 
 </script>
 
@@ -48,8 +57,16 @@ watch(active, (a) => {
           :class="{ 'is-spot': active === i }"
           @click="openId = p.id"
         >
-          <span class="block aspect-[16/10] overflow-hidden bg-muted">
-            <img :src="p.image" :alt="`Screenshot of ${p.title}`" loading="lazy" class="size-full object-cover object-top transition-transform duration-500 group-hover:scale-[1.03] motion-reduce:transition-none" />
+          <span class="relative block aspect-[16/10] overflow-hidden bg-muted">
+            <span class="flex size-full transition-transform duration-700 ease-[cubic-bezier(0.2,0.8,0.1,1)] motion-reduce:transition-none" :style="{ transform: active === i ? `translateX(-${slide * 100}%)` : undefined }">
+              <img :src="p.image" :alt="`Screenshot of ${p.title}`" loading="lazy" class="size-full shrink-0 object-cover object-top transition-transform duration-500 group-hover:scale-[1.03] motion-reduce:transition-none" />
+              <template v-if="active === i">
+                <img v-for="(src, n) in imagesOf(p).slice(1)" :key="n" :src="src" alt="" class="size-full shrink-0 object-cover object-top" />
+              </template>
+            </span>
+            <span v-if="active === i && imagesOf(p).length > 1" class="absolute inset-x-0 bottom-2 flex justify-center gap-1.5" aria-hidden="true">
+              <span v-for="(_, n) in imagesOf(p)" :key="n" class="h-1 rounded-full bg-white/60 transition-all duration-500" :class="n === slide ? 'w-5 bg-white' : 'w-1.5'" />
+            </span>
           </span>
           <span class="flex flex-1 flex-col gap-3 p-5">
             <span class="flex flex-wrap gap-2">
@@ -66,8 +83,6 @@ watch(active, (a) => {
         </button>
       </li>
     </ul>
-
-    <ProjectSpotlight :state="spot" @hold="pause" @release="resume" @open="openId = $event" />
 
     <UModal v-model:open="isOpen" :title="current?.title ?? 'Project'" :description="current ? `${current.type} · ${current.pages} pages` : ''" :ui="{ content: 'max-w-3xl' }">
       <template #body>

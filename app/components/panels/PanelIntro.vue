@@ -16,7 +16,7 @@ const marqueeWords = computed(() => (profile.value.marquee?.length ? profile.val
 
     <div class="relative z-10 flex min-h-full flex-col justify-between gap-5">
       <div class="flex flex-1 items-center">
-        <div class="flex max-w-3xl flex-col items-start gap-5">
+        <div class="hero-copy flex max-w-3xl flex-col items-start gap-5">
           <UBadge color="success" variant="outline" size="lg" class="gap-2 bg-default/60 backdrop-blur-sm">
             <span class="relative flex size-2">
               <span class="absolute inline-flex size-full animate-ping rounded-full bg-success opacity-60 motion-reduce:animate-none" />
@@ -27,7 +27,7 @@ const marqueeWords = computed(() => (profile.value.marquee?.length ? profile.val
           <KineticText id="intro-heading" as="h1" class="display max-w-[11ch]" :text="profile.name" loop />
           <KineticText as="p" class="font-display text-2xl text-toned sm:text-3xl" :text="profile.title" :delay="650" />
           <WordReveal class="hero-intro max-w-xl text-lg leading-relaxed text-muted" :text="profile.intro" :delay="1000" />
-          <div class="flex flex-wrap items-center gap-3">
+          <div class="hero-actions flex flex-wrap items-center gap-3">
             <UButton size="xl" :href="`mailto:${profile.email}`" icon="i-lucide-mail" label="Contact me" />
             <UButton
               size="xl"

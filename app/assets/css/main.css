@@ -952,6 +952,27 @@ h3 {
   .stage-edge-right.stage-nudge {
     display: none;
   }
+  /* home: everything centred */
+  .hero-copy {
+    align-items: center;
+    text-align: center;
+    margin-inline: auto;
+  }
+  .hero-copy .display,
+  .hero-copy .hero-intro {
+    margin-inline: auto;
+  }
+  .hero-actions {
+    justify-content: center;
+  }
+  .hero-stats {
+    justify-content: center;
+    text-align: center;
+  }
+  .hero-stats > div {
+    align-items: center;
+    justify-content: center;
+  }
 }
 
 /* Phones: native finger-following sideways swipe between sections (no detents) */

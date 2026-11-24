@@ -1073,7 +1073,7 @@ h3 {
 }
 .proj-card.is-spot {
   position: relative;
-  z-index: 5;
+  z-index: 30; /* above the section change arrows (z-20) */
   transform: scale(1.16);
   border-color: var(--ui-text-highlighted);
   box-shadow: 0 40px 90px -30px rgb(0 0 0 / 0.9), 0 0 0 1px color-mix(in srgb, var(--ui-primary) 50%, transparent);

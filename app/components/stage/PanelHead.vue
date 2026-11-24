@@ -5,7 +5,7 @@ defineProps<{ id: string; title: string; outline?: boolean }>();
 </script>
 
 <template>
-  <header class="flex min-h-[7rem] flex-wrap items-end justify-between gap-x-8 gap-y-3">
+  <header class="flex min-h-[7rem] flex-wrap items-end justify-between gap-x-8 gap-y-3 max-md:min-h-0 max-md:flex-col max-md:items-start">
     <KineticText :id="`${id}-heading`" as="h2" class="display-md" :class="{ 'outline-text': outline }" :text="title" />
     <div class="flex flex-wrap items-center gap-4"><slot /></div>
   </header>

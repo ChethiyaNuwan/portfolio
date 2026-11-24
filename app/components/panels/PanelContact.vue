@@ -15,7 +15,7 @@ const profile = computed(() => content.value.profile);
           <a :href="`mailto:${profile.email}`" class="inline-block break-all py-2 font-display text-[clamp(1.4rem,3.4vw,3rem)] font-medium text-highlighted underline decoration-primary decoration-2 underline-offset-8 transition-opacity hover:opacity-70">
             {{ profile.email }}
           </a>
-          <p v-if="profile.phone" class="mt-3 text-lg text-muted">{{ profile.phone }}</p>
+          <p v-if="profile.phone" class="mt-3 text-lg text-muted"><a :href="`tel:${profile.phone.replace(/[^\d+]/g, '')}`" class="py-1 underline decoration-primary/50 underline-offset-4 hover:text-highlighted">{{ profile.phone }}</a></p>
           <p v-if="profile.location" class="text-lg text-muted" :class="{ 'mt-3': !profile.phone }">{{ profile.location }}</p>
         </address>
         <div class="flex flex-wrap items-center gap-2">

@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import {
-  absoluteUrl, faqJsonLd, galleryJsonLd, jsonLdScript, llmsFullTxt, llmsTxt, normalizeSiteUrl,
+  absoluteUrl, faqJsonLd, jsonLdScript, llmsFullTxt, llmsTxt, normalizeSiteUrl,
   personJsonLd, projectsJsonLd, robotsTxt, sitemapXml,
 } from "./seo";
 import { seedContent } from "./seed";
@@ -33,7 +33,6 @@ describe("llms.txt", () => {
     expect(t.startsWith("# Jane Doe\n")).toBe(true);
     expect(t).toMatch(/\n> .+/);
     expect(t).toContain("[Work](https://example.com/work)");
-    expect(t).toContain("[Gallery](https://example.com/gallery)");
     expect(t).toContain("[Full content](https://example.com/llms-full.txt)");
   });
   test("lists every project title", () => {
@@ -62,7 +61,7 @@ describe("sitemap and robots", () => {
   test("sitemap lists the public pages, never admin or api", () => {
     const x = sitemapXml(SITE);
     expect(x).toContain('<?xml version="1.0" encoding="UTF-8"?>');
-    for (const p of ["", "/work", "/gallery", "/services", "/contact"]) expect(x).toContain(`<loc>https://example.com${p}</loc>`);
+    for (const p of ["", "/work", "/services", "/contact"]) expect(x).toContain(`<loc>https://example.com${p}</loc>`);
     expect(x).not.toContain("/admin");
     expect(x).not.toContain("/api");
   });
@@ -94,12 +93,6 @@ describe("json-ld", () => {
     expect(l["@type"]).toBe("ItemList");
     expect(l.itemListElement).toHaveLength(c.projects.length);
     expect(l.itemListElement[0].item.url).toMatch(/^https?:\/\//);
-  });
-  test("gallery becomes an ImageGallery of ImageObject", () => {
-    const g = galleryJsonLd(c, SITE) as Record<string, any>;
-    expect(g["@type"]).toBe("ImageGallery");
-    expect(g.image[0]["@type"]).toBe("ImageObject");
-    expect(g.image[0].contentUrl).toMatch(/^https:\/\/example\.com\//);
   });
   test("faq becomes FAQPage", () => {
     const f = faqJsonLd(c) as Record<string, any>;

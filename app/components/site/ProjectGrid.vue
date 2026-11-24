@@ -16,11 +16,10 @@ watch(current, (p) => (shown.value = p?.image ?? ""));
 
 // Spotlight loop: one card at a time comes out of the screen while the rest dims, then the next one. Pointing at the
 // grid, focusing a card or opening a project stops it. Only cards that are on screen take their turn.
-const emit = defineEmits<{ spot: [on: boolean] }>();
 const grid = ref<HTMLElement>();
-const cards = computed(() => [...(grid.value?.querySelectorAll<HTMLElement>(":scope > li > .proj-card") ?? [])]);
+const cardEls = () => [...(grid.value?.querySelectorAll<HTMLElement>(":scope > li > .proj-card") ?? [])];
 function onScreen(i: number) {
-  const el = cards.value[i];
+  const el = cardEls()[i];
   if (!el) return false;
   const r = el.getBoundingClientRect();
   const h = Math.min(r.height, window.innerHeight);
@@ -29,7 +28,14 @@ function onScreen(i: number) {
 }
 const { active, bind, pause, resume } = useCycle(grid, () => projects.value.length, { interval: 3400, eligible: onScreen });
 watch(isOpen, (open) => (open ? pause() : resume()));
-watch(active, (a) => emit("spot", a >= 0));
+
+// the project currently coming out, and the grid card it grows from
+const spot = ref<{ project: (typeof projects.value)[number]; rect: DOMRect } | null>(null);
+watch(active, (a) => {
+  const el = a >= 0 ? cardEls()[a] : undefined;
+  spot.value = el && projects.value[a] ? { project: projects.value[a]!, rect: el.getBoundingClientRect() } : null;
+});
+
 </script>
 
 <template>
@@ -60,6 +66,8 @@ watch(active, (a) => emit("spot", a >= 0));
         </button>
       </li>
     </ul>
+
+    <ProjectSpotlight :state="spot" @hold="pause" @release="resume" @open="openId = $event" />
 
     <UModal v-model:open="isOpen" :title="current?.title ?? 'Project'" :description="current ? `${current.type} · ${current.pages} pages` : ''" :ui="{ content: 'max-w-3xl' }">
       <template #body>

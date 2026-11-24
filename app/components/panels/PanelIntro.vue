@@ -25,8 +25,8 @@ const marqueeWords = computed(() => (profile.value.marquee?.length ? profile.val
             Available for work
           </UBadge>
           <KineticText id="intro-heading" as="h1" class="display max-w-[11ch]" :text="profile.name" loop />
-          <p class="font-display text-2xl text-toned sm:text-3xl">{{ profile.title }}</p>
-          <p class="hero-intro max-w-xl text-lg leading-relaxed text-muted">{{ profile.intro }}</p>
+          <KineticText as="p" class="font-display text-2xl text-toned sm:text-3xl" :text="profile.title" :delay="650" />
+          <WordReveal class="hero-intro max-w-xl text-lg leading-relaxed text-muted" :text="profile.intro" :delay="1000" />
           <div class="flex flex-wrap items-center gap-3">
             <UButton size="xl" :href="`mailto:${profile.email}`" icon="i-lucide-mail" label="Contact me" />
             <UButton

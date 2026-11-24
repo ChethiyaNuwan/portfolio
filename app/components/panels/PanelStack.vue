@@ -9,7 +9,20 @@ const tilt = (i: number) => `${((i * 37) % 9) - 4}deg`;
 // The loop shows each tile's hover look in turn; pointing at the grid stops it so only the hovered tile reacts.
 const grid = ref<{ $el: HTMLElement } | HTMLElement>();
 const gridEl = computed(() => (grid.value as { $el?: HTMLElement })?.$el ?? (grid.value as HTMLElement | undefined));
-const { active, bind } = useCycle(gridEl, () => content.value.stack.length, { interval: 1700 });
+// The tiles sit in masonry columns, so the loop reads them like text: row by row, left to right.
+function leftToRight(): number[] {
+  const tiles = [...(gridEl.value?.querySelectorAll<HTMLElement>(":scope > li") ?? [])];
+  const ROW = 75; // tiles whose tops are within this many px of a row's first tile belong to that row
+  const byTop = tiles.map((el, i) => ({ i, r: el.getBoundingClientRect() })).sort((a, b) => a.r.top - b.r.top);
+  const rows: (typeof byTop)[] = [];
+  for (const t of byTop) {
+    const row = rows.at(-1);
+    if (row && t.r.top - row[0]!.r.top <= ROW) row.push(t);
+    else rows.push([t]);
+  }
+  return rows.flatMap((row) => row.sort((a, b) => a.r.left - b.r.left).map((t) => t.i));
+}
+const { active, bind } = useCycle(gridEl, () => content.value.stack.length, { interval: 1500, sequence: leftToRight });
 
 // Touch screens have no hover: the first tap shows a tile's name, the second one follows the link.
 const peek = ref<string | null>(null);

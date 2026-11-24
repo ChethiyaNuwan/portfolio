@@ -89,11 +89,50 @@ const paths = computed(() =>
   }),
 );
 
-// Loop: the roles light up one after another (card, branch and its dashed link); hovering stops it. A small pulse
-// also travels down the trunk.
-const { active, bind } = useCycle(rootEl, () => layout.value.items.length, { interval: 3000 });
+// Loop: your avatar rides up the trunk (bottom to top) with a pulsing ring, a coloured ball follows each branch while
+// the avatar is level with it, years light up as it passes, and the role it is passing lights up. The motion is SVG
+// animation (all on one clock); a light poll reads that clock to know which role to highlight.
 const motionOk = ref(false);
-onMounted(() => (motionOk.value = !window.matchMedia("(prefers-reduced-motion: reduce)").matches));
+const active = ref(-1);
+const deskSvg = ref<SVGSVGElement>();
+const mobSvg = ref<SVGSVGElement>();
+const avatar = computed(() => content.value.profile.avatar);
+const loopSeconds = (h: number) => Math.max(8, h / 55);
+const T = computed(() => loopSeconds(layout.value.height));
+const TM = computed(() => loopSeconds(trunkHeight.value));
+const frac = (y: number, h: number) => Math.min(0.98, Math.max(0.02, 1 - y / h)); // loop fraction at which the avatar is at y
+let poll: ReturnType<typeof setInterval> | undefined;
+onMounted(() => {
+  motionOk.value = !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (!motionOk.value) return;
+  poll = setInterval(() => {
+    const desktop = window.matchMedia("(min-width: 1024px)").matches;
+    const svg = desktop ? deskSvg.value : window.matchMedia("(max-width: 767px)").matches ? mobSvg.value : undefined;
+    if (!svg || !svg.getCurrentTime) return void (active.value = -1);
+    const h = desktop ? layout.value.height : trunkHeight.value;
+    const dur = desktop ? T.value : TM.value;
+    const y = h * (1 - ((svg.getCurrentTime() % dur) / dur));
+    const spans = desktop ? layout.value.items.map((it) => [it.yTop, it.yBottom] as const) : rows.value.map((r) => [r.top, r.bottom] as const);
+    let best = -1;
+    let bestD = Infinity;
+    spans.forEach(([top, bottom], i) => {
+      if (y < top - 8 || y > bottom + 8) return;
+      const d = Math.abs((top + bottom) / 2 - y);
+      if (d < bestD) {
+        bestD = d;
+        best = i;
+      }
+    });
+    active.value = best;
+  }, 120);
+});
+onBeforeUnmount(() => clearInterval(poll));
+
+const branchPath = (it: (typeof layout.value.items)[number]) => {
+  const x = laneX(it.side);
+  const tail = it.present ? `L ${x} ${it.yTop}` : `L ${x} ${it.yTop + 26} C ${x} ${it.yTop + 12}, ${C} ${it.yTop + 14}, ${C} ${it.yTop}`;
+  return `M ${C} ${it.yBottom} C ${C} ${it.yBottom - 14}, ${x} ${it.yBottom - 12}, ${x} ${it.yBottom - 26} ${tail}`;
+};
 
 const laneX = (side: "left" | "right") => (side === "right" ? C + LANE : C - LANE);
 const color = (lane: number) => `var(--lane-${lane + 1})`;
@@ -111,12 +150,21 @@ function connector(it: (typeof layout.value.items)[number]) {
 </script>
 
 <template>
-  <div ref="rootEl" class="relative lg:h-[var(--h)]" :style="{ '--h': `${layout.height}px` }" v-bind="bind">
-    <svg class="pointer-events-none absolute left-1/2 top-0 hidden -translate-x-1/2 lg:block" :width="W" :height="layout.height" :viewBox="`0 0 ${W} ${layout.height}`" aria-hidden="true">
+  <div ref="rootEl" class="relative lg:h-[var(--h)]" :style="{ '--h': `${layout.height}px` }">
+    <svg ref="deskSvg" class="pointer-events-none absolute left-1/2 top-0 hidden -translate-x-1/2 lg:block" :width="W" :height="layout.height" :viewBox="`0 0 ${W} ${layout.height}`" aria-hidden="true">
       <line :x1="C" y1="0" :x2="C" :y2="layout.height" stroke="var(--ui-border-accented)" stroke-width="2" />
-      <circle v-if="motionOk" :cx="C" cy="0" r="4" fill="var(--ui-primary)" class="tree-glow">
-        <animateMotion :dur="`${Math.max(6, layout.height / 70)}s`" repeatCount="indefinite" :path="`M 0 0 L 0 ${layout.height}`" />
-      </circle>
+      <g v-if="motionOk" class="tree-ball">
+        <animateMotion :dur="`${T}s`" repeatCount="indefinite" :path="`M 0 ${layout.height} L 0 0`" />
+        <g :transform="`translate(${C} 0)`">
+          <circle r="16" fill="none" stroke="var(--ui-primary)" stroke-width="2">
+            <animate attributeName="r" values="16;30" dur="1.3s" repeatCount="indefinite" />
+            <animate attributeName="opacity" values="0.85;0" dur="1.3s" repeatCount="indefinite" />
+          </circle>
+          <clipPath id="tree-avatar-clip"><circle r="15" /></clipPath>
+          <circle r="17" fill="var(--ui-bg)" stroke="var(--ui-primary)" stroke-width="2.5" />
+          <image :href="avatar" x="-36" y="-33" width="66" height="82" preserveAspectRatio="none" clip-path="url(#tree-avatar-clip)" />
+        </g>
+      </g>
 
       <g v-for="(it, n) in layout.items" :key="it.id" :style="{ '--glow': color(it.lane) }">
         <g :class="active === n && 'tree-glow'">
@@ -128,8 +176,13 @@ function connector(it: (typeof layout.value.items)[number]) {
         <circle :cx="C" :cy="it.yBottom" r="5" :fill="color(it.lane)" stroke="var(--ui-bg)" stroke-width="2" />
         <circle v-if="!it.present" :cx="C" :cy="it.yTop" r="5" :fill="color(it.lane)" stroke="var(--ui-bg)" stroke-width="2" />
 
-        <path :d="connector(it).path" fill="none" :stroke="color(it.lane)" stroke-width="2" stroke-dasharray="3 4" opacity="0.8" :class="active === n && 'tree-flow'" />
+        <path :d="connector(it).path" fill="none" :stroke="color(it.lane)" stroke-width="2" stroke-dasharray="3 4" opacity="0.8" class="tree-flow" />
         <circle :cx="connector(it).x" :cy="connector(it).ay" r="5" :fill="color(it.lane)" stroke="var(--ui-bg)" stroke-width="2" />
+
+        <circle v-if="motionOk" r="6" :fill="color(it.lane)" stroke="var(--ui-bg)" stroke-width="2" opacity="0">
+          <animateMotion :dur="`${T}s`" repeatCount="indefinite" :path="branchPath(it)" keyPoints="0;0;1;1" :keyTimes="`0;${frac(it.yBottom, layout.height)};${frac(it.yTop, layout.height)};1`" calcMode="linear" />
+          <animate attributeName="opacity" :dur="`${T}s`" repeatCount="indefinite" values="0;0;1;1;0;0" :keyTimes="`0;${frac(it.yBottom, layout.height)};${frac(it.yBottom, layout.height) + 0.005};${frac(it.yTop, layout.height)};${Math.min(0.995, frac(it.yTop, layout.height) + 0.005)};1`" />
+        </circle>
 
         <template v-if="it.present">
           <circle :cx="laneX(it.side)" :cy="it.yTop" r="7" :fill="color(it.lane)" />
@@ -138,23 +191,36 @@ function connector(it: (typeof layout.value.items)[number]) {
         </template>
       </g>
 
-      <g v-for="y in layout.years" :key="y.label">
+      <g v-for="y in layout.years" :key="y.label" :class="motionOk && 'year-hit'" :style="{ '--T': `${T}s`, '--d': `${frac(y.y, layout.height) * T}s` }">
         <rect :x="C - 22" :y="y.y - 9" width="44" height="18" rx="9" fill="var(--ui-bg)" stroke="var(--ui-border-accented)" />
         <text :x="C" :y="y.y + 4" text-anchor="middle" font-size="10" fill="var(--ui-text-muted)">{{ y.label }}</text>
       </g>
     </svg>
 
     <DropGroup as="ol" class="relative grid gap-5 max-md:pl-[3.75rem] md:max-lg:pl-8 md:max-lg:before:absolute md:max-lg:before:bottom-0 md:max-lg:before:left-2.5 md:max-lg:before:top-0 md:max-lg:before:w-0.5 md:max-lg:before:bg-[var(--ui-border-accented)] lg:block">
-      <svg v-if="rows.length" class="exp-graph pointer-events-none absolute left-0 top-0 overflow-visible md:hidden" width="60" :height="trunkHeight" aria-hidden="true">
+      <svg v-if="rows.length" ref="mobSvg" class="exp-graph pointer-events-none absolute left-0 top-0 overflow-visible md:hidden" width="60" :height="trunkHeight" aria-hidden="true">
         <line class="exp-trunk" :x1="TX" y1="0" :x2="TX" :y2="trunkHeight" stroke="var(--ui-border-accented)" stroke-width="2" />
-        <circle v-if="motionOk" :cx="TX" cy="0" r="3.5" fill="var(--ui-primary)" class="tree-glow">
-          <animateMotion :dur="`${Math.max(5, trunkHeight / 70)}s`" repeatCount="indefinite" :path="`M 0 0 L 0 ${trunkHeight}`" />
-        </circle>
+        <g v-if="motionOk" class="tree-ball">
+          <animateMotion :dur="`${TM}s`" repeatCount="indefinite" :path="`M 0 ${trunkHeight} L 0 0`" />
+          <g :transform="`translate(${TX} 0)`">
+            <circle r="11" fill="none" stroke="var(--ui-primary)" stroke-width="2">
+              <animate attributeName="r" values="11;22" dur="1.3s" repeatCount="indefinite" />
+              <animate attributeName="opacity" values="0.85;0" dur="1.3s" repeatCount="indefinite" />
+            </circle>
+            <clipPath id="tree-avatar-clip-m"><circle r="10" /></clipPath>
+            <circle r="12" fill="var(--ui-bg)" stroke="var(--ui-primary)" stroke-width="2" />
+            <image :href="avatar" x="-24" y="-22" width="44" height="55" preserveAspectRatio="none" clip-path="url(#tree-avatar-clip-m)" />
+          </g>
+        </g>
         <g v-for="p in paths" :key="p.id" :class="{ 'is-on': active === p.n }" :style="{ '--i': p.n, '--glow': p.color }">
           <path class="exp-path" pathLength="1" :d="p.d" fill="none" :stroke="p.color" stroke-width="2.5" stroke-linecap="round" />
           <circle v-if="!p.present" class="exp-dot" :cx="TX" :cy="p.y0" r="4.5" :fill="p.color" stroke="var(--ui-bg)" stroke-width="2" />
           <circle class="exp-dot" :cx="TX" :cy="p.y1" r="4.5" :fill="p.color" stroke="var(--ui-bg)" stroke-width="2" />
           <circle v-if="p.present" class="exp-dot exp-now" :cx="p.x" :cy="6" r="5" :fill="p.color" />
+          <circle v-if="motionOk" r="5" :fill="p.color" stroke="var(--ui-bg)" stroke-width="1.5" opacity="0">
+            <animateMotion :dur="`${TM}s`" repeatCount="indefinite" :path="p.d" keyPoints="1;1;0;0" :keyTimes="`0;${frac(p.y1, trunkHeight)};${frac(p.y0, trunkHeight)};1`" calcMode="linear" />
+            <animate attributeName="opacity" :dur="`${TM}s`" repeatCount="indefinite" values="0;0;1;1;0;0" :keyTimes="`0;${frac(p.y1, trunkHeight)};${frac(p.y1, trunkHeight) + 0.005};${frac(p.y0, trunkHeight)};${Math.min(0.995, frac(p.y0, trunkHeight) + 0.005)};1`" />
+          </circle>
           <line class="exp-dash" :x1="p.x" :y1="p.cy" :x2="p.left" :y2="p.cy" :stroke="p.color" stroke-width="2" stroke-dasharray="3 4" />
           <circle class="exp-dot" :cx="p.x" :cy="p.cy" r="4.5" :fill="p.color" stroke="var(--ui-bg)" stroke-width="2" />
         </g>

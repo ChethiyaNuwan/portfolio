@@ -31,9 +31,7 @@ describe("content schemas", () => {
 });
 
 describe("redesign content model", () => {
-  test("gallery and education sections exist and the seed satisfies them", () => {
-    expect(sectionSchemas.gallery.safeParse(seedContent.gallery).success).toBe(true);
-    expect(seedContent.gallery.length).toBeGreaterThanOrEqual(4);
+  test("the education section exists and the seed satisfies it", () => {
     expect(sectionSchemas.education.safeParse(seedContent.education).success).toBe(true);
   });
 
@@ -47,12 +45,6 @@ describe("redesign content model", () => {
     const parsed = sectionSchemas.projects.parse(oldProjects);
     expect(parsed[0]!.tags).toEqual([]);
     expect(parsed[0]!.gallery).toEqual([]);
-  });
-
-  test("gallery items default caption and tags, and reject items without an image", () => {
-    const ok = sectionSchemas.gallery.parse([{ id: "1", image: "/a.png" }]);
-    expect(ok[0]).toEqual({ id: "1", image: "/a.png", caption: "", tags: [] });
-    expect(sectionSchemas.gallery.safeParse([{ id: "1" }]).success).toBe(false);
   });
 });
 
@@ -79,5 +71,14 @@ describe("structured experience dates", () => {
   test("projects take a list of stack ids and default to none; the marquee words default to empty", () => {
     expect(sectionSchemas.projects.parse([{ ...seedContent.projects[0]!, stack: undefined }])[0]!.stack).toEqual([]);
     expect(sectionSchemas.profile.parse({ ...seedContent.profile, marquee: undefined }).marquee).toEqual([]);
+  });
+});
+
+describe("theme accent", () => {
+  test("accepts two hex colours and rejects anything else", () => {
+    expect(sectionSchemas.theme.safeParse({ accentDark: "#ff7a1a", accentLight: "#d6006f" }).success).toBe(true);
+    expect(sectionSchemas.theme.safeParse({ accentDark: "red", accentLight: "#d6006f" }).success).toBe(false);
+    expect(sectionSchemas.theme.safeParse({ accentDark: "#fff", accentLight: "#d6006f" }).success).toBe(false);
+    expect(sectionSchemas.theme.safeParse(seedContent.theme).success).toBe(true);
   });
 });

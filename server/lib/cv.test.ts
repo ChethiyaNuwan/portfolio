@@ -13,7 +13,7 @@ const textOf = async (bytes: Uint8Array) => {
 };
 const empty: Content = {
   ...seedContent,
-  counters: [], experience: [], stack: [], services: [], plans: [], projects: [], faq: [], socials: [], gallery: [], education: [],
+  counters: [], experience: [], stack: [], services: [], plans: [], projects: [], faq: [], socials: [], education: [],
 };
 const full: Content = {
   ...seedContent,

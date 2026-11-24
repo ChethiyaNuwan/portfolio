@@ -1,4 +1,4 @@
-export type FieldType = "text" | "textarea" | "number" | "image" | "imagelist" | "select" | "tags" | "period" | "stackpick";
+export type FieldType = "text" | "textarea" | "number" | "image" | "imagelist" | "select" | "tags" | "period" | "stackpick" | "color";
 export interface FieldDef {
   key: string;
   label: string;
@@ -18,6 +18,7 @@ const img = (key: string, label: string): FieldDef => ({ key, label, type: "imag
 
 export const sectionConfigs: Record<string, SectionConfig> = {
   profile: { label: "Profile", kind: "object", fields: [t("name", "Name"), t("title", "Job title"), area("intro", "Intro"), t("email", "Email (used for mailto: links)"), t("phone", "Phone (shown on CV)"), t("location", "Location (shown on CV)"), img("avatar", "Avatar"), img("avatarMobile", "Avatar for phones (optional, falls back to Avatar)"), { key: "marquee", label: "Scrolling words at the bottom of the home page (comma separated; empty = job title and service names)", type: "tags" }] },
+  theme: { label: "Appearance", kind: "object", fields: [{ key: "accentDark", label: "Accent colour in dark mode", type: "color" }, { key: "accentLight", label: "Accent colour in light mode", type: "color" }] },
   counters: { label: "Counters", kind: "list", itemLabel: "title", fields: [t("title", "Title"), { key: "value", label: "Value", type: "number" }] },
   experience: {
     label: "Experience", kind: "list", itemLabel: "company",
@@ -31,9 +32,8 @@ export const sectionConfigs: Record<string, SectionConfig> = {
   },
   projects: {
     label: "Projects", kind: "list", itemLabel: "title",
-    fields: [t("title", "Title"), area("description", "Description"), t("link", "Domain (without https://)"), t("type", "Type"), t("theme", "Theme"), { key: "pages", label: "Pages", type: "number" }, { key: "tags", label: "Tags", type: "tags" }, img("image", "Cover screenshot"), { key: "gallery", label: "More screenshots", type: "imagelist" }, { key: "stack", label: "Built with (pick from your stack)", type: "stackpick" }],
+    fields: [t("title", "Title"), area("description", "Description"), t("link", "Domain (without https://)"), t("type", "Type"), t("theme", "Theme"), { key: "pages", label: "Pages", type: "number" }, { key: "tags", label: "Tags", type: "tags" }, img("image", "Cover screenshot"), { key: "gallery", label: "More images (shown when the project is highlighted and opened)", type: "imagelist" }, { key: "stack", label: "Built with (pick from your stack)", type: "stackpick" }],
   },
-  gallery: { label: "Gallery", kind: "list", itemLabel: "caption", fields: [img("image", "Image"), t("caption", "Caption"), { key: "tags", label: "Tags", type: "tags" }] },
   education: {
     label: "Education", kind: "list", itemLabel: "school",
     fields: [t("school", "School"), t("degree", "Degree / qualification"), t("period", "Period"), area("details", "Details (one point per line)")],

@@ -2,6 +2,27 @@
 import type { FieldDef } from "../../utils/adminFields";
 
 const props = defineProps<{ def: FieldDef; item?: Record<string, any> }>();
+const { upload } = useAdminApi();
+const bulkBusy = ref(false);
+const bulkError = ref("");
+// pick several image files at once; each is uploaded and appended to the list
+async function addMany(e: Event) {
+  const input = e.target as HTMLInputElement;
+  const files = [...(input.files ?? [])];
+  input.value = "";
+  if (!files.length) return;
+  bulkBusy.value = true;
+  bulkError.value = "";
+  try {
+    const urls: string[] = [];
+    for (const f of files) urls.push(await upload(f, "image"));
+    images.value = [...images.value.filter(Boolean), ...urls];
+  } catch (err) {
+    bulkError.value = errorMessage(err);
+  } finally {
+    bulkBusy.value = false;
+  }
+}
 const model = defineModel<unknown>();
 
 const tags = computed({
@@ -25,7 +46,15 @@ const asNumber = computed({
 </script>
 
 <template>
-  <PeriodField v-if="props.def.type === 'period' && props.item" :item="props.item as never" />
+  <div v-if="props.def.type === 'color'" class="flex flex-col gap-1">
+    <span class="text-sm text-muted">{{ props.def.label }}</span>
+    <div class="flex items-center gap-3">
+      <input v-model="asString" type="color" class="size-11 cursor-pointer rounded border border-default bg-transparent p-0.5" :aria-label="props.def.label" />
+      <input v-model="asString" type="text" class="admin-input max-w-40 font-mono" maxlength="7" placeholder="#6f8bff" />
+      <span class="inline-block h-8 w-24 rounded" :style="{ backgroundColor: asString }" aria-hidden="true" />
+    </div>
+  </div>
+  <PeriodField v-else-if="props.def.type === 'period' && props.item" :item="props.item as never" />
   <div v-else-if="props.def.type === 'stackpick'" class="flex flex-col gap-1">
     <span class="text-sm text-muted">{{ props.def.label }}</span>
     <StackPicker :model-value="(Array.isArray(model) ? model : []) as string[]" @update:model-value="model = $event" />
@@ -36,7 +65,14 @@ const asNumber = computed({
       <div class="flex-1"><ImageField v-model="images[i]" /></div>
       <button type="button" class="admin-btn text-red-500" @click="images = images.filter((__, j) => j !== i)">Remove</button>
     </div>
-    <button type="button" class="admin-btn w-max" @click="images = [...images, '']">+ Add image</button>
+    <div class="flex flex-wrap items-center gap-2">
+      <label class="admin-btn w-max cursor-pointer" :class="bulkBusy && 'opacity-60'">
+        {{ bulkBusy ? "Uploading…" : "Upload images (several at once)" }}
+        <input type="file" accept="image/png,image/jpeg,image/webp,image/avif,image/gif" multiple class="sr-only" :disabled="bulkBusy" @change="addMany" />
+      </label>
+      <button type="button" class="admin-btn w-max" @click="images = [...images, '']">+ Add by URL</button>
+    </div>
+    <p v-if="bulkError" class="text-sm text-red-500">{{ bulkError }}</p>
   </div>
   <label v-else class="flex flex-col gap-1">
     <span class="text-sm text-muted">{{ props.def.label }}</span>

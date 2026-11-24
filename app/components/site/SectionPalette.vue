@@ -13,7 +13,6 @@ const { panels } = useStageState();
 const PAGES = [
   { label: "Home", to: "/", icon: "i-lucide-house" },
   { label: "Work", to: "/work", icon: "i-lucide-briefcase" },
-  { label: "Gallery", to: "/gallery", icon: "i-lucide-images" },
   { label: "Services", to: "/services", icon: "i-lucide-layers" },
   { label: "Contact", to: "/contact", icon: "i-lucide-mail" },
 ];

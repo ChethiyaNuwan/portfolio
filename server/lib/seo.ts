@@ -28,7 +28,6 @@ const oneLine = (s: string) => s.replace(/\s+/g, " ").trim();
 const PAGES = [
   { path: "", name: "Home", about: "Introduction, selected work, experience, skills and contact." },
   { path: "/work", name: "Work", about: "All projects with screenshots and details." },
-  { path: "/gallery", name: "Gallery", about: "Interface and design images from the projects." },
   { path: "/services", name: "Services", about: "Services offered and tools used." },
   { path: "/contact", name: "Contact", about: "Email address, social links and frequently asked questions." },
 ];
@@ -168,21 +167,6 @@ export function projectsJsonLd(c: Content, site: string): object {
         keywords: pr.tags.join(", "),
         author: { "@id": `${site}/#person` },
       },
-    })),
-  };
-}
-
-export function galleryJsonLd(c: Content, site: string): object {
-  return {
-    "@context": CTX,
-    "@type": "ImageGallery",
-    name: `${c.profile.name} gallery`,
-    url: `${site}/gallery`,
-    image: c.gallery.map((g) => ({
-      "@type": "ImageObject",
-      contentUrl: absoluteUrl(site, g.image),
-      caption: g.caption,
-      keywords: g.tags.join(", "),
     })),
   };
 }

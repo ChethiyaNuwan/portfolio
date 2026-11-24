@@ -331,67 +331,10 @@ export const seedContent: Content = {
         "stack": ["7", "5", "9", "19"]
     }
   ],
-  "gallery": [
-    {
-      "id": "1",
-      "image": "/business-admin.png",
-      "caption": "Cloud POS admin dashboard",
-      "tags": [
-        "Web",
-        "Dashboard"
-      ]
-    },
-    {
-      "id": "2",
-      "image": "/dtuk.png",
-      "caption": "Tour booking website",
-      "tags": [
-        "Web",
-        "Booking"
-      ]
-    },
-    {
-      "id": "3",
-      "image": "/ssimpex.png",
-      "caption": "Supermarket e-commerce storefront",
-      "tags": [
-        "Web",
-        "E-Commerce"
-      ]
-    },
-    {
-      "id": "4",
-      "image": "/project-1.avif",
-      "caption": "Design study 1",
-      "tags": [
-        "Design"
-      ]
-    },
-    {
-      "id": "5",
-      "image": "/project-2.avif",
-      "caption": "Design study 2",
-      "tags": [
-        "Design"
-      ]
-    },
-    {
-      "id": "6",
-      "image": "/project-3.avif",
-      "caption": "Design study 3",
-      "tags": [
-        "Design"
-      ]
-    },
-    {
-      "id": "7",
-      "image": "/project-4.avif",
-      "caption": "Design study 4",
-      "tags": [
-        "Design"
-      ]
-    }
-  ],
+  "theme": {
+    "accentDark": "#6f8bff",
+    "accentLight": "#2447ff"
+  },
   "education": [],
   "faq": [
     {

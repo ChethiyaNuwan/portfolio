@@ -60,13 +60,12 @@ describe("opening a database written by the previous version", () => {
     const raw = new Database(join(dir, "portfolio.db"));
     const oldProjects = seedContent.projects.map(({ tags: _t, gallery: _g, ...rest }) => rest);
     raw.run("UPDATE sections SET value = ? WHERE key = 'projects'", [JSON.stringify(oldProjects)]);
-    raw.run("DELETE FROM sections WHERE key IN ('gallery', 'education')");
+    raw.run("DELETE FROM sections WHERE key IN ('education')");
     raw.close();
 
     store = openStore(dir);
     expect(store.getSection("projects")[0]!.tags).toEqual([]);
     expect(store.getSection("projects")[0]!.gallery).toEqual([]);
-    expect(store.getSection("gallery")).toEqual(seedContent.gallery);
     expect(store.getSection("education")).toEqual(seedContent.education);
   });
 });

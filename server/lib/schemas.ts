@@ -89,9 +89,6 @@ export const sectionSchemas = {
       }),
     )
     .max(100),
-  gallery: z
-    .array(z.object({ id, image: url.min(1), caption: short.default(""), tags: z.array(short).max(20).default([]) }))
-    .max(300),
   education: z
     .array(z.object({ id, school: short, degree: short, period: short, details: long.default("") }))
     .max(30),
@@ -99,6 +96,11 @@ export const sectionSchemas = {
   socials: z
     .array(z.object({ id, title: short, icon: z.enum(socialIcons), link: url }))
     .max(30),
+  /** the accent colour used across the site, set separately for dark and light mode */
+  theme: z.object({
+    accentDark: z.string().regex(/^#[0-9a-fA-F]{6}$/, "Use a colour like #6f8bff"),
+    accentLight: z.string().regex(/^#[0-9a-fA-F]{6}$/, "Use a colour like #2447ff"),
+  }),
   settings: z.object({
     cvMode: z.enum(["uploaded", "generated"]),
     cvUploadUrl: url.nullable(),

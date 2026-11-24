@@ -9,7 +9,6 @@ export const socialIconMap = {
 export const navItems = [
   { label: "Home", to: "/" },
   { label: "Work", to: "/work" },
-  { label: "Gallery", to: "/gallery" },
   { label: "Services", to: "/services" },
   { label: "Contact", to: "/contact" },
 ];

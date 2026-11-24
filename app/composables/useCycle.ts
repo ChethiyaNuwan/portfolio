@@ -9,7 +9,7 @@
 export function useCycle(
   el: Ref<HTMLElement | null | undefined>,
   count: () => number,
-  opts: { interval?: number; resumeAfter?: number; eligible?: (i: number) => boolean } = {},
+  opts: { interval?: number; resumeAfter?: number; eligible?: (i: number) => boolean; sequence?: () => number[] } = {},
 ) {
   const interval = opts.interval ?? 2600;
   const resumeAfter = opts.resumeAfter ?? 1400;
@@ -24,12 +24,17 @@ export function useCycle(
     clearInterval(tick);
     tick = undefined;
   };
+  let pos = -1;
   function advance() {
     const n = count();
     if (n < 1) return;
-    for (let step = 1; step <= n; step++) {
-      const next = (active.value + step + n) % n;
+    // `sequence` lets the caller choose the visiting order (e.g. left to right across the screen)
+    const order = opts.sequence?.() ?? Array.from({ length: n }, (_, i) => i);
+    for (let step = 1; step <= order.length; step++) {
+      const p = (pos + step + order.length) % order.length;
+      const next = order[p]!;
       if (!opts.eligible || opts.eligible(next)) {
+        pos = p;
         active.value = next;
         return;
       }
@@ -40,7 +45,10 @@ export function useCycle(
     if (visible.value && !held.value && !reduced && count() > 1) {
       advance();
       tick = setInterval(advance, interval);
-    } else active.value = -1;
+    } else {
+      active.value = -1;
+      pos = -1;
+    }
   }
 
   function pause() {

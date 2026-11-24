@@ -25,13 +25,11 @@ function leftToRight(): number[] {
 }
 const { active, bind } = useCycle(gridEl, () => content.value.stack.length, { interval: 1500, sequence: leftToRight });
 
-// Touch screens have no hover: the first tap shows a tile's name, the second one follows the link.
+// Tiles do nothing when clicked. Touch screens have no hover, so a tap shows a tile's name (another tap hides it).
 const peek = ref<string | null>(null);
-function onTile(e: MouseEvent, id: string) {
+function onTile(id: string) {
   if (!window.matchMedia("(hover: none)").matches) return;
-  if (peek.value === id) return;
-  e.preventDefault();
-  peek.value = id;
+  peek.value = peek.value === id ? null : id;
 }
 </script>
 
@@ -39,14 +37,14 @@ function onTile(e: MouseEvent, id: string) {
   <StagePanel id="stack" :label="label">
     <div class="flex min-h-full flex-col gap-8">
       <PanelHead id="stack" :title="label">
-        <p class="max-w-sm text-lg text-muted"><span class="hidden [@media(hover:hover)]:inline">Languages, frameworks and tools I use day to day. Hover a tile for its name.</span><span class="[@media(hover:hover)]:hidden">Languages, frameworks and tools I use day to day. Tap a tile for its name, tap again to open it.</span></p>
+        <p class="max-w-sm text-lg text-muted"><span class="hidden [@media(hover:hover)]:inline">Languages, frameworks and tools I use day to day. Hover a tile for its name.</span><span class="[@media(hover:hover)]:hidden">Languages, frameworks and tools I use day to day. Tap a tile for its name.</span></p>
       </PanelHead>
       <DropGroup ref="grid" as="ul" class="columns-3 gap-3 sm:columns-4 md:columns-5 lg:columns-6" role="list" v-bind="bind">
         <li v-for="(s, i) in content.stack" :key="s.id" class="drop mb-3 break-inside-avoid" :style="{ '--i': i % 12, '--r': tilt(i) }">
-          <a :href="s.link" target="_blank" rel="noopener noreferrer" data-track="stack_click" :data-track-name="s.title" class="pin flex items-center justify-center" :class="[aspect(i), peek === s.id && 'is-peek', active === i && 'is-on']" :aria-label="s.title" @click="onTile($event, s.id)" @blur="peek === s.id && (peek = null)">
+          <div tabindex="0" role="img" class="pin flex items-center justify-center" :class="[aspect(i), peek === s.id && 'is-peek', active === i && 'is-on']" :aria-label="s.title" @click="onTile(s.id)" @blur="peek === s.id && (peek = null)">
             <img :src="s.logo" alt="" class="pin-media pin-logo size-[44%] max-w-20 object-contain" />
             <span class="pin-label">{{ s.title }}</span>
-          </a>
+          </div>
         </li>
       </DropGroup>
     </div>

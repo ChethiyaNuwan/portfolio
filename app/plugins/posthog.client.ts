@@ -4,7 +4,7 @@
 //  - clicks on the CV, mail links, social/outbound links and anything marked data-track are sent as named events;
 //  - section_view / section_dwell record which sections hold attention and for how long (time only counts while the
 //    tab is visible).
-// Nothing loads without NUXT_PUBLIC_POSTHOG_KEY, on /admin, or for browsers that ask not to be tracked. Open the site
+// Every event carries environment (dev or production) so local testing can be filtered out. Nothing loads without NUXT_PUBLIC_POSTHOG_KEY, on /admin, or for browsers that ask not to be tracked. Open the site
 // once with ?notrack to exclude your own browser (?track turns it back on).
 import { setTrackSink, track } from "~/utils/track";
 
@@ -12,7 +12,7 @@ const OPT_OUT = "ph-opt-out";
 
 export default defineNuxtPlugin(() => {
   const { posthogKey, posthogHost } = useRuntimeConfig().public;
-  if (!posthogKey || import.meta.dev) return;
+  if (!posthogKey) return;
 
   const url = new URL(location.href);
   if (url.searchParams.has("notrack")) localStorage.setItem(OPT_OUT, "1");
@@ -33,7 +33,7 @@ export default defineNuxtPlugin(() => {
       session_recording: { maskAllInputs: true, maskTextSelector: undefined },
       loaded: (ph) => {
         // extra location hints next to PostHog's IP lookup: the visitor's own time zone and languages
-        ph.register({ tz: Intl.DateTimeFormat().resolvedOptions().timeZone, langs: navigator.languages?.join(",") });
+        ph.register({ environment: import.meta.dev ? "dev" : "production", tz: Intl.DateTimeFormat().resolvedOptions().timeZone, langs: navigator.languages?.join(",") });
       },
     });
     setTrackSink((event, props) => posthog.capture(event, props, { transport: "sendBeacon" }));
@@ -91,5 +91,8 @@ export default defineNuxtPlugin(() => {
     );
   };
 
-  window.addEventListener("load", () => ("requestIdleCallback" in window ? requestIdleCallback(start, { timeout: 3000 }) : setTimeout(start, 1500)), { once: true });
+  // start when the browser is idle; the page has often finished loading by the time this plugin runs, so do not wait for "load"
+  const later = () => ("requestIdleCallback" in window ? requestIdleCallback(start, { timeout: 3000 }) : setTimeout(start, 1500));
+  if (document.readyState === "complete") later();
+  else window.addEventListener("load", later, { once: true });
 });

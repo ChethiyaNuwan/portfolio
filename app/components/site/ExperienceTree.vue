@@ -93,7 +93,7 @@ const paths = computed(() =>
 // the avatar is level with it, years light up as it passes, and the role it is passing lights up. The motion is SVG
 // animation (all on one clock); a light poll reads that clock to know which role to highlight.
 const motionOk = ref(false);
-const active = ref(-1);
+const active = ref<number[]>([]); // every role the avatar is level with (overlapping roles glow together)
 const deskSvg = ref<SVGSVGElement>();
 const mobSvg = ref<SVGSVGElement>();
 const avatar = computed(() => content.value.profile.avatar);
@@ -121,24 +121,19 @@ onMounted(() => {
   poll = setInterval(() => {
     const desktop = window.matchMedia("(min-width: 1024px)").matches;
     const svg = desktop ? deskSvg.value : window.matchMedia("(max-width: 767px)").matches ? mobSvg.value : undefined;
-    if (!svg || !svg.getCurrentTime) return void (active.value = -1);
+    if (!svg || !svg.getCurrentTime) return void (active.value = []);
     const h = desktop ? layout.value.height : trunkHeight.value;
     const dur = desktop ? T.value : TM.value;
     const top = desktop ? TOP_D : TOP_M;
     const y = h - (h - top) * Math.min(1, (svg.getCurrentTime() % dur) / travelSeconds(h));
     litYear.value = desktop ? (layout.value.years.find((yr) => Math.abs(yr.y - y) < 20)?.label ?? "") : "";
     const spans = desktop ? layout.value.items.map((it) => [it.yTop, it.yBottom] as const) : rows.value.map((r) => [r.top, r.bottom] as const);
-    let best = -1;
-    let bestD = Infinity;
+    const on: number[] = [];
     spans.forEach(([top, bottom], i) => {
-      if (y < top - 8 || y > bottom + 8) return;
-      const d = Math.abs((top + bottom) / 2 - y);
-      if (d < bestD) {
-        bestD = d;
-        best = i;
-      }
+      if (y >= top - 8 && y <= bottom + 8) on.push(i);
     });
-    active.value = best;
+    const prev = active.value;
+    if (on.length !== prev.length || on.some((v, i) => v !== prev[i])) active.value = on;
   }, 80);
 });
 onBeforeUnmount(() => clearInterval(poll));
@@ -183,10 +178,10 @@ function connector(it: (typeof layout.value.items)[number]) {
       </g>
 
       <g v-for="(it, n) in layout.items" :key="it.id" :style="{ '--glow': color(it.lane) }">
-        <g :class="active === n && 'tree-glow'">
-          <path :d="fork(laneX(it.side), it.yBottom)" fill="none" :stroke="color(it.lane)" :stroke-width="active === n ? 4 : 3" stroke-linecap="round" />
-          <line :x1="laneX(it.side)" :y1="it.yBottom - 26" :x2="laneX(it.side)" :y2="it.present ? it.yTop : it.yTop + 26" :stroke="color(it.lane)" :stroke-width="active === n ? 4 : 3" stroke-linecap="round" />
-          <path v-if="!it.present" :d="merge(laneX(it.side), it.yTop)" fill="none" :stroke="color(it.lane)" :stroke-width="active === n ? 4 : 3" stroke-linecap="round" />
+        <g :class="active.includes(n) && 'tree-glow'">
+          <path :d="fork(laneX(it.side), it.yBottom)" fill="none" :stroke="color(it.lane)" :stroke-width="active.includes(n) ? 4 : 3" stroke-linecap="round" />
+          <line :x1="laneX(it.side)" :y1="it.yBottom - 26" :x2="laneX(it.side)" :y2="it.present ? it.yTop : it.yTop + 26" :stroke="color(it.lane)" :stroke-width="active.includes(n) ? 4 : 3" stroke-linecap="round" />
+          <path v-if="!it.present" :d="merge(laneX(it.side), it.yTop)" fill="none" :stroke="color(it.lane)" :stroke-width="active.includes(n) ? 4 : 3" stroke-linecap="round" />
         </g>
 
         <circle :cx="C" :cy="it.yBottom" r="5" :fill="color(it.lane)" stroke="var(--ui-bg)" stroke-width="2" />
@@ -229,7 +224,7 @@ function connector(it: (typeof layout.value.items)[number]) {
             <image :href="avatar" x="-24" y="-22" width="44" height="55" preserveAspectRatio="none" clip-path="url(#tree-avatar-clip-m)" />
           </g>
         </g>
-        <g v-for="p in paths" :key="p.id" :class="{ 'is-on': active === p.n }" :style="{ '--i': p.n, '--glow': p.color }">
+        <g v-for="p in paths" :key="p.id" :class="{ 'is-on': active.includes(p.n) }" :style="{ '--i': p.n, '--glow': p.color }">
           <path class="exp-path" pathLength="1" :d="p.d" fill="none" :stroke="p.color" stroke-width="2.5" stroke-linecap="round" />
           <circle v-if="!p.present" class="exp-dot" :cx="TX" :cy="p.y0" r="4.5" :fill="p.color" stroke="var(--ui-bg)" stroke-width="2" />
           <circle class="exp-dot" :cx="TX" :cy="p.y1" r="4.5" :fill="p.color" stroke="var(--ui-bg)" stroke-width="2" />
@@ -246,7 +241,7 @@ function connector(it: (typeof layout.value.items)[number]) {
         v-for="(it, n) in layout.items"
         :key="it.id"
         class="drop exp-card relative flex flex-col gap-3 overflow-hidden border border-default border-t-2 bg-muted/40 p-5 max-lg:overflow-visible md:max-lg:before:absolute md:max-lg:before:-left-[1.72rem] md:max-lg:before:top-5 md:max-lg:before:size-3.5 md:max-lg:before:rounded-full md:max-lg:before:bg-[var(--lane)] md:max-lg:before:ring-4 md:max-lg:before:ring-[var(--ui-bg)] lg:absolute lg:top-[var(--y)] lg:h-[300px] lg:w-[calc(50%-138px)]"
-        :class="[it.side === 'right' ? 'lg:left-[calc(50%+138px)]' : 'lg:left-0', active === n && 'is-on']"
+        :class="[it.side === 'right' ? 'lg:left-[calc(50%+138px)]' : 'lg:left-0', active.includes(n) && 'is-on']"
         :style="{ '--y': `${it.cardTop}px`, '--i': n, '--lane': color(it.lane), borderTopColor: color(it.lane) }"
       >
         <component

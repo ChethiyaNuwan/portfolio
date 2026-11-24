@@ -1149,7 +1149,8 @@ h3 {
 
 /* the hero marquee runs edge to edge: no side margin */
 .hero-marquee {
-  align-self: stretch;
-  width: auto;
-  margin-inline: calc(var(--stage-pad-x) * -1);
+  align-self: flex-start;
+  width: calc(100% + var(--stage-pad-x) * 2);
+  max-width: none;
+  margin-inline: calc(var(--stage-pad-x) * -1) 0;
 }

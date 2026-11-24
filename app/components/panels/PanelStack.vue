@@ -42,7 +42,7 @@ function onTile(e: MouseEvent, id: string) {
       </PanelHead>
       <DropGroup ref="grid" as="ul" class="columns-3 gap-3 sm:columns-4 md:columns-5 lg:columns-6" role="list" v-bind="bind">
         <li v-for="(s, i) in content.stack" :key="s.id" class="drop mb-3 break-inside-avoid" :style="{ '--i': i % 12, '--r': tilt(i) }">
-          <a :href="s.link" target="_blank" rel="noopener noreferrer" class="pin flex items-center justify-center" :class="[aspect(i), peek === s.id && 'is-peek', active === i && 'is-on']" :aria-label="s.title" @click="onTile($event, s.id)" @blur="peek === s.id && (peek = null)">
+          <a :href="s.link" target="_blank" rel="noopener noreferrer" data-track="stack_click" :data-track-name="s.title" class="pin flex items-center justify-center" :class="[aspect(i), peek === s.id && 'is-peek', active === i && 'is-on']" :aria-label="s.title" @click="onTile($event, s.id)" @blur="peek === s.id && (peek = null)">
             <img :src="s.logo" alt="" class="pin-media pin-logo size-[44%] max-w-20 object-contain" />
             <span class="pin-label">{{ s.title }}</span>
           </a>

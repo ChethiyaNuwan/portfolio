@@ -62,3 +62,13 @@ The site can be installed from the browser (Chrome and Edge show an install butt
 - **Appearance**: pick the accent colour separately for dark and light mode.
 - **Home page scrolling words**: Profile has a field for the words in the big band at the bottom of the hero (empty uses the job title and service names).
 - **Passkeys**: once signed in with the password, open the **Security** tab and press *Add a passkey* to register a fingerprint, face unlock, device PIN or security key (give it a name to tell devices apart; remove one any time). The login page then offers *Sign in with a passkey*. The password keeps working as a fallback. A passkey only works on the host it was created on: set `NUXT_PUBLIC_SITE_URL` to your public `https://` address in production (behind a proxy it is used as the passkey origin), and register passkeys from that address, not from `localhost`. Passkeys are stored (public key only) in the same SQLite database, so they live on the data volume.
+
+## Analytics (PostHog)
+
+Optional. Set `NUXT_PUBLIC_POSTHOG_KEY` (and `NUXT_PUBLIC_POSTHOG_HOST`, `https://us.i.posthog.com` or `https://eu.i.posthog.com`) and rebuild; with no key nothing loads. It is production only, skipped on `/admin`, and skipped for browsers with Do Not Track. Open the site once with `?notrack` to exclude your own browser (`?track` undoes it).
+
+- **Session replay** with all inputs masked, page views, autocapture, and PostHog's GeoIP location (country, region, city) on every event, plus the visitor's time zone and languages.
+- **Events:** `cv_download`, `contact_click` (hero button, footer, command palette), `email_click` (any mail link), `phone_click`, `outbound_click`, `stack_click`, `project_open`, `experience_open`, `faq_skip`.
+- **What people focus on:** `section_view` and `section_dwell` (seconds the section was on screen, tab visible). In PostHog, build an Insight of `section_dwell` summed by `section`, a funnel `section_view` to `contact_click`, and a trend of `project_open` by `project`.
+
+The location is the IP lookup, which is city-level. Exact positions would need the browser's location prompt, which this site does not ask for.

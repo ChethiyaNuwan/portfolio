@@ -29,7 +29,10 @@ onMounted(() => {
   compact.value = mq.matches;
   mq.addEventListener("change", (e) => (compact.value = e.matches));
 });
-const toggle = (id: string) => (openId.value = openId.value === id ? null : id);
+const toggle = (id: string) => {
+  openId.value = openId.value === id ? null : id;
+  if (openId.value) track("experience_open", { role: id });
+};
 
 // Phone tree: a real git graph beside the list. Cards are rows, newest first. The trunk runs down the left; each role
 // is a branch that merges into the trunk above its card (or stays open if it is current) and forks off again below the

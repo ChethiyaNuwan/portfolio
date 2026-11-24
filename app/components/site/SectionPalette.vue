@@ -63,7 +63,7 @@ const groups = computed(() => {
           ]
         : []),
       { label: "Download CV", icon: "i-lucide-file-text", onSelect: run(() => window.open("/cv", "_blank")) },
-      { label: "Email me", icon: "i-lucide-mail", suffix: content.value.profile.email, onSelect: run(() => (window.location.href = `mailto:${content.value.profile.email}`)) },
+      { label: "Email me", icon: "i-lucide-mail", suffix: content.value.profile.email, onSelect: run(() => (track("contact_click", { from: "palette" }), (window.location.href = `mailto:${content.value.profile.email}`))) },
       ...content.value.socials.map((s) => ({ label: s.title, icon: socialIconMap[s.icon], onSelect: run(() => window.open(s.link, "_blank", "noopener")) })),
     ],
   });

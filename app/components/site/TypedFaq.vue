@@ -81,7 +81,7 @@ onBeforeUnmount(() => timers.forEach(clearTimeout));
   <div ref="root" class="faq-type min-w-0" :class="{ 'is-typing': inView && !skipped, 'faq-done': skipped }">
     <div class="mb-4 flex items-center justify-between gap-4">
       <h3 id="faq-heading" class="font-display text-xl font-semibold text-highlighted">Common questions</h3>
-      <UButton v-if="!skipped" size="xs" color="neutral" variant="ghost" label="Skip animation" class="tap faq-skip" @click="skipped = true" />
+      <UButton v-if="!skipped" size="xs" color="neutral" variant="ghost" label="Skip animation" data-track="faq_skip" class="tap faq-skip" @click="skipped = true" />
     </div>
     <div
       ref="viewport"

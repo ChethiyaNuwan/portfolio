@@ -143,8 +143,8 @@ function goSection(e: MouseEvent, id: string) {
       <!-- right: contact and theme -->
       <div class="flex items-center justify-end gap-1">
         <div class="mr-3"><KeybindingTicker /></div>
-        <UButton :href="`mailto:${content.profile.email}`" icon="i-lucide-mail" label="Get in touch" size="sm" class="tap hidden sm:inline-flex" />
-        <UButton :href="`mailto:${content.profile.email}`" icon="i-lucide-mail" aria-label="Get in touch" size="sm" class="tap sm:hidden" />
+        <UButton data-track="contact_click" data-track-from="footer" :href="`mailto:${content.profile.email}`" icon="i-lucide-mail" label="Get in touch" size="sm" class="tap hidden sm:inline-flex" />
+        <UButton data-track="contact_click" data-track-from="footer" :href="`mailto:${content.profile.email}`" icon="i-lucide-mail" aria-label="Get in touch" size="sm" class="tap sm:hidden" />
         <ThemeToggle class="tap max-md:hidden" />
       </div>
     </div>

@@ -15,7 +15,7 @@ export default defineNuxtConfig({
   icon: { clientBundle: { scan: true } },
 
   // Public site URL used for canonical links, sitemap and llms.txt. Override at runtime with NUXT_PUBLIC_SITE_URL.
-  runtimeConfig: { public: { siteUrl: "" } },
+  runtimeConfig: { public: { siteUrl: "", posthogKey: "", posthogHost: "https://us.i.posthog.com" } },
 
   fonts: {
     families: [

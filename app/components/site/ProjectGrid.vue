@@ -12,7 +12,10 @@ const isOpen = computed({
 });
 const current = computed(() => projects.value.find((p) => p.id === openId.value) ?? null);
 const shown = ref<string>("");
-watch(current, (p) => (shown.value = p?.image ?? ""));
+watch(current, (p) => {
+  shown.value = p?.image ?? "";
+  if (p) track("project_open", { project: p.title });
+});
 
 // Spotlight loop: one card at a time comes out of the screen in place (bigger and wider) while the rest dims, then the
 // next one. Its images slide past while it is out. Pointing at the grid, focusing a card or opening a project stops

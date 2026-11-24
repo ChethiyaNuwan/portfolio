@@ -307,12 +307,14 @@ h3 {
 
 /* ---------- Horizontal stage (desktop, motion allowed). Elsewhere it is a normal vertical page. ---------- */
 .stage-panel-scroll {
+  --stage-pad-x: clamp(1.25rem, 4vw, 3rem); /* side padding of a section; the hero marquee cancels it to reach the screen edges */
   padding: clamp(1.25rem, 4vw, 3rem);
 }
 /* Keep content clear of the edge buttons (mouse users on tablet and desktop; touch devices have none) */
 @media (min-height: 560px) and (prefers-reduced-motion: no-preference) and (pointer: fine) {
   .stage-panel-scroll {
-    padding-inline: max(5.5rem, 4vw);
+    --stage-pad-x: max(5.5rem, 4vw);
+    padding-inline: var(--stage-pad-x);
   }
 }
 /* the home section never scrolls on tablet or desktop: it fits the screen instead */
@@ -940,7 +942,8 @@ h3 {
 /* ---------- Phones: tighter page padding, no edge arrows (the footer has previous / next) ---------- */
 @media (max-width: 767px) {
   .stage-panel-scroll {
-    padding: 1rem 0.875rem;
+    --stage-pad-x: 0.875rem;
+    padding: 1rem var(--stage-pad-x);
   }
   .stage-edge,
   .stage-edge-right.stage-nudge {
@@ -1142,4 +1145,11 @@ h3 {
 .year-pill.is-lit rect {
   stroke: var(--ui-primary);
   fill: color-mix(in srgb, var(--ui-primary) 28%, var(--ui-bg));
+}
+
+/* the hero marquee runs edge to edge: no side margin */
+.hero-marquee {
+  align-self: stretch;
+  width: auto;
+  margin-inline: calc(var(--stage-pad-x) * -1);
 }
